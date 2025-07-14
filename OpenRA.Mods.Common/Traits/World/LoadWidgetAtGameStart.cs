@@ -11,6 +11,7 @@
 
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Widgets;
+using OpenRA.Mods.Common.Widgets.Logic;
 using OpenRA.Traits;
 using OpenRA.Widgets;
 
@@ -79,7 +80,7 @@ namespace OpenRA.Mods.Common.Traits
 			Ui.CloseWindow();
 			root.IsVisible = () => true;
 
-			// Open the options menu
+			// Open the options menu, but not if loaded from startup save argument
 			if (!world.IsReplay)
 			{
 				var optionsButton = root.GetOrNull<MenuButtonWidget>("OPTIONS_BUTTON");
@@ -87,6 +88,38 @@ namespace OpenRA.Mods.Common.Traits
 				if (optionsButton != null)
 					Sync.RunUnsynced(world, optionsButton.OnClick);
 			}
+			// else if (Game.LoadedFromStartupSave)
+			// {
+			// 	// Just ensure the game is not paused when loaded from startup save
+			// 	world.SetPauseState(false);
+
+			// 	// Ensure the world UI is visible (it may have been hidden by previous menu interactions)
+			// 	var worldRoot = Ui.Root.GetOrNull("WORLD_ROOT");
+			// 	var menuRoot = Ui.Root.GetOrNull("MENU_ROOT");
+			// 	if (worldRoot != null)
+			// 		worldRoot.IsVisible = () => true;
+			// 	else
+			// 		System.Console.WriteLine("WORLD_ROOT not found");
+
+			// 	var playerRoot = worldRoot.Get("PLAYER_ROOT");
+
+			// 	var widgetArgs = new WidgetArgs();
+			// 	//	{
+			// 	//		{ "initialPanel", IngameInfoPanel.AutoSelect }
+			// 	//	};
+			// 	//widgetArgs.Add("onExit", () =>
+			// 	//{
+
+			// 	//});
+
+			// 	Game.LoadWidget(world, "INGAME_ROOT", menuRoot, widgetArgs);
+			// 	// Game.LoadWidget(world, "DEBUG_WIDGETS", worldRoot, new WidgetArgs());
+			// 	// Game.LoadWidget(world, "TRANSIENTS_PANEL", worldRoot, new WidgetArgs());
+			// 	// world.CancelInputMode();
+			// 	Game.RunAfterTick(Ui.ResetTooltips);
+			// 	// Reset the flag for subsequent games
+			// 	Game.ResetStartupSaveFlag();
+			// }
 		}
 	}
 }

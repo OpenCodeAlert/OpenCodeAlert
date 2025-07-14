@@ -526,11 +526,11 @@ namespace OpenRA
 			return targetTypes;
 		}
 
-		public bool IsTargetableBy(Actor byActor)
+		public bool IsTargetableBy(Actor byActor, bool ignoreIgnoreCheck = false)
 		{
 			// PERF: Avoid LINQ.
 			foreach (var targetable in Targetables)
-				if (targetable.TargetableBy(this, byActor))
+				if (targetable.TargetableBy(this, byActor, ignoreIgnoreCheck))
 					return true;
 
 			return false;

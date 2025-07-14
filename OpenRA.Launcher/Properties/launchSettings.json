@@ -15,6 +15,10 @@
     "Tiberian Sun": {
       "commandName": "Project",
       "commandLineArgs": "Engine.EngineDir=\"..\" Game.Mod=ts"
+    },
+    "Copilot": {
+      "commandName": "Project",
+      "commandLineArgs": "Engine.EngineDir=\"..\" Game.Mod=copilot"
     }
   }
 }

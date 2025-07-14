@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System;
 using System.Linq;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Widgets;
@@ -119,6 +120,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			currentWidget = Game.LoadWidget(world, button.MenuContainer, menuRoot, widgetArgs);
 			Game.RunAfterTick(Ui.ResetTooltips);
+
+			//執行 onExit
+			if (Game.LoadedFromStartupSave)
+				(widgetArgs.GetOrAdd("onExit") as Action)?.Invoke();
 		}
 	}
 }

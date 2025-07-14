@@ -1,0 +1,486 @@
+units:
+    1tnk:
+        轻坦克
+        轻坦
+        轻型坦克
+        盟军轻坦
+        轻型装甲车
+        light tank
+        allied light tank
+        lt
+        allied tank
+        light
+    jeep:
+        吉普车
+        吉普
+        侦查车
+        军用吉普
+        游骑兵
+        ranger
+        recon vehicle
+        ranger jeep
+        rj
+        scout
+    powr:
+        发电厂
+        电厂
+        小电
+        小电厂
+        基础电厂
+        power plant
+        basic power plant
+        pp
+        pwr
+        power
+    tent:
+        兵营
+        兵工厂
+        盟军兵营
+        步兵营
+        训练营
+        barracks
+        allied barracks
+        inf
+        infantry production
+    barr:
+        兵营
+        兵工厂
+        苏军兵营
+        红军兵营
+        soviet barracks
+        soviet inf
+        red barracks
+    proc:
+        矿场
+        采矿场
+        矿
+        精炼厂
+        矿石精炼厂
+        ore refinery
+        ref
+        refinery
+        ore ref
+    weap:
+        战车工厂
+        车间
+        坦克厂
+        坦克工厂
+        载具工厂
+        war factory
+        wf
+        factory
+    dome:
+        雷达站
+        雷达
+        侦察站
+        雷达圆顶
+        radar dome
+        radar station
+        rad
+        dome
+    fix:
+        维修厂
+        修理厂
+        维修站
+        修理站
+        service depot
+        repair bay
+        rep
+        repair
+        serv
+    silo:
+        储存罐
+        井
+        存钱罐
+        储油罐
+        资源储存罐
+        ore silo
+        storage silo
+        storage
+        sil
+    apwr:
+        核电站
+        核电厂
+        大电
+        大电厂
+        高级电厂
+        advanced power plant
+        nuclear reactor
+        nuke power
+        np
+        adv power
+    afld:
+        空军基地
+        机场
+        飞机场
+        航空站
+        airfield
+        airbase
+        air
+        af
+    stek:
+        科技中心
+        高科技
+        高科技中心
+        研究中心
+        实验室
+        tech center
+        research facility
+        tech
+        lab
+    kennel:
+        军犬窝
+        狗窝
+        狗屋
+        狗舍
+        狗棚
+        军犬训练所
+        dog kennel
+        k9
+        doghouse
+    ftur:
+        火焰塔
+        喷火塔
+        喷火碉堡
+        防御塔
+        flame tower
+        flame turret
+        ft
+        flame def
+    tsla:
+        特斯拉塔
+        电塔
+        特斯拉线圈
+        高级防御塔
+        tesla coil
+        tesla tower
+        tc
+        tes
+    sam:
+        防空导弹
+        防空塔
+        防空炮
+        防空炮塔
+        防空
+        山姆飞弹
+        sam site
+        surface-to-air missile
+        aa
+        anti air
+    iron:
+        铁幕装置
+        铁幕
+        铁幕防御系统
+        iron curtain
+        iron curtain device
+        ic
+        curtain
+    mslo:
+        核弹发射井
+        核弹
+        导弹发射井
+        核导弹井
+        missile silo
+        nuclear silo
+        nuke
+        silo
+    e1:
+        步兵
+        枪兵
+        步枪兵
+        普通步兵
+        rifle infantry
+        basic infantry
+        rifle
+        rifleman
+    e3:
+        火箭兵
+        火箭筒兵
+        炮兵
+        火箭筒
+        导弹兵
+        rocket soldier
+        rocket infantry
+        rocket
+        rl
+    e6:
+        工程师
+        维修工程师
+        技师
+        engineer
+        repair engineer
+        eng
+        engi
+    e2:
+        掷弹兵
+        手雷兵
+        手雷
+        榴弹兵
+        grenadier
+        grenade infantry
+        gren
+        grens
+    dog:
+        军犬
+        狗
+        小狗
+        攻击犬
+        attack dog
+        war dog
+        k9
+        pup
+        doggy
+        hound
+    e4:
+        喷火兵
+        火焰兵
+        火焰喷射兵
+        flamethrower
+        flame trooper
+        flamer
+        ft
+    thf:
+        间谍
+        特工
+        潜伏者
+        spy
+        agent
+        thief
+        spy
+    shok:
+        磁暴步兵
+        电击兵
+        电兵
+        突击兵
+        shock trooper
+        tesla trooper
+        shock
+        tesla inf
+    harv:
+        采矿车
+        矿车
+        矿物收集车
+        ore collector
+        harvester
+        miner
+        harv
+        collector
+    apc:
+        装甲运输车
+        装甲车
+        运兵车
+        armored personnel carrier
+        troop transport
+        transport
+        carrier
+    ftrk:
+        防空车
+        防空炮车
+        移动防空车
+        flak truck
+        mobile anti-air
+        flak
+        aa truck
+    mcv:
+        基地车
+        建造车
+        移动建设车
+        mcv
+        mobile construction vehicle
+        builder
+        constructor
+    3tnk:
+        重型坦克
+        重坦
+        犀牛坦克
+        犀牛
+        heavy tank
+        rhino tank
+        ht
+        rhino
+    v2rl:
+        V2火箭发射车
+        火箭炮
+        v2
+        V2
+        v2火箭
+        V2火箭
+        v2 rocket launcher
+        rl
+    mvly:
+        地雷部署车
+        雷车
+        布雷车
+        mine layer
+        mobile mine deployer
+    4tnk:
+        超重型坦克
+        猛犸坦克
+        猛犸
+        天启坦克
+        天启
+        mammoth tank
+        super heavy tank
+        mam
+        mammoth
+        mt
+    ttnk:
+        特斯拉坦克
+        磁暴坦克
+        磁能坦克
+        电击坦克
+        tesla tank
+        tt
+        tes tank
+    truk:
+        运输卡车
+        卡车
+        补给车
+        supply truck
+        transport truck
+        truck
+        supply
+    qtnk:
+        震荡坦克
+        地震坦克
+        震波坦克
+        mad tank
+        shockwave tank
+        quake
+        qt
+    fact:
+        建造厂
+        基地
+        主基地
+        主要建筑
+        construction yard
+        main base
+        cy
+        con yard
+        base
+    tran:
+        运输直升机
+        运输机
+        空运
+        transport helicopter
+        chinook
+        trans
+        chopper
+    hind:
+        雌鹿直升机
+        雌鹿攻击直升机
+        雌鹿
+        武装直升机
+        hind helicopter
+        soviet gunship
+        soviet heli
+        red heli
+    mh60:
+        黑鹰直升机
+        黑鹰
+        武装直升机
+        blackhawk
+        mh-60
+        hawk
+        bh
+    yak:
+        雅克战机
+        雅克
+        雅克攻击机
+        苏联战机
+        yak fighter
+        soviet fighter
+        yakattack
+        ya
+    heli:
+        长弓武装直升机
+        长弓
+        长弓直升机
+        apache
+        longbow
+        bow
+        ah
+        ah64
+    mig:
+        米格战机
+        米格
+        米格战斗机
+        mig fighter
+        soviet interceptor
+        mig29
+        mg
+    oilb:
+        油井
+        油田
+        石油井
+        oil derrick
+        oil field
+        oil
+        derrick
+
+
+nickname:
+    士兵:
+        e1
+        e2
+        e3
+        e4
+        e5
+        e6
+        thf
+    载具:
+        1tnk
+        2tnk
+        3tnk
+        4tnk
+        jeep
+        ftrk
+        apc
+        ttnk
+        qtnk
+        mcv
+    坦克:
+        1tnk
+        2tnk
+        3tnk
+        4tnk
+        ttnk
+        qtnk
+    战斗单位:
+        e1
+        e2
+        e3
+        e4
+        e5
+        e6
+        thf
+        dog
+        1tnk
+        2tnk
+        3tnk
+        4tnk
+        jeep
+        ftrk
+        apc
+        ttnk
+        qtnk
+    建筑:
+        powr
+        tent
+        barr
+        proc
+        weap
+        dome
+        fix
+        silo
+        apwr
+        afld
+        stek
+        kennel
+        ftur
+        tsla
+        sam
+        iron
+        mslo
+        fact
+        oilb

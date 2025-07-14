@@ -16,7 +16,7 @@ else
 fi
 
 Name="${Name:-"Dedicated Server"}"
-Mod="${Mod:-"ra"}"
+Mod="${Mod:-"copilot"}"
 Map="${Map:-""}"
 ListenPort="${ListenPort:-"1234"}"
 AdvertiseOnline="${AdvertiseOnline:-"True"}"

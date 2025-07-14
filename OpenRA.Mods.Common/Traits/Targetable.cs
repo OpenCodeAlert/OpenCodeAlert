@@ -43,12 +43,12 @@ namespace OpenRA.Mods.Common.Traits
 			base.Created(self);
 		}
 
-		public virtual bool TargetableBy(Actor self, Actor viewer)
+		public virtual bool TargetableBy(Actor self, Actor viewer, bool ignoreIgnoreCheck = false)
 		{
 			if (IsTraitDisabled)
 				return false;
 
-			if (cloaks.Length == 0 || (!viewer.IsDead && viewer.Info.HasTraitInfo<IgnoresCloakInfo>()))
+			if (!ignoreIgnoreCheck && (cloaks.Length == 0 || (!viewer.IsDead && viewer.Info.HasTraitInfo<IgnoresCloakInfo>())))
 				return true;
 
 			return cloaks.All(c => c.IsTraitDisabled || c.IsVisible(self, viewer.Owner));

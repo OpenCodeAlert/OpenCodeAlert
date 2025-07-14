@@ -18,12 +18,39 @@ using System.Linq;
 using System.Net;
 using System.Runtime;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 using OpenRA.Graphics;
 using OpenRA.Network;
 using OpenRA.Primitives;
 using OpenRA.Server;
 using OpenRA.Support;
 using OpenRA.Widgets;
+
+namespace Newtonsoft.Json
+{
+	public static class JObjectExtensions
+	{
+		public static JToken TryGetFieldValue(this JObject jObject, string fieldName)
+		{
+			if (jObject == null || !jObject.TryGetValue(fieldName, out var value))
+			{
+				return null;
+			}
+
+			return value;
+		}
+
+		public static JToken TryGetFieldValue(this JToken token, string fieldName)
+		{
+			if (token is JObject jObject && jObject.TryGetValue(fieldName, out JToken value))
+			{
+				return value;
+			}
+
+			return null;
+		}
+	}
+}
 
 namespace OpenRA
 {
@@ -42,7 +69,7 @@ namespace OpenRA
 		public static CursorManager Cursor;
 		public static bool HideCursor;
 
-		static WorldRenderer worldRenderer;
+		public static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
 		internal static OrderManager OrderManager;
@@ -58,6 +85,15 @@ namespace OpenRA
 
 		static bool takeScreenshot = false;
 		static Benchmark benchmark = null;
+
+		// Flag to indicate if the game was loaded from a save file via startup arguments
+		public static bool LoadedFromStartupSave { get; private set; } = false;
+
+		// Internal method to reset the startup save flag
+		public static void ResetStartupSaveFlag()
+		{
+			LoadedFromStartupSave = false;
+		}
 
 		public static event Action OnShellmapLoaded = () => { };
 
@@ -510,6 +546,23 @@ namespace OpenRA
 			PerfHistory.Items["terrain_lighting"].HasNormalTick = false;
 
 			JoinLocal();
+
+			// Check for Game.LoadSave setting to automatically load a save file
+			if (!string.IsNullOrEmpty(Settings.Game.LoadSave))
+			{
+				if (TryLoadGameSave(Settings.Game.LoadSave))
+				{
+					Console.WriteLine($"Successfully loaded save file: {Settings.Game.LoadSave}");
+					LoadedFromStartupSave = true;
+					return;
+				}
+				else
+				{
+					Console.WriteLine($"Failed to load save file: {Settings.Game.LoadSave}");
+					Console.WriteLine("Falling back to normal game start.");
+					LoadedFromStartupSave = false;
+				}
+			}
 
 			ModData.LoadScreen.StartGame(args);
 		}
@@ -990,6 +1043,67 @@ namespace OpenRA
 				throw new ArgumentException($"Could not find map '{launchMap}'.");
 
 			CreateAndStartLocalServer(map.Uid, orders);
+		}
+
+		static bool TryLoadGameSave(string savePathArg)
+		{
+			try
+			{
+				string savePath;
+
+				// Check if it's an absolute path or relative path
+				if (Path.IsPathRooted(savePathArg))
+				{
+					savePath = savePathArg;
+				}
+				else
+				{
+					// Check if it's just a filename (add .orasav extension if needed)
+					var filename = savePathArg;
+					if (!filename.EndsWith(".orasav", StringComparison.OrdinalIgnoreCase))
+						filename += ".orasav";
+
+					// Look for the file in the default save directory
+					var baseSavePath = Path.Combine(Platform.SupportDir, "Saves", ModData.Manifest.Id, ModData.Manifest.Metadata.Version);
+					savePath = Path.Combine(baseSavePath, filename);
+				}
+
+				// Check if file exists
+				if (!File.Exists(savePath))
+				{
+					Console.WriteLine($"Save file not found: {savePath}");
+					return false;
+				}
+
+				Console.WriteLine($"Attempting to load save file: {savePath}");
+
+				// Parse the save to find the map UID and validate the save file
+				var save = new GameSave(savePath);
+				var map = ModData.MapCache[save.GlobalSettings.Map];
+
+				if (map.Status != MapStatus.Available)
+				{
+					Console.WriteLine($"Map for save file is not available: {save.GlobalSettings.Map}");
+					return false;
+				}
+
+				// Create load game orders
+				var orders = new List<Order>()
+				{
+					Order.FromTargetString("LoadGameSave", Path.GetFileName(savePath), true),
+					Order.Command($"state {Session.ClientState.Ready}")
+				};
+
+				// Start the game with the save file
+				CreateAndStartLocalServer(map.Uid, orders);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error loading save file: {ex.Message}");
+				Log.Write("debug", $"Save file loading error: {ex}");
+				return false;
+			}
 		}
 
 		public static void FinishBenchmark()

@@ -205,8 +205,13 @@ namespace OpenRA.Mods.Common.Traits
 				}
 
 				if (producer.Actor != null)
+				{
 					foreach (var nbp in producer.Actor.TraitsImplementing<INotifyBuildingPlaced>())
 						nbp.BuildingPlaced(producer.Actor);
+
+					if (producer.Actor.Owner == producer.Actor.World.LocalPlayer)
+						CopilotsUtils.FinishProduce(item.Item);
+				}
 
 				queue.EndProduction(item);
 

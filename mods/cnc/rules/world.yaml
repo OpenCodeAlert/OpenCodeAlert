@@ -152,6 +152,7 @@ World:
 	Inherits: ^BaseWorld
 	ChatCommands:
 	DevCommands:
+    ServerCommands:
 	DebugVisualizationCommands:
 	PathFinderOverlay:
 	HierarchicalPathFinderOverlay:

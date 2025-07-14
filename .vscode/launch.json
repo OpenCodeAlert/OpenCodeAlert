@@ -24,6 +24,17 @@
 			"preLaunchTask": "build",
 		},
 		{
+			"name": "Launch (Copilot)",
+			"type": "coreclr",
+			"request": "launch",
+			"program": "${workspaceRoot}/bin/OpenRA.dll",
+			"windows": {
+				"program": "${workspaceRoot}/bin/OpenRA.exe",
+			},
+			"args": ["Game.Mod=copilot", "Engine.EngineDir=.."],
+			"preLaunchTask": "build",
+		},
+		{
 			"name": "Launch (D2k)",
 			"type": "coreclr",
 			"request": "launch",

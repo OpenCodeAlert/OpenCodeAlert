@@ -173,6 +173,9 @@ namespace OpenRA.Mods.Common.Scripting
 				}
 			}
 
+			if (other.Owner == other.World.LocalPlayer)
+				CopilotsUtils.FinishProduce(other.Info.Name);
+
 			// Run any internally bound callbacks
 			OnProducedInternal(self, other);
 		}

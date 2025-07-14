@@ -203,6 +203,11 @@ namespace OpenRA.Graphics
 				cursorScale / Game.Renderer.WindowScale);
 		}
 
+		public int2 GetMousePos()
+		{
+			return isLocked ? lockedPosition : Viewport.LastMousePos;
+		}
+
 		public void Lock()
 		{
 			lockedPosition = Viewport.LastMousePos;

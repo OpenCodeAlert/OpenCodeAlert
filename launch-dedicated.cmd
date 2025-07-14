@@ -3,7 +3,7 @@
 @echo on
 
 set Name="Dedicated Server"
-set Mod=ra
+set Mod=copilot
 set Map=""
 set ListenPort=1234
 set AdvertiseOnline=True

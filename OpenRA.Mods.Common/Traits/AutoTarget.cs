@@ -345,7 +345,7 @@ namespace OpenRA.Mods.Common.Traits
 			});
 		}
 
-		Target ChooseTarget(Actor self, AttackBase ab, PlayerRelationship attackStances, WDist scanRange, bool allowMove, bool allowTurn)
+		public Target ChooseTarget(Actor self, AttackBase ab, PlayerRelationship attackStances, WDist scanRange, bool allowMove, bool allowTurn)
 		{
 			var chosenTarget = Target.Invalid;
 			var chosenTargetPriority = int.MinValue;

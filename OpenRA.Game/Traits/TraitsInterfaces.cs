@@ -536,7 +536,7 @@ namespace OpenRA.Traits
 	{
 		// Check IsTraitEnabled or !IsTraitDisabled first
 		BitSet<TargetableType> TargetTypes { get; }
-		bool TargetableBy(Actor self, Actor byActor);
+		bool TargetableBy(Actor self, Actor byActor, bool ignoreIgnoreCheck = false);
 		bool RequiresForceFire { get; }
 	}
 

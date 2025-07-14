@@ -84,6 +84,11 @@ namespace OpenRA
 				gameInfo.FinalGameTick = WorldTick;
 				GameOver();
 			}
+
+			if (Type == WorldType.Regular)
+			{
+				CopilotServer.End();
+			}
 		}
 
 		Player renderPlayer;
@@ -187,7 +192,7 @@ namespace OpenRA
 		public bool RulesContainTemporaryBlocker { get; }
 
 		bool wasLoadingGameSave;
-
+		public CopilotCommandServer CopilotServer;
 		internal World(string mapUID, ModData modData, OrderManager orderManager, WorldType type)
 		{
 			this.modData = modData;
@@ -242,6 +247,13 @@ namespace OpenRA
 
 			RulesContainTemporaryBlocker = Map.Rules.Actors.Any(a => a.Value.HasTraitInfo<ITemporaryBlockerInfo>());
 			gameSettings = Game.Settings.Game;
+
+			if (Type == WorldType.Regular)
+			{
+				CopilotServer = new CopilotCommandServer(gameSettings.CopilotPort, this);
+				CopilotServer.DebugMode = gameSettings.CopilotDebug;
+				CopilotServer.Start();
+			}
 		}
 
 		public void AddToMaps(Actor self, IOccupySpace ios)
@@ -625,6 +637,7 @@ namespace OpenRA
 			Map.Dispose();
 
 			Game.FinishBenchmark();
+			CopilotServer?.End();
 		}
 
 		public void OutOfSync()

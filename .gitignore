@@ -54,3 +54,4 @@ update.log
 
 # IntelliJ files
 .idea
+*.pyc

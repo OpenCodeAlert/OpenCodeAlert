@@ -90,6 +90,9 @@ namespace OpenRA.Mods.Common.Widgets
 
 			if (World.OrderGenerator is not UnitOrderGenerator uog)
 			{
+				// ÔÚAgentMode¾Í×è¶ÏÁË
+				if (Game.Settings.Game.IsAgentMode)
+					return true;
 				ApplyOrders(World, mi);
 				isDragging = false;
 				YieldMouseFocus(mi);
@@ -132,8 +135,8 @@ namespace OpenRA.Mods.Common.Widgets
 						{
 							// Select actors on the screen that have the same selection class as the actor under the mouse cursor
 							var newSelection = SelectionUtils.SelectActorsOnScreen(World, worldRenderer, new HashSet<string> { s.Class }, eligiblePlayers);
-
-							World.Selection.Combine(World, newSelection, true, false);
+							if (!Game.Settings.Game.IsAgentMode)
+								World.Selection.Combine(World, newSelection, true, false);
 						}
 					}
 				}
@@ -151,7 +154,8 @@ namespace OpenRA.Mods.Common.Widgets
 					if (isDragging && (uog.ClearSelectionOnLeftClick || IsValidDragbox))
 					{
 						var newSelection = SelectionUtils.SelectActorsInBoxWithDeadzone(World, dragStart, mousePos, mi.Modifiers);
-						World.Selection.Combine(World, newSelection, mi.Modifiers.HasModifier(Modifiers.Shift), dragStart == mousePos);
+						if (!Game.Settings.Game.IsAgentMode)
+							World.Selection.Combine(World, newSelection, mi.Modifiers.HasModifier(Modifiers.Shift), dragStart == mousePos);
 					}
 				}
 
@@ -168,8 +172,8 @@ namespace OpenRA.Mods.Common.Widgets
 				{
 					if (useClassicMouseStyle)
 						World.Selection.Clear();
-
-					ApplyOrders(World, mi);
+					if (!Game.Settings.Game.IsAgentMode)
+						ApplyOrders(World, mi);
 				}
 			}
 

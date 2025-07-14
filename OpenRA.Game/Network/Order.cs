@@ -278,9 +278,9 @@ namespace OpenRA
 			return new Order("Command", null, false) { IsImmediate = true, TargetString = text };
 		}
 
-		public static Order StartProduction(Actor subject, string item, int count, bool queued = true)
+		public static Order StartProduction(Actor subject, string item, int count, bool queued = true, bool isCopilotOrder = false)
 		{
-			return new Order("StartProduction", subject, queued) { ExtraData = (uint)count, TargetString = item };
+			return new Order("StartProduction", subject, queued) { ExtraData = (uint)(count + (isCopilotOrder ? 1000000 : 0)), TargetString = item };
 		}
 
 		public static Order PauseProduction(Actor subject, string item, bool pause)

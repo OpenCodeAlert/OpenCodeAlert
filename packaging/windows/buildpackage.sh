@@ -1,7 +1,10 @@
 #!/bin/bash
 # OpenRA packaging script for Windows
 
+
+echo 0
 set -o errexit -o pipefail || exit $?
+echo 0.1
 
 command -v curl >/dev/null 2>&1 || command -v wget > /dev/null 2>&1 || { echo >&2 "Windows packaging requires curl or wget."; exit 1; }
 command -v makensis >/dev/null 2>&1 || { echo >&2 "Windows packaging requires makensis."; exit 1; }
@@ -14,11 +17,14 @@ if [ $# -ne "2" ]; then
 	exit 1
 fi
 
+
+echo 0.2
 # Set the working dir to the location of this script
 HERE=$(dirname "$0")
 cd "${HERE}"
 . ../functions.sh
 
+echo 0.3
 TAG="$1"
 OUTPUTDIR="$2"
 SRCDIR="$(pwd)/../.."
@@ -34,11 +40,9 @@ elif [[ ${TAG} == playtest* ]]; then
 	SUFFIX=" (playtest)"
 fi
 
-if command -v curl >/dev/null 2>&1; then
-	curl -s -L -O https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
-else
-	wget -cq https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
-fi
+echo 0.4
+
+echo 1
 
 function makelauncher()
 {
