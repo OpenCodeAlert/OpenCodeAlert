@@ -52,6 +52,13 @@ namespace OpenRA.Mods.Common.Scripting
 			Context.World.AddFrameEndTask(w => w.Add(new DelayedAction(delay, DoCall)));
 		}
 
+		[Desc("Enable or disable Agent Mode via Lua script. Usage: Trigger.SetAgentMode(true)")]
+		public void SetAgentMode(bool value)
+		{
+			if (Game.Settings != null)
+				Game.Settings.Game.IsAgentMode = value;
+		}
+
 		[Desc("Call a function for each passenger when it enters a transport. " +
 			"The callback function will be called as func(Actor transport, Actor passenger).")]
 		public void OnPassengerEntered(Actor actor, LuaFunction func)

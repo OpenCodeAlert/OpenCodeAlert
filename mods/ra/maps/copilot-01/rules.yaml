@@ -1,0 +1,14 @@
+Player:
+	PlayerResources:
+		DefaultCash: 15000
+
+World:
+	LuaScript:		
+		Scripts: campaign.lua, utils.lua, copilot01.lua
+	MissionData:
+		Briefing: Copilot Test Scene 1, you should deploy your base and build a few buildings and units.
+		BriefingVideo: 
+		StartVideo: 
+		WinVideo: 
+		LossVideo: 
+

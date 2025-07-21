@@ -1,0 +1,66 @@
+MapFormat: 12
+
+RequiresMod: copilot
+
+Title: 01: copilot-01
+
+Author: kamico
+
+Tileset: DESERT
+
+MapSize: 52,52
+
+Bounds: 10,10,40,40
+
+Visibility: MissionSelector
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: soviet
+		Enemies: Player
+	PlayerReference@Player:
+		Name: Player
+		AllowBots: False
+		Playable: True
+		Required: True
+		LockFaction: True
+		Faction: russia
+		LockColor: True
+		Color: FE1100
+		LockSpawn: True
+		LockTeam: True
+
+Actors:
+	Actor1: mine
+		Owner: Neutral
+		Location: 13,26
+	Actor2: tc01.husk
+		Owner: Neutral
+		Location: 31,19
+	Actor3: tc01.husk
+		Owner: Neutral
+		Location: 33,36
+	Actor4: t08.husk
+		Owner: Neutral
+		Location: 19,36
+	Actor5: t08.husk
+		Owner: Neutral
+		Location: 16,15
+	Actor0: mpspawn
+		Location: 25,26
+		Owner: Neutral
+	MyMCV: mcv
+		Owner: Player
+		Location: 31,26
+		Facing: 493
+
+Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
