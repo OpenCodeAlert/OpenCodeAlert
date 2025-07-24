@@ -1,0 +1,14 @@
+Player:
+	PlayerResources:
+		DefaultCash: 0
+
+World:
+	LuaScript:		
+		Scripts: campaign.lua, utils.lua, copilot02.lua
+	MissionData:
+		Briefing: Copilot Test Scene 2, advanced base building and combat training mission.
+		BriefingVideo: 
+		StartVideo: 
+		WinVideo: 
+		LossVideo: 
+
