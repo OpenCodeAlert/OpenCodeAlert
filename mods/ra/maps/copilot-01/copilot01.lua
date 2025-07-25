@@ -9,15 +9,29 @@ WorldLoaded = function()
 	
 	-- 添加胜利目标
 	Objective = AddPrimaryObjective(Player1, "deploy-your-base")
+	Trigger.RecordObjective("deploy-mcv", "部署基地车")
 	
 	-- 添加建筑和单位目标
 	PowerPlantObjective = AddPrimaryObjective(Player1, "build-power-plant")
+	Trigger.RecordObjective("build-power-plant", "建造电厂")
+	
 	InfantryObjective = AddPrimaryObjective(Player1, "build-3-infantry")
+	Trigger.RecordObjective("build-3-infantry", "生产3个步兵")
+	
 	RefineryObjective = AddPrimaryObjective(Player1, "build-refinery")
+	Trigger.RecordObjective("build-refinery", "建造矿场")
+	
 	WarFactoryObjective = AddPrimaryObjective(Player1, "build-war-factory")
+	Trigger.RecordObjective("build-war-factory", "建造车间")
+	
 	FlakTruckObjective = AddPrimaryObjective(Player1, "build-2-flak-trucks")
+	Trigger.RecordObjective("build-2-flak-trucks", "生产2个防空车")
+	
 	RadarObjective = AddPrimaryObjective(Player1, "build-radar")
+	Trigger.RecordObjective("build-radar", "建造雷达站")
+	
 	NukePlantObjective = AddPrimaryObjective(Player1, "build-nuke-plant")
+	Trigger.RecordObjective("build-nuke-plant", "建造核电厂")
 	
 	-- 初始化计数器
 	InfantryCount = 0
@@ -28,6 +42,7 @@ WorldLoaded = function()
 		-- 胜利条件：只要不是被摧毁（即部署）
 		if not MCV.IsDead then
 			Player1.MarkCompletedObjective(Objective)
+			Trigger.CompleteObjective("deploy-mcv")
 			Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 		else
 			Player1.MarkFailedObjective(Objective)
@@ -49,6 +64,7 @@ WorldLoaded = function()
 				Media.DisplayMessage("步兵计数: " .. InfantryCount .. "/3")
 				if InfantryCount >= 3 then
 					Player1.MarkCompletedObjective(InfantryObjective)
+					Trigger.CompleteObjective("build-3-infantry")
 					Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 					Media.DisplayMessage("步兵目标完成！")
 				end
@@ -60,6 +76,7 @@ WorldLoaded = function()
 				Media.DisplayMessage("防空车计数: " .. FlakTruckCount .. "/2")
 				if FlakTruckCount >= 2 then
 					Player1.MarkCompletedObjective(FlakTruckObjective)
+					Trigger.CompleteObjective("build-2-flak-trucks")
 					Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 					Media.DisplayMessage("防空车目标完成！")
 				end
@@ -77,6 +94,7 @@ Tick = function()
 	local powerPlants = Player1.GetActorsByType("powr")
 	if #powerPlants > 0 and not Player1.IsObjectiveCompleted(PowerPlantObjective)then
 		Player1.MarkCompletedObjective(PowerPlantObjective)
+		Trigger.CompleteObjective("build-power-plant")
 		Media.DisplayMessage("Tick检测到电厂，目标完成！")
 	end
 	
@@ -84,6 +102,7 @@ Tick = function()
 	local refineries = Player1.GetActorsByType("fact")
 	if #refineries > 0 and not Player1.IsObjectiveCompleted(RefineryObjective) then
 		Player1.MarkCompletedObjective(RefineryObjective)
+		Trigger.CompleteObjective("build-refinery")
 		Media.DisplayMessage("Tick检测到矿场，目标完成！")
 	end
 	
@@ -91,6 +110,7 @@ Tick = function()
 	local warFactories = Player1.GetActorsByType("weap")
 	if #warFactories > 0 and not Player1.IsObjectiveCompleted(WarFactoryObjective)then
 		Player1.MarkCompletedObjective(WarFactoryObjective)
+		Trigger.CompleteObjective("build-war-factory")
 		Media.DisplayMessage("Tick检测到车间，目标完成！")
 	end
 	
@@ -98,6 +118,7 @@ Tick = function()
 	local radars = Player1.GetActorsByType("dome")
 	if #radars > 0 and not Player1.IsObjectiveCompleted(RadarObjective) then
 		Player1.MarkCompletedObjective(RadarObjective)
+		Trigger.CompleteObjective("build-radar")
 		Media.DisplayMessage("Tick检测到雷达，目标完成！")
 	end
 	
@@ -105,6 +126,7 @@ Tick = function()
 	local nukePlants = Player1.GetActorsByType("apwr")
 	if #nukePlants > 0 and not Player1.IsObjectiveCompleted(NukePlantObjective) then
 		Player1.MarkCompletedObjective(NukePlantObjective)
+		Trigger.CompleteObjective("build-nuke-plant")
 		Media.DisplayMessage("Tick检测到核电厂，目标完成！")
 	end
 	
@@ -112,6 +134,7 @@ Tick = function()
 	local infantry = Player1.GetActorsByType("e1")
 	if #infantry >= 3 and not Player1.IsObjectiveCompleted(InfantryObjective) then
 		Player1.MarkCompletedObjective(InfantryObjective)
+		Trigger.CompleteObjective("build-3-infantry")
 		Media.DisplayMessage("Tick检测到3个步兵，目标完成！")
 	end
 	
@@ -119,6 +142,7 @@ Tick = function()
 	local flakTrucks = Player1.GetActorsByType("ftrk")
 	if #flakTrucks >= 2 and not Player1.IsObjectiveCompleted(FlakTruckObjective)then
 		Player1.MarkCompletedObjective(FlakTruckObjective)
+		Trigger.CompleteObjective("build-2-flak-trucks")
 		Media.DisplayMessage("Tick检测到2个防空车，目标完成！")
 	end
 	

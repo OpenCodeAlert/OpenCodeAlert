@@ -609,6 +609,10 @@ namespace OpenRA
 
 		public void Dispose()
 		{
+
+			foreach (var t in WorldActor.TraitsImplementing<IEndGame>())
+				t.EndGame(this);
+
 			Disposing = true;
 
 			OrderGenerator?.Deactivate();

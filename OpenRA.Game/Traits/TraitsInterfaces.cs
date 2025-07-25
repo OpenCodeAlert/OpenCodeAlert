@@ -554,6 +554,9 @@ namespace OpenRA.Traits
 	[RequireExplicitImplementation]
 	public interface IGameOver { void GameOver(World world); }
 
+	[RequireExplicitImplementation]
+	public interface IEndGame { void EndGame(World world); }
+
 	public interface IWarhead
 	{
 		int Delay { get; }
