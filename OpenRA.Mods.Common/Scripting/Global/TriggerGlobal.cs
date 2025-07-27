@@ -14,6 +14,7 @@ using System.Linq;
 using Eluant;
 using OpenRA.Effects;
 using OpenRA.Scripting;
+using OpenRA.Mods.Common.Traits;
 
 namespace OpenRA.Mods.Common.Scripting
 {
@@ -57,6 +58,38 @@ namespace OpenRA.Mods.Common.Scripting
 		{
 			if (Game.Settings != null)
 				Game.Settings.Game.IsAgentMode = value;
+		}
+
+		[Desc("Record an objective in the game stats. Usage: Trigger.RecordObjective('objective-id', 'Objective Name')")]
+		public void RecordObjective(string id, string name)
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.RecordObjective(id, name);
+		}
+
+		[Desc("Complete an objective in the game stats. Usage: Trigger.CompleteObjective('objective-id')")]
+		public void CompleteObjective(string id)
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.CompleteObjective(id);
+		}
+
+		[Desc("Set custom data in the game stats. Usage: Trigger.SetCustomData('key', value)")]
+		public void SetCustomData(string key, object value)
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.SetCustomData(key, value);
+		}
+
+		[Desc("Force save the game stats log. Usage: Trigger.ForceSaveLog()")]
+		public void ForceSaveLog()
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.ForceSaveLog();
 		}
 
 		[Desc("Call a function for each passenger when it enters a transport. " +

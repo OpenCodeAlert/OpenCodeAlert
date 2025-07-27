@@ -166,6 +166,10 @@ World:
 	ChatCommands:
 	DevCommands:
 	ServerCommands:
+	GameStatsTracker:
+		Enabled: true
+		PlayerName: 
+		RSAPublicKey: <RSAKeyValue><Modulus>vbZq7ZtNtMgXeZv55bLnXx6XMrl5pjwKCeJgmHu+3TzwTVVHykRQfDKvRVUfp7s902y2yoOUAh0o860ldGzvGARJlHXMByQT62wW1u0nXnAHDbdzw0FgcsfQBRgb7TOxijk6Vs0Y+L2DzHj4u9vIFY7S08g0uwfKQ9d0qrgShHZin7p/ssTl2DghrBCfvit0BFTzxih5ybd/kpzk4Py5c9a9Ah+u11KliCKFrMI8B7LU/7QoZ2C32oZxNpcEaWQzCg3uJwMMFmykthRKWCZ2moS5Zcb2UjrX4kH3CEiBR1G252CMyEXUw+9BrgWCxF+wrKcvCt3GjQ35niY4gGLQfQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>
 	DebugVisualizationCommands:
 	PathFinderOverlay:
 	HierarchicalPathFinderOverlay:
