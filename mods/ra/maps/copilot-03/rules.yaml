@@ -1,0 +1,14 @@
+Player:
+	PlayerResources:
+		DefaultCash: 10000
+
+World:
+	LuaScript:		
+		Scripts: campaign.lua, utils.lua, copilot03.lua
+	MissionData:
+		Briefing: Copilot Test Scene 3
+		BriefingVideo: 
+		StartVideo: 
+		WinVideo: 
+		LossVideo: 
+

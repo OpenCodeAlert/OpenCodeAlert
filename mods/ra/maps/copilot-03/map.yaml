@@ -1,0 +1,228 @@
+MapFormat: 12
+
+RequiresMod: copilot
+
+Title: 03: copilot-03
+
+Author: saekitost
+
+Tileset: TEMPERAT
+
+MapSize: 42,42
+
+Bounds: 1,1,40,40
+
+Visibility: MissionSelector
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: russia
+		Enemies: Multi0
+	PlayerReference@Player:
+		Name: Player
+		AllowBots: False
+		Playable: True
+		Required: True
+		LockFaction: True
+		Faction: russia
+		LockColor: True
+		Color: FE1100
+		LockSpawn: True
+		LockTeam: True
+	PlayerReference@Multi0:
+		Name: Multi0
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+
+Actors:
+	MyMCV: mcv
+		Owner: Player
+		Location: 22,20
+		Facing: 384
+	Actor1: mpspawn
+		Owner: Neutral
+		Location: 25,20
+	Actor2: tc01
+		Owner: Neutral
+		Location: 18,16
+	Actor3: tc01
+		Owner: Neutral
+		Location: 19,15
+	Actor4: tc01
+		Owner: Neutral
+		Location: 20,16
+	Actor5: tc01
+		Owner: Neutral
+		Location: 20,15
+	Actor6: tc01
+		Owner: Neutral
+		Location: 21,13
+	Actor7: tc01
+		Owner: Neutral
+		Location: 22,14
+	Actor8: tc01
+		Owner: Neutral
+		Location: 23,15
+	Actor9: tc01
+		Owner: Neutral
+		Location: 25,15
+	Actor10: tc01
+		Owner: Neutral
+		Location: 24,13
+	Actor11: tc01
+		Owner: Neutral
+		Location: 26,16
+	Actor13: tc01
+		Owner: Neutral
+		Location: 28,17
+	Actor14: tc01
+		Owner: Neutral
+		Location: 27,16
+	Actor15: tc01
+		Owner: Neutral
+		Location: 27,14
+	Actor16: tc01
+		Owner: Neutral
+		Location: 26,13
+	Actor17: tc01
+		Owner: Neutral
+		Location: 25,13
+	Actor18: tc01
+		Owner: Neutral
+		Location: 24,14
+	Actor19: tc01
+		Owner: Neutral
+		Location: 23,15
+	Actor20: tc01
+		Owner: Neutral
+		Location: 23,16
+	Actor21: tc01
+		Owner: Neutral
+		Location: 25,16
+	Actor22: tc01
+		Owner: Neutral
+		Location: 24,17
+	Actor23: tc04
+		Owner: Neutral
+		Location: 9,13
+	Actor24: tc04
+		Owner: Neutral
+		Location: 9,15
+	Actor25: tc04
+		Owner: Neutral
+		Location: 8,17
+	Actor26: tc04
+		Owner: Neutral
+		Location: 6,16
+	Actor27: tc04
+		Owner: Neutral
+		Location: 7,15
+	Actor28: tc04
+		Owner: Neutral
+		Location: 8,18
+	Actor29: tc04
+		Owner: Neutral
+		Location: 7,20
+	Actor30: tc04
+		Owner: Neutral
+		Location: 7,24
+	Actor31: tc04
+		Owner: Neutral
+		Location: 8,22
+	Actor32: tc04
+		Owner: Neutral
+		Location: 5,21
+	Actor33: tc04
+		Owner: Neutral
+		Location: 6,25
+	Actor34: tc04
+		Owner: Neutral
+		Location: 11,15
+	Actor35: tc04
+		Owner: Neutral
+		Location: 9,28
+	Actor36: tc04
+		Owner: Neutral
+		Location: 10,30
+	Actor37: tc04
+		Owner: Neutral
+		Location: 16,31
+	Actor38: tc04
+		Owner: Neutral
+		Location: 12,31
+	Actor39: tc04
+		Owner: Neutral
+		Location: 29,11
+	Actor40: tc04
+		Owner: Neutral
+		Location: 29,15
+	Actor42: tc04
+		Owner: Neutral
+		Location: 32,21
+	Actor43: tc04
+		Owner: Neutral
+		Location: 34,24
+	Actor44: tc04
+		Owner: Neutral
+		Location: 34,19
+	Actor45: weaf
+		Owner: Neutral
+		Location: 24,7
+	Actor46: domf
+		Owner: Neutral
+		Location: 20,6
+	Actor47: fpwr
+		Owner: Neutral
+		Location: 22,6
+	Actor48: facf
+		Owner: Neutral
+		Location: 13,3
+	Actor49: harv.emptyhusk
+		Owner: Neutral
+		Facing: 384
+		Location: 16,7
+	Actor50: 4tnk.husk
+		Owner: Neutral
+		Facing: 384
+		Location: 12,7
+	Actor51: 4tnk.husk
+		Owner: Neutral
+		Facing: 384
+		Location: 23,9
+	Actor52: harv.fullhusk
+		Owner: Neutral
+		Facing: 384
+		Location: 26,4
+	Actor53: tc04
+		Owner: Neutral
+		Location: 8,6
+	Actor54: tc04
+		Owner: Neutral
+		Location: 11,8
+	Actor55: tc04
+		Owner: Neutral
+		Location: 14,9
+	Actor56: tc04
+		Owner: Neutral
+		Location: 17,10
+	Actor57: tc04
+		Owner: Neutral
+		Location: 9,9
+	Actor58: tc04
+		Owner: Neutral
+		Location: 11,10
+	Actor59: tc04
+		Owner: Neutral
+		Location: 20,11
+
+Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
