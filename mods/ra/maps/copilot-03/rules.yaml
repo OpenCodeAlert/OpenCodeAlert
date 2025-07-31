@@ -6,7 +6,7 @@ World:
 	LuaScript:		
 		Scripts: campaign.lua, utils.lua, copilot03.lua
 	MissionData:
-		Briefing: Copilot Test Scene 3
+		Briefing: Produce 10 Infantry, 10 Rocket Soldiers, 1 Ore Truck, and 1 Mobile Flak within 90 seconds.
 		BriefingVideo: 
 		StartVideo: 
 		WinVideo: 

@@ -6,7 +6,7 @@ World:
 	LuaScript:		
 		Scripts: campaign.lua, utils.lua, copilot02.lua
 	MissionData:
-		Briefing: Copilot Test Scene 2, advanced base building and combat training mission.
+		Briefing: Control Yak to reveal entire map, clear over 80% Fog of War within 100 seconds.
 		BriefingVideo: 
 		StartVideo: 
 		WinVideo: 

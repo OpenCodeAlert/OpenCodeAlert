@@ -6,7 +6,7 @@ World:
 	LuaScript:		
 		Scripts: campaign.lua, utils.lua, copilot01.lua
 	MissionData:
-		Briefing: Copilot Test Scene 1, you should deploy your base and build a few buildings and units.
+		Briefing: Deploy MCV and build Power Plant, Barracks, Ore Refinery, War Factory within 50 seconds.
 		BriefingVideo: 
 		StartVideo: 
 		WinVideo: 

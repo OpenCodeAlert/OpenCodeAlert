@@ -1,8 +1,12 @@
+Player:
+	PlayerResources:
+		DefaultCash: 2000
+
 World:
 	LuaScript:
-		Scripts: campaign.lua, utils.lua, copilot04.lua
-	MissionData:
-		Briefing: Control 20 Yak Fighters to destroy enemy base within 180 seconds, minimize losses.\nNote: No reinforcements available.\nHint: The enemy base is near the left edge of the map.
+		Scripts: campaign.lua, utils.lua, copilot05.lua
+  MissionData:
+    Briefing: Defend base and eliminate all enemy units within 180 seconds.
 	WeatherOverlay:
 		ChangingWindLevel: true
 		InstantWindChanges: false
