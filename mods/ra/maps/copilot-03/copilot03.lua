@@ -1,16 +1,13 @@
 WorldLoaded = function()
-	-- 设置 Agent 模式
-	Trigger.SetAgentMode(false)
+
+	Trigger.SetAgentMode(true)
 
 	Player1 = Player.GetPlayer("Player")
 	MyMCV = Map.NamedActor("MyMCV")
 
 	InitObjectives(Player1)
 	
-	-- 添加主要任务目标
 	MainObjective = AddPrimaryObjective(Player1, "complete-production-in-120-seconds")
-	
-	-- 添加具体的子目标
 	PowerPlantObjective = AddPrimaryObjective(Player1, "build-power-plant")
     -- 兵营的api有问题
 	BarracksObjective = AddPrimaryObjective(Player1, "build-barracks")
@@ -45,11 +42,7 @@ WorldLoaded = function()
 	
 	-- 进度显示计数器
 	progressUpdateCounter = 0
-	progressUpdateInterval = DateTime.Seconds(10)  -- 每10秒显示一次进度
-	
-	-- 里程碑提醒
-	timeHalfwayReminder = false
-	time75PercentReminder = false
+	progressUpdateInterval = DateTime.Seconds(10)
 	
 	Media.DisplayMessage("Mission started! Complete all building constructions and unit productions within 90 seconds.")
 	
@@ -70,7 +63,6 @@ WorldLoaded = function()
 	end)
 end
 
--- 处理生产事件
 function HandleProduction(produced)
 	local unitType = produced.Type
 	
@@ -94,7 +86,7 @@ function HandleProduction(produced)
             Player1.MarkCompletedObjective(BarracksObjective)
 		end
 		CheckVictoryConditions()
-	elseif unitType == "e3" then  -- 炮兵（火箭筒兵）
+	elseif unitType == "e3" then
 		artilleryCount = artilleryCount + 1
 		if artilleryCount >= requiredArtillery then
             barracksBuilt = true
@@ -102,13 +94,13 @@ function HandleProduction(produced)
             Player1.MarkCompletedObjective(BarracksObjective)
 		end
 		CheckVictoryConditions()
-	elseif unitType == "harv" then  -- 矿车
+	elseif unitType == "harv" then
 		oreTruckCount = oreTruckCount + 1
 		if oreTruckCount >= requiredOreTruck then
 			Player1.MarkCompletedObjective(OreTruckObjective)
 		end
 		CheckVictoryConditions()
-	elseif unitType == "ftrk" then  -- 防空车
+	elseif unitType == "ftrk" then
 		ftrkCount = ftrkCount + 1
 		if ftrkCount >= requiredFTRK then
 			Player1.MarkCompletedObjective(FTRKObjective)
@@ -117,13 +109,11 @@ function HandleProduction(produced)
 	end
 end
 
--- 检查胜利条件
 function CheckVictoryConditions()
 	if missionCompleted or missionFailed then
 		return
 	end
 	
-	-- 检查是否所有目标都完成了
 	local allBuildingsBuilt = powerPlantBuilt and barracksBuilt and warFactoryBuilt
 	local allUnitsProduced = (infantryCount >= requiredInfantry) and 
 	                         (artilleryCount >= requiredArtillery) and 
@@ -143,7 +133,6 @@ function CheckVictoryConditions()
 	end
 end
 
--- 显示进度信息
 function ShowProgress()
 	if missionCompleted or missionFailed then
 		return
@@ -155,7 +144,6 @@ function ShowProgress()
 
 	Media.DisplayMessage("Remaining time: " .. string.format("%.0f", secondsRemaining) .. " seconds")
 
-	-- 建筑进度
 	local buildingStatus = ""
 	if powerPlantBuilt then buildingStatus = buildingStatus .. "Power Plant✓ "
 	else buildingStatus = buildingStatus .. "Power Plant✗ " end
@@ -168,18 +156,15 @@ function ShowProgress()
 
 	Media.DisplayMessage("Buildings: " .. buildingStatus)
 	
-	-- 单位进度
-	Media.DisplayMessage("Units: Infantry(" .. infantryCount .. "/" .. requiredInfantry .. ") " ..
-	                   "Artillery(" .. artilleryCount .. "/" .. requiredArtillery .. ") " ..
+	Media.DisplayMessage("Units: Rifle Infantry(" .. infantryCount .. "/" .. requiredInfantry .. ") " ..
+	                   "Rocket Soldier(" .. artilleryCount .. "/" .. requiredArtillery .. ") " ..
 	                   "Ore Truck(" .. oreTruckCount .. "/" .. requiredOreTruck .. ") " ..
-	                   "FTRK(" .. ftrkCount .. "/" .. requiredFTRK .. ")")
+	                   "Mobile Flak(" .. ftrkCount .. "/" .. requiredFTRK .. ")")
 end
 
--- 显示最终进度
 function ShowFinalProgress()
 	Media.DisplayMessage("=== Final Results ===")
 	
-	-- 建筑完成情况
 	local buildingStatus = "Buildings Completed: "
 	if powerPlantBuilt then buildingStatus = buildingStatus .. "Power Plant✓ "
 	else buildingStatus = buildingStatus .. "Power Plant✗ " end
@@ -192,21 +177,19 @@ function ShowFinalProgress()
 	
 	Media.DisplayMessage(buildingStatus)
 	
-	-- 单位生产情况
-	Media.DisplayMessage("Units Produced: Infantry(" .. infantryCount .. "/" .. requiredInfantry .. ") " ..
-	                   "Artillery(" .. artilleryCount .. "/" .. requiredArtillery .. ") " ..
+	Media.DisplayMessage("Units Produced: Rifle Infantry(" .. infantryCount .. "/" .. requiredInfantry .. ") " ..
+	                   "Rocket Soldier(" .. artilleryCount .. "/" .. requiredArtillery .. ") " ..
 	                   "Ore Truck(" .. oreTruckCount .. "/" .. requiredOreTruck .. ") " ..
-	                   "FTRK(" .. ftrkCount .. "/" .. requiredFTRK .. ")")
+	                   "Mobile Flak(" .. ftrkCount .. "/" .. requiredFTRK .. ")")
 end
 
--- 主循环函数
+
 Tick = function()
-	-- 检查任务是否已结束
+
 	if missionCompleted or missionFailed then
 		return
 	end
 	
-	-- 定期显示进度（每10秒一次）
 	progressUpdateCounter = progressUpdateCounter + 1
 	if progressUpdateCounter >= progressUpdateInterval then
 		progressUpdateCounter = 0
