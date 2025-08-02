@@ -2590,5 +2590,9 @@ Actors:
 		Owner: multi0
 		Facing: 384
 		Location: 15,47
+	Actor1315: sam
+		Faction: allies
+		Location: 3,36
+		Owner: multi0
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml

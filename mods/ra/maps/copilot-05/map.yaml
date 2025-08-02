@@ -22,20 +22,19 @@ Players:
 		OwnsWorld: True
 		NonCombatant: True
 		Faction: russia
-	PlayerReference@Creeps:
-		Name: Creeps
-		NonCombatant: True
-		Faction: russia
-		Enemies: Multi0, Multi1
 	PlayerReference@Multi0:
 		Name: Multi0
 		Playable: True
 		Faction: russia
-		Enemies: Creeps, Multi1
+		LockColor: True
+		Color: ABB7E4
+		Enemies: Multi1
 	PlayerReference@Multi1:
 		Name: Multi1
 		Faction: russia
-		Enemies: Creeps, Multi0
+		LockColor: True
+		Color: FF1400
+		Enemies: Multi0
 
 Actors:
 	Actor0: mpspawn

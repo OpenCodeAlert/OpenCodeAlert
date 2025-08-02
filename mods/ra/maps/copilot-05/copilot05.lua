@@ -47,7 +47,6 @@ WorldLoaded = function()
 	Trigger.OnAllKilled(AllEnemyUnits, function()
 		if not VictoryChecked then
 			VictoryChecked = true
-			Media.DisplayMessage("OnAllKilled triggered! All enemy units eliminated!", "Debug")
 			Player1.MarkCompletedObjective(EliminateEnemyObjective)
 			Player1.MarkCompletedObjective(DefendBaseObjective)
 		end
@@ -134,7 +133,6 @@ end
 
 StartGroup2SecondAttack = function()
 	Group2_Retreated = false  -- 重置撤退状态
-	Media.DisplayMessage("Group2 second attack starting!", "Debug")
 	
 	local aliveCount = 0
 	Utils.Do(EnemyGroup2, function(unit)
@@ -164,7 +162,6 @@ MonitorGroup1Losses = function()
 		
 		if lossCount >= 5 then
 			Group1_Retreated = true
-			Media.DisplayMessage("Group1 retreating! Lost " .. lossCount .. " units", "Debug")
 			RetreatGroup1()
 		else
 			Trigger.AfterDelay(DateTime.Seconds(1), CheckLosses)
@@ -201,7 +198,6 @@ MonitorGroup2Losses = function()
 end
 
 RetreatGroup1 = function()
-	Media.DisplayMessage("Group1 units retreating to base!", "Debug")
 	Utils.Do(EnemyGroup1, function(unit)
 		if not unit.IsDead then
 			unit.Stop()
@@ -215,7 +211,6 @@ RetreatGroup1 = function()
 end
 
 RetreatGroup2 = function()
-	Media.DisplayMessage("Group2 units retreating to base!", "Debug")
 	Utils.Do(EnemyGroup2, function(unit)
 		if not unit.IsDead then
 			unit.Stop()

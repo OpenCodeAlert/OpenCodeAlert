@@ -6,10 +6,10 @@ WorldLoaded = function()
 
     InitObjectives(Player1)
 
-    MainObjective = AddPrimaryObjective(Player1, "destroy-enemy-base-in-100-seconds")
+    MainObjective = AddPrimaryObjective(Player1, "destroy-enemy-base-in-120-seconds")
     
     missionStartTime = DateTime.GameTime
-    missionDuration = DateTime.Seconds(180)
+    missionDuration = DateTime.Seconds(120)
     missionCompleted = false
     missionFailed = false
     
@@ -30,9 +30,8 @@ WorldLoaded = function()
     -- 获取敌方基地
     enemyBase = Map.NamedActor("m0_yard")
     
-    Media.DisplayMessage("Air Strike Mission! Destroy the enemy base within 100 seconds!")
-    Media.DisplayMessage("You have " .. initialYakCount .. " fighters available.")
-    Media.DisplayMessage("Target: Enemy base (m0_yard)")
+    Media.DisplayMessage("Air Strike Mission! Destroy the enemy base within 120 seconds!")
+    Media.DisplayMessage("Target: Enemy base")
     
     Trigger.AfterDelay(missionDuration, function()
         if not missionCompleted then
@@ -111,8 +110,6 @@ function ShowProgress()
     end
     
     Media.DisplayMessage("Time remaining: " .. string.format("%.0f", secondsRemaining) .. " seconds")
-    Media.DisplayMessage("Fighters: " .. survivingYakCount .. "/" .. initialYakCount .. " (Lost: " .. lostYaks .. ")")
-    Media.DisplayMessage("Enemy base status: " .. baseStatus)
 end
 
 function ShowFinalReport()
@@ -131,9 +128,7 @@ function ShowFinalReport()
     local finalTime = DateTime.GameTime - missionStartTime
     local finalSeconds = finalTime / DateTime.Seconds(1)
     
-    Media.DisplayMessage("Time used: " .. string.format("%.1f", finalSeconds) .. "/100 seconds")
-    Media.DisplayMessage("Aircraft losses: " .. lostYaks .. "/" .. initialYakCount .. " (" .. string.format("%.1f", 100-survivalRate) .. "% lost)")
-    Media.DisplayMessage("Survival rate: " .. string.format("%.1f", survivalRate) .. "%")
+    Media.DisplayMessage("Time used: " .. string.format("%.1f", finalSeconds) .. "/120 seconds")
     
 end
 
