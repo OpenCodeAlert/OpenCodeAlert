@@ -23,8 +23,12 @@ fi
 
 command -v clang >/dev/null 2>&1 || { echo >&2 "macOS packaging requires clang."; exit 1; }
 
-if [ $# -ne "2" ]; then
-	echo "Usage: $(basename "$0") tag outputdir"
+if [ $# -lt "2" ] || [ $# -gt "4" ]; then
+	echo "Usage: $(basename "$0") tag outputdir [mods] [keep-apps]"
+	echo "  mods: comma-separated list of mods to build (default: copilot)"
+	echo "        available mods: copilot, ra, cnc, d2k, ts"
+	echo "        examples: 'copilot' or 'ra,cnc,d2k' or 'all' for all mods"
+	echo "  keep-apps: if set to 'true', keep .app files after creating DMG (default: false)"
 	exit 1
 fi
 
@@ -47,6 +51,32 @@ fi
 
 TAG="${1}"
 OUTPUTDIR="${2}"
+MODS_TO_BUILD="${3:-copilot}"
+KEEP_APPS="${4:-false}"
+
+# Define available mods (using regular arrays for compatibility with older bash)
+MOD_IDS=("copilot" "ra" "cnc" "d2k" "ts")
+MOD_NAMES=("Copilot" "Red Alert" "Tiberian Dawn" "Dune 2000" "Tiberian Sun")
+MOD_DISCORD_IDS=("699222659766026240" "699222659766026240" "699223250181292033" "712711732770111550" "000000000000000000")
+
+# Parse mods to build
+if [ "${MODS_TO_BUILD}" = "all" ]; then
+	MODS_TO_BUILD="copilot,ra,cnc,d2k,ts"
+fi
+
+IFS=',' read -ra MOD_ARRAY <<< "${MODS_TO_BUILD}"
+
+# Function to get mod config by ID
+get_mod_config() {
+	local mod_id="$1"
+	for i in "${!MOD_IDS[@]}"; do
+		if [ "${MOD_IDS[$i]}" = "${mod_id}" ]; then
+			echo "${MOD_NAMES[$i]}|${MOD_DISCORD_IDS[$i]}"
+			return 0
+		fi
+	done
+	echo ""
+}
 
 SRCDIR="$(pwd)/../.."
 BUILTDIR="$(pwd)/build"
@@ -79,21 +109,48 @@ build_app() {
 	install_assemblies "${SRCDIR}" "${LAUNCHER_CONTENTS_DIR}/MacOS/arm64" "osx-arm64" "net6" "True" "True" "${IS_D2K}"
 	install_assemblies "${SRCDIR}" "${LAUNCHER_CONTENTS_DIR}/MacOS/mono" "osx-x64" "mono" "True" "True" "${IS_D2K}"
 
-	install_data "${SRCDIR}" "${LAUNCHER_RESOURCES_DIR}" "${MOD_ID}"
+	# Install data - for copilot, also include ra mod data
+	if [ "${MOD_ID}" = "copilot" ]; then
+		echo "Installing copilot mod with ra dependencies"
+		install_data "${SRCDIR}" "${LAUNCHER_RESOURCES_DIR}" "${MOD_ID}" "ra"
+	else
+		install_data "${SRCDIR}" "${LAUNCHER_RESOURCES_DIR}" "${MOD_ID}"
+	fi
+	
 	set_engine_version "${TAG}" "${LAUNCHER_RESOURCES_DIR}"
 	set_mod_version "${TAG}" "${LAUNCHER_RESOURCES_DIR}/mods/${MOD_ID}/mod.yaml" "${LAUNCHER_RESOURCES_DIR}/mods/modcontent/mod.yaml"
 
 	# Assemble multi-resolution icon
 	mkdir "${MOD_ID}.iconset"
-	cp "${ARTWORK_DIR}/${MOD_ID}_16x16.png" "${MOD_ID}.iconset/icon_16x16.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_32x32.png" "${MOD_ID}.iconset/icon_16x16@2.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_32x32.png" "${MOD_ID}.iconset/icon_32x32.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_64x64.png" "${MOD_ID}.iconset/icon_32x32@2x.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_128x128.png" "${MOD_ID}.iconset/icon_128x128.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_256x256.png" "${MOD_ID}.iconset/icon_128x128@2x.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_256x256.png" "${MOD_ID}.iconset/icon_256x256.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_512x512.png" "${MOD_ID}.iconset/icon_256x256@2x.png"
-	cp "${ARTWORK_DIR}/${MOD_ID}_1024x1024.png" "${MOD_ID}.iconset/icon_512x512@2x.png"
+	
+	# Function to copy icon with fallback to default
+	copy_icon_with_fallback() {
+		local size="$1"
+		local target="$2"
+		local mod_icon="${ARTWORK_DIR}/${MOD_ID}_${size}.png"
+		local default_icon="${ARTWORK_DIR}/ra_${size}.png"
+		
+		if [ -f "${mod_icon}" ]; then
+			cp "${mod_icon}" "${MOD_ID}.iconset/${target}"
+		elif [ -f "${default_icon}" ]; then
+			echo "Warning: ${mod_icon} not found, using default icon"
+			cp "${default_icon}" "${MOD_ID}.iconset/${target}"
+		else
+			echo "Error: Neither ${mod_icon} nor ${default_icon} found"
+			exit 1
+		fi
+	}
+	
+	copy_icon_with_fallback "16x16" "icon_16x16.png"
+	copy_icon_with_fallback "32x32" "icon_16x16@2.png"
+	copy_icon_with_fallback "32x32" "icon_32x32.png"
+	copy_icon_with_fallback "64x64" "icon_32x32@2x.png"
+	copy_icon_with_fallback "128x128" "icon_128x128.png"
+	copy_icon_with_fallback "256x256" "icon_128x128@2x.png"
+	copy_icon_with_fallback "256x256" "icon_256x256.png"
+	copy_icon_with_fallback "512x512" "icon_256x256@2x.png"
+	copy_icon_with_fallback "1024x1024" "icon_512x512@2x.png"
+	
 	iconutil --convert icns "${MOD_ID}.iconset" -o "${LAUNCHER_RESOURCES_DIR}/${MOD_ID}.icns"
 	rm -rf "${MOD_ID}.iconset"
 
@@ -109,7 +166,7 @@ build_app() {
 	fi
 }
 
-echo "Building launchers"
+echo "Building launchers for mods: ${MODS_TO_BUILD}"
 
 # Prepare generic template for the mods to duplicate and customize
 TEMPLATE_DIR="${BUILTDIR}/template.app"
@@ -142,125 +199,80 @@ clang utility.m -o "${TEMPLATE_DIR}/Contents/MacOS/Utility-arm64" -framework App
 lipo -create -output "${TEMPLATE_DIR}/Contents/MacOS/Utility" "${TEMPLATE_DIR}/Contents/MacOS/Utility-x86_64" "${TEMPLATE_DIR}/Contents/MacOS/Utility-arm64"
 rm "${TEMPLATE_DIR}/Contents/MacOS/Utility-x86_64" "${TEMPLATE_DIR}/Contents/MacOS/Utility-arm64"
 
-build_app "${TEMPLATE_DIR}" "${BUILTDIR}/OpenRA - Red Alert.app" "ra" "Red Alert" "699222659766026240"
-build_app "${TEMPLATE_DIR}" "${BUILTDIR}/OpenRA - Tiberian Dawn.app" "cnc" "Tiberian Dawn" "699223250181292033"
-build_app "${TEMPLATE_DIR}" "${BUILTDIR}/OpenRA - Dune 2000.app" "d2k" "Dune 2000" "712711732770111550"
+# Build each requested mod
+for MOD_ID in "${MOD_ARRAY[@]}"; do
+	if [[ -n "$(get_mod_config "${MOD_ID}")" ]]; then
+		IFS='|' read -r MOD_NAME DISCORD_APPID <<< "$(get_mod_config "${MOD_ID}")"
+		echo "Building ${MOD_NAME} (${MOD_ID})"
+		build_app "${TEMPLATE_DIR}" "${BUILTDIR}/OpenRA - ${MOD_NAME}.app" "${MOD_ID}" "${MOD_NAME}" "${DISCORD_APPID}"
+	else
+		echo "Warning: Unknown mod '${MOD_ID}', skipping"
+	fi
+done
 
 rm -rf "${TEMPLATE_DIR}"
 
-echo "Packaging disk image"
-hdiutil create "build.dmg" -format UDRW -volname "OpenRA" -fs HFS+ -srcfolder build
-DMG_DEVICE=$(hdiutil attach -readwrite -noverify -noautoopen "build.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
-sleep 2
-
-# Background image is created from source svg in artsrc repository
-mkdir "/Volumes/OpenRA/.background/"
-tiffutil -cathidpicheck "${ARTWORK_DIR}/macos-background.png" "${ARTWORK_DIR}/macos-background-2x.png" -out "/Volumes/OpenRA/.background/background.tiff"
-
-cp "${BUILTDIR}/OpenRA - Red Alert.app/Contents/Resources/ra.icns" "/Volumes/OpenRA/.VolumeIcon.icns"
-
-echo '
-   tell application "Finder"
-     tell disk "'OpenRA'"
-           open
-           set current view of container window to icon view
-           set toolbar visible of container window to false
-           set statusbar visible of container window to false
-           set the bounds of container window to {400, 100, 1040, 580}
-           set theViewOptions to the icon view options of container window
-           set arrangement of theViewOptions to not arranged
-           set icon size of theViewOptions to 72
-           set background picture of theViewOptions to file ".background:background.tiff"
-           make new alias file at container window to POSIX file "/Applications" with properties {name:"Applications"}
-           set position of item "'OpenRA - Tiberian Dawn.app'" of container window to {160, 106}
-           set position of item "'OpenRA - Red Alert.app'" of container window to {320, 106}
-           set position of item "'OpenRA - Dune 2000.app'" of container window to {480, 106}
-           set position of item "Applications" of container window to {320, 298}
-           set position of item ".background" of container window to {160, 298}
-           set position of item ".fseventsd" of container window to {160, 298}
-           set position of item ".VolumeIcon.icns" of container window to {160, 298}
-           update without registering applications
-           delay 5
-           close
-     end tell
-   end tell
-' | osascript
-
-# HACK: Copy the volume icon again - something in the previous step seems to delete it...?
-cp "${BUILTDIR}/OpenRA - Red Alert.app/Contents/Resources/ra.icns" "/Volumes/OpenRA/.VolumeIcon.icns"
-SetFile -c icnC "/Volumes/OpenRA/.VolumeIcon.icns"
-SetFile -a C "/Volumes/OpenRA"
-
-# Replace duplicate .NET runtime files with hard links to improve compression
-for MOD in "Red Alert" "Tiberian Dawn"; do
-	for p in "x86_64" "arm64" "mono"; do
-		for f in "/Volumes/OpenRA/OpenRA - ${MOD}.app/Contents/MacOS/${p}"/*; do
-			g="/Volumes/OpenRA/OpenRA - Dune 2000.app/Contents/MacOS/${p}/"$(basename "${f}")
-			hashf=$(shasum "${f}" | awk '{ print $1 }') || :
-			hashg=$(shasum "${g}" | awk '{ print $1 }') || :
-			if [ -n "${hashf}" ] && [ "${hashf}" = "${hashg}" ]; then
-				echo "Deduplicating ${f}"
-				rm "${f}"
-				ln "${g}" "${f}"
-			fi
-		done
-	done
+# Copy built apps to output directory
+echo "Copying built applications to output directory"
+mkdir -p "${OUTPUTDIR}"
+for MOD_ID in "${MOD_ARRAY[@]}"; do
+	if [[ -n "$(get_mod_config "${MOD_ID}")" ]]; then
+		IFS='|' read -r MOD_NAME DISCORD_APPID <<< "$(get_mod_config "${MOD_ID}")"
+		cp -R "${BUILTDIR}/OpenRA - ${MOD_NAME}.app" "${OUTPUTDIR}/"
+		echo "Copied OpenRA - ${MOD_NAME}.app to ${OUTPUTDIR}/"
+	fi
 done
 
-for MOD in "Red Alert" "Tiberian Dawn" "Dune 2000"; do
-	for p in "arm64" "mono"; do
-		for f in "/Volumes/OpenRA/OpenRA - ${MOD}.app/Contents/MacOS/x86_64"/*; do
-			g="/Volumes/OpenRA/OpenRA - ${MOD}.app/Contents/MacOS/${p}/"$(basename "${f}")
-			if [ -e "${g}" ]; then
-				hashf=$(shasum "${f}" | awk '{ print $1 }') || :
-				hashg=$(shasum "${g}" | awk '{ print $1 }') || :
-				if [ -n "${hashf}" ] && [ "${hashf}" = "${hashg}" ]; then
-					echo "Deduplicating ${f}"
-					rm "${f}"
-					ln "${g}" "${f}"
-				fi
-			fi
-		done
-	done
+# Create DMG files for each mod
+echo "Creating DMG files for each mod"
+for MOD_ID in "${MOD_ARRAY[@]}"; do
+	if [[ -n "$(get_mod_config "${MOD_ID}")" ]]; then
+		IFS='|' read -r MOD_NAME DISCORD_APPID <<< "$(get_mod_config "${MOD_ID}")"
+		echo "Creating DMG for ${MOD_NAME} (${MOD_ID})"
+		
+		# Create DMG filename
+		DMG_NAME="OpenRA-${MOD_NAME// /-}-${TAG}.dmg"
+		DMG_PATH="${OUTPUTDIR}/${DMG_NAME}"
+		
+		# Create temporary directory for DMG contents
+		TEMP_DMG_DIR="${BUILTDIR}/dmg-${MOD_ID}"
+		mkdir -p "${TEMP_DMG_DIR}"
+		
+		# Copy app to temp directory
+		cp -R "${BUILTDIR}/OpenRA - ${MOD_NAME}.app" "${TEMP_DMG_DIR}/"
+		
+		# Create symbolic link to Applications folder
+		ln -sf /Applications "${TEMP_DMG_DIR}/Applications"
+		
+		# Create DMG using hdiutil
+		hdiutil create -volname "OpenRA ${MOD_NAME}" -srcfolder "${TEMP_DMG_DIR}" -ov -format UDZO "${DMG_PATH}"
+		
+		# Clean up temp directory
+		rm -rf "${TEMP_DMG_DIR}"
+		
+		echo "Created DMG: ${DMG_PATH}"
+	fi
 done
 
-chmod -Rf go-w /Volumes/OpenRA
-sync
-sync
+# Remove .app files if not keeping them
+if [ "${KEEP_APPS}" != "true" ]; then
+	echo "Removing .app files (DMG files created successfully)"
+	for MOD_ID in "${MOD_ARRAY[@]}"; do
+		if [[ -n "$(get_mod_config "${MOD_ID}")" ]]; then
+			IFS='|' read -r MOD_NAME DISCORD_APPID <<< "$(get_mod_config "${MOD_ID}")"
+			rm -rf "${OUTPUTDIR}/OpenRA - ${MOD_NAME}.app"
+		fi
+	done
+else
+	echo "Keeping .app files as requested"
+fi
 
-hdiutil detach "${DMG_DEVICE}"
+# Clean up build directory
 rm -rf "${BUILTDIR}"
 
+# Clean up keychain if we created one
 if [ -n "${MACOS_DEVELOPER_CERTIFICATE_BASE64}" ] && [ -n "${MACOS_DEVELOPER_CERTIFICATE_PASSWORD}" ] && [ -n "${MACOS_DEVELOPER_IDENTITY}" ]; then
 	security delete-keychain build.keychain
 fi
 
-if [ -n "${MACOS_DEVELOPER_USERNAME}" ] && [ -n "${MACOS_DEVELOPER_PASSWORD}" ] && [ -n "${MACOS_DEVELOPER_IDENTITY}" ]; then
-	echo "Submitting build for notarization"
-
-	# Reset xcode search path to fix xcrun not finding altool
-	sudo xcode-select -r
-
-	# Create a temporary read-only dmg for submission (notarization service rejects read/write images)
-	hdiutil convert "build.dmg" -format ULFO -ov -o "build-notarization.dmg"
-
-	xcrun notarytool submit "build-notarization.dmg" --wait --apple-id "${MACOS_DEVELOPER_USERNAME}" --password "${MACOS_DEVELOPER_PASSWORD}" --team-id "${MACOS_DEVELOPER_IDENTITY}"
-
-	rm "build-notarization.dmg"
-
-	echo "Stapling tickets"
-	DMG_DEVICE=$(hdiutil attach -readwrite -noverify -noautoopen "build.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
-	sleep 2
-
-	xcrun stapler staple "/Volumes/OpenRA/OpenRA - Red Alert.app"
-	xcrun stapler staple "/Volumes/OpenRA/OpenRA - Tiberian Dawn.app"
-	xcrun stapler staple "/Volumes/OpenRA/OpenRA - Dune 2000.app"
-
-	sync
-	sync
-
-	hdiutil detach "${DMG_DEVICE}"
-fi
-
-hdiutil convert "build.dmg" -format ULFO -ov -o "${OUTPUTDIR}/OpenRA-${TAG}.dmg"
-rm "build.dmg"
+echo "Build complete. DMG files are available in: ${OUTPUTDIR}"

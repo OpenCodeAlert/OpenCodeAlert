@@ -8,8 +8,11 @@ command -v curl >/dev/null 2>&1 || command -v wget > /dev/null 2>&1 || { echo >&
 
 DEPENDENCIES_TAG="20201222"
 
-if [ $# -eq "0" ]; then
-	echo "Usage: $(basename "$0") version [outputdir]"
+if [ $# -lt "1" ] || [ $# -gt "3" ]; then
+	echo "Usage: $(basename "$0") version [outputdir] [mods]"
+	echo "  mods: comma-separated list of mods to build (default: copilot)"
+	echo "        available mods: copilot, ra, cnc, d2k, ts"
+	echo "        examples: 'copilot' or 'ra,cnc,d2k' or 'all' for all mods"
 	exit 1
 fi
 
@@ -19,7 +22,33 @@ cd "${HERE}"
 . ../functions.sh
 
 TAG="$1"
-OUTPUTDIR="$2"
+OUTPUTDIR="${2:-.}"
+MODS_TO_BUILD="${3:-copilot}"
+
+# Define available mods (using regular arrays for compatibility with older bash)
+MOD_IDS=("copilot" "ra" "cnc" "d2k" "ts")
+MOD_NAMES=("Copilot" "Red Alert" "Tiberian Dawn" "Dune 2000" "Tiberian Sun")
+MOD_DISCORD_IDS=("699222659766026240" "699222659766026240" "699223250181292033" "712711732770111550" "000000000000000000")
+
+# Parse mods to build
+if [ "${MODS_TO_BUILD}" = "all" ]; then
+	MODS_TO_BUILD="copilot,ra,cnc,d2k,ts"
+fi
+
+IFS=',' read -ra MOD_ARRAY <<< "${MODS_TO_BUILD}"
+
+# Function to get mod config by ID
+get_mod_config() {
+	local mod_id="$1"
+	for i in "${!MOD_IDS[@]}"; do
+		if [ "${MOD_IDS[$i]}" = "${mod_id}" ]; then
+			echo "${MOD_NAMES[$i]}|${MOD_DISCORD_IDS[$i]}"
+			return 0
+		fi
+	done
+	echo ""
+}
+
 SRCDIR="$(pwd)/../.."
 ARTWORK_DIR="$(pwd)/../artwork/"
 
@@ -36,12 +65,8 @@ elif [[ ${TAG} == pkgtest* ]]; then
 	SUFFIX="-pkgtest"
 fi
 
-pushd "${TEMPLATE_ROOT}" > /dev/null
-
-if [ ! -d "${OUTPUTDIR}" ]; then
-	echo "Output directory '${OUTPUTDIR}' does not exist.";
-	exit 1
-fi
+# 检查并自动创建输出目录
+mkdir -p "${OUTPUTDIR}"
 
 # Add native libraries
 echo "Downloading appimagetool"
@@ -53,7 +78,7 @@ fi
 
 chmod a+x appimagetool-x86_64.AppImage
 
-echo "Building AppImages"
+echo "Building AppImages for mods: ${MODS_TO_BUILD}"
 
 build_appimage() {
 	MOD_ID=${1}
@@ -68,7 +93,15 @@ build_appimage() {
 	fi
 
 	install_assemblies "${SRCDIR}" "${APPDIR}/usr/lib/openra" "linux-x64" "net6" "True" "True" "${IS_D2K}"
-	install_data "${SRCDIR}" "${APPDIR}/usr/lib/openra" "${MOD_ID}"
+	
+	# Install data - for copilot, also include ra mod data
+	if [ "${MOD_ID}" = "copilot" ]; then
+		echo "Installing copilot mod with ra dependencies"
+		install_data "${SRCDIR}" "${APPDIR}/usr/lib/openra" "${MOD_ID}" "ra"
+	else
+		install_data "${SRCDIR}" "${APPDIR}/usr/lib/openra" "${MOD_ID}"
+	fi
+	
 	set_engine_version "${TAG}" "${APPDIR}/usr/lib/openra"
 	set_mod_version "${TAG}" "${APPDIR}/usr/lib/openra/mods/${MOD_ID}/mod.yaml" "${APPDIR}/usr/lib/openra/mods/modcontent/mod.yaml"
 
@@ -121,9 +154,18 @@ build_appimage() {
 	rm -rf "${APPDIR}"
 }
 
-build_appimage "ra" "Red Alert" "699222659766026240"
-build_appimage "cnc" "Tiberian Dawn" "699223250181292033"
-build_appimage "d2k" "Dune 2000" "712711732770111550"
+# Build each requested mod
+for MOD_ID in "${MOD_ARRAY[@]}"; do
+	if [[ -n "$(get_mod_config "${MOD_ID}")" ]]; then
+		IFS='|' read -r MOD_NAME DISCORD_APPID <<< "$(get_mod_config "${MOD_ID}")"
+		echo "Building ${MOD_NAME} (${MOD_ID})"
+		build_appimage "${MOD_ID}" "${MOD_NAME}" "${DISCORD_APPID}"
+	else
+		echo "Warning: Unknown mod '${MOD_ID}', skipping"
+	fi
+done
 
 # Clean up
 rm -rf appimagetool-x86_64.AppImage "${BUILTDIR}"
+
+echo "Build complete. AppImages are available in: ${OUTPUTDIR}"

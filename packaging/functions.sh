@@ -120,7 +120,7 @@ install_data() (
 
 	while [ -n "${1}" ]; do
 		MOD_ID="${1}"
-		if [ "${MOD_ID}" = "ra" ] || [ "${MOD_ID}" = "cnc" ] || [ "${MOD_ID}" = "d2k" ]; then
+		if [ "${MOD_ID}" = "ra" ] || [ "${MOD_ID}" = "cnc" ] || [ "${MOD_ID}" = "d2k" ] || [ "${MOD_ID}" = "copilot" ] || [ "${MOD_ID}" = "ts" ]; then
 			echo "Installing mod ${MOD_ID} to ${DEST_PATH}"
 			cp -r "${SRC_PATH}/mods/${MOD_ID}" "${DEST_PATH}/mods/"
 			cp -r "${SRC_PATH}/mods/modcontent" "${DEST_PATH}/mods/"
