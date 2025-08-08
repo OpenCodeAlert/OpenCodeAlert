@@ -1,4 +1,5 @@
 WorldLoaded = function()
+    Camera.Position = DefaultCameraPosition.CenterPosition
     Trigger.SetAgentMode(true)
 
     Player1 = Player.GetPlayer("multi1")  -- 玩家
@@ -13,6 +14,8 @@ WorldLoaded = function()
     missionCompleted = false
     missionFailed = false
     
+    Trigger.SetScore(200.0)  -- 初始化分数为200
+
     -- 进度显示计数器
     progressUpdateCounter = 0
     progressUpdateInterval = DateTime.Seconds(10)
@@ -124,9 +127,11 @@ function ShowFinalReport()
     end)
     local lostYaks = initialYakCount - survivingYakCount
     local survivalRate = (survivingYakCount / initialYakCount) * 100
+    Trigger.AddScore(-5.0 * lostYaks)  -- 每损失一架战斗机扣5分
     
     local finalTime = DateTime.GameTime - missionStartTime
     local finalSeconds = finalTime / DateTime.Seconds(1)
+    Trigger.AddScore( (120 - finalSeconds) )  -- 根据完成时间奖励分数，时间越短分数越高，最多奖励120分
     
     Media.DisplayMessage("Time used: " .. string.format("%.1f", finalSeconds) .. "/120 seconds")
     

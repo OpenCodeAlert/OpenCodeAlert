@@ -109,6 +109,9 @@ function UpdateExplorationProgress()
 		local timeUsed = DateTime.GameTime - missionStartTime
 		local secondsUsed = timeUsed / DateTime.Seconds(1)
 		Media.DisplayMessage("Time used: " .. string.format("%.1f", secondsUsed) .. " seconds")
+
+		local durationSeconds = missionDuration / DateTime.Seconds(1)
+		Trigger.SetScore(30.0  * durationSeconds / secondsUsed)  -- 根据用时计算分数
 	end
 	
 	return currentPercentage, newCellsCount

@@ -63,6 +63,7 @@ namespace OpenRA
 			public DateTime? EndTime { get; set; }
 			public TimeSpan? Duration { get; set; }
 			public bool Victory { get; set; }
+			public double Score { get; set; } = 100.0f;
 			public List<ObjectiveInfo> Objectives { get; set; } = new();
 			public ResourceStats Resources { get; set; } = new();
 			public UnitStats Units { get; set; } = new();
@@ -162,7 +163,16 @@ namespace OpenRA
 				stats.ApiCalls.CommandCalls[command]++;
 			}
 		}
-
+		public void SetScore(double score)
+		{
+			if (!isRecording) return;
+			stats.Score = score;
+		}
+		public void AddScore(double score)
+		{
+			if (!isRecording) return;
+			stats.Score += score;
+		}
 		public void SetCustomData(string key, object value)
 		{
 			if (!isRecording) return;

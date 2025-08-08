@@ -6,7 +6,7 @@ WorldLoaded = function()
 	MCV = Map.NamedActor("MyMCV")
 
 	InitObjectives(Player1)
-	
+	Trigger.SetScore(0.0)  -- 初始化分数为0
 	-- 添加胜利目标
 	Objective = AddPrimaryObjective(Player1, "deploy-your-base")
 	Trigger.RecordObjective("deploy-mcv", "部署基地车")
@@ -43,6 +43,7 @@ WorldLoaded = function()
 		if not MCV.IsDead then
 			Player1.MarkCompletedObjective(Objective)
 			Trigger.CompleteObjective("deploy-mcv")
+			Trigger.AddScore(20.0)  -- 部署基地车奖励20分
 			Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 		else
 			Player1.MarkFailedObjective(Objective)

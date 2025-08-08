@@ -67,6 +67,20 @@ namespace OpenRA.Mods.Common.Scripting
 			if (statsTracker != null)
 				statsTracker.RecordObjective(id, name);
 		}
+		[Desc("Set the score in the game stats. Usage: Trigger.SetScore(100)")]
+		public void SetScore(double score)
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.SetScore(score);
+		}
+		[Desc("Add score to the game stats. Usage: Trigger.AddScore(10)")]
+		public void AddScore(double score)
+		{
+			var statsTracker = Context.World.WorldActor.TraitOrDefault<GameStatsTracker>();
+			if (statsTracker != null)
+				statsTracker.AddScore(score);
+		}
 
 		[Desc("Complete an objective in the game stats. Usage: Trigger.CompleteObjective('objective-id')")]
 		public void CompleteObjective(string id)

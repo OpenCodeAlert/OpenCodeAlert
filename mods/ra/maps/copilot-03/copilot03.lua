@@ -13,7 +13,7 @@ WorldLoaded = function()
 	BarracksObjective = AddPrimaryObjective(Player1, "build-barracks")
 	WarFactoryObjective = AddPrimaryObjective(Player1, "build-war-factory")
 	InfantryObjective = AddPrimaryObjective(Player1, "produce-10-infantry")
-	ArtilleryObjective = AddPrimaryObjective(Player1, "produce-10-artillery")
+	ArtilleryObjective = AddPrimaryObjective(Player1, "produce-10-rocket-soldiers")
 	OreTruckObjective = AddPrimaryObjective(Player1, "produce-1-ore-truck")
 	FTRKObjective = AddPrimaryObjective(Player1, "produce-1-ftrk")
 	

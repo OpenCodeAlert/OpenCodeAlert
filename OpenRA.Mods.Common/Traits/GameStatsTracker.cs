@@ -71,7 +71,14 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			statsRecorder?.RecordObjective(id, name);
 		}
-
+		public void SetScore(double score)
+		{
+			statsRecorder?.SetScore(score);
+		}
+		public void AddScore(double score)
+		{
+			statsRecorder?.AddScore(score);
+		}
 		public void CompleteObjective(string id)
 		{
 			statsRecorder?.CompleteObjective(id);

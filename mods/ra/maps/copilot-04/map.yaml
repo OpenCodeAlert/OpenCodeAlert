@@ -2594,5 +2594,8 @@ Actors:
 		Faction: allies
 		Location: 3,36
 		Owner: multi0
+	DefaultCameraPosition: waypoint
+		Location: 80,30
+		Owner: Neutral
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
