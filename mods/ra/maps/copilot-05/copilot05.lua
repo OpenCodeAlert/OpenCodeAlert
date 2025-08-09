@@ -1,6 +1,7 @@
 WorldLoaded = function()
 
 	Trigger.SetAgentMode(true)
+	Trigger.SetScore(10.0)  -- 初始化分数为10
 
 	Player1 = Player.GetPlayer("Multi0")  -- 防守方（玩家）
 	Enemy = Player.GetPlayer("Multi1")    -- 进攻方（敌人）
@@ -55,6 +56,7 @@ WorldLoaded = function()
 	-- 为每个敌方单位添加死亡监听，用于实时检查胜利条件
 	Utils.Do(AllEnemyUnits, function(unit)
 		Trigger.OnKilled(unit, function()
+			Trigger.AddScore(5.0)  -- 每消灭一个敌方单位奖励5分
 			-- 延迟一帧后检查胜利条件
 			Trigger.AfterDelay(1, CheckVictoryCondition)
 		end)
