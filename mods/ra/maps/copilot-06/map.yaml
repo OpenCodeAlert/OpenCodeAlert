@@ -1,0 +1,171 @@
+MapFormat: 12
+
+RequiresMod: copilot
+
+Title: copilot-06
+
+Author: saekitost
+
+Tileset: SNOW
+
+MapSize: 37,37
+
+Bounds: 1,1,35,35
+
+Visibility: MissionSelector
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Multi0:
+		Name: Multi0
+		Playable: True
+		Faction: russia
+		LockColor: True
+		Color: ABB7E4
+		Enemies: Multi1
+	PlayerReference@Multi1:
+		Name: Multi1
+		Faction: russia
+		LockColor: True
+		Color: FF1400
+		Enemies: Multi0
+
+Actors:
+	Actor0: 4tnk
+		Location: 13,20
+		Facing: 384
+		Owner: Multi1
+	Actor3: 3tnk
+		Location: 12,27
+		Facing: 35
+		Owner: Multi0
+	Actor4: 3tnk
+		Location: 11,27
+		Facing: 35
+		Owner: Multi0
+	Actor10: e1
+		Location: 11,29
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor6: e3
+		Location: 12,29
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor8: e3
+		Location: 13,29
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor9: e1
+		Location: 11,28
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor5: e3
+		Location: 12,28
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor7: e3
+		Location: 13,28
+		SubCell: 3
+		Facing: 384
+		Owner: Multi0
+	Actor11: flare
+		Owner: Neutral
+		Location: 11,23
+	Actor12: 3tnk
+		Owner: Multi1
+		Facing: 384
+		Location: 14,20
+	Actor2: ftrk
+		Owner: Multi1
+		Location: 15,19
+		Facing: 384
+	Actor1: e1
+		Owner: Multi1
+		Facing: 384
+		Location: 14,19
+		SubCell: 3
+	Actor13: mcv.husk
+		Owner: Neutral
+		Facing: 384
+		Location: 7,26
+	Actor14: 3tnk.husk
+		Owner: Neutral
+		Facing: 384
+		Location: 12,25
+	Actor15: ctflag
+		Owner: Neutral
+		Location: 11,25
+	Actor16: tc05.husk
+		Owner: Neutral
+		Location: 16,25
+	Actor17: tc05.husk
+		Owner: Neutral
+		Location: 2,25
+	Actor18: tc05.husk
+		Owner: Neutral
+		Location: 4,29
+	Actor19: tc05.husk
+		Owner: Neutral
+		Location: 6,31
+	Actor20: tc05.husk
+		Owner: Neutral
+		Location: 10,32
+	Actor21: tc05.husk
+		Owner: Neutral
+		Location: 3,32
+	Actor22: tc04.husk
+		Owner: Neutral
+		Location: 20,25
+	Actor23: tc04.husk
+		Owner: Neutral
+		Location: 19,29
+	Actor24: tc04.husk
+		Owner: Neutral
+		Location: 15,31
+	Actor25: tc04.husk
+		Owner: Neutral
+		Location: 19,32
+	Actor26: tc04.husk
+		Owner: Neutral
+		Location: 22,26
+	Actor27: tc04.husk
+		Owner: Neutral
+		Location: 22,22
+	Actor28: tc04.husk
+		Owner: Neutral
+		Location: 24,22
+	Actor29: tc04.husk
+		Owner: Neutral
+		Location: 23,31
+	Actor30: tc04.husk
+		Owner: Neutral
+		Location: 25,27
+	Actor31: tc04.husk
+		Owner: Neutral
+		Location: 20,27
+	Actor32: tc04.husk
+		Owner: Neutral
+		Location: 20,29
+	Actor33: tc04.husk
+		Owner: Neutral
+		Location: 16,27
+	Actor34: tc04.husk
+		Owner: Neutral
+		Location: 16,30
+
+Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
