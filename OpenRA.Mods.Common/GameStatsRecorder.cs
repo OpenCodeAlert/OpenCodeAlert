@@ -244,7 +244,7 @@ namespace OpenRA
 			// 添加头部信息
 			var logHeader = new
 			{
-				Version = "2.0",
+				Version = "3.0",
 				GameName = "OpenRA",
 				GeneratedAt = DateTime.Now,
 				MapHash = world.Map.Uid,
