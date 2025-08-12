@@ -14,7 +14,7 @@ WorldLoaded = function()
     missionCompleted = false
     missionFailed = false
     
-    Trigger.SetScore(200.0)  -- 初始化分数为200
+    Trigger.SetScore(220.0)  -- 初始化分数为200
 
     -- 进度显示计数器
     progressUpdateCounter = 0
@@ -131,7 +131,7 @@ function ShowFinalReport()
     
     local finalTime = DateTime.GameTime - missionStartTime
     local finalSeconds = finalTime / DateTime.Seconds(1)
-    Trigger.AddScore( (120 - finalSeconds) )  -- 根据完成时间奖励分数，时间越短分数越高，最多奖励120分
+    Trigger.AddScore( (- finalSeconds) )  -- 根据完成时间奖励分数，时间越短分数越高，最多奖励120分
     
     Media.DisplayMessage("Time used: " .. string.format("%.1f", finalSeconds) .. "/120 seconds")
     

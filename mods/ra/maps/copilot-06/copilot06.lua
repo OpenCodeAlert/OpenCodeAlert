@@ -32,13 +32,13 @@ WorldLoaded = function()
 		Trigger.OnKilled(unit, function()
 			-- 根据单位类型给予不同分数奖励
 			if unit.Type == "4tnk" then
-				Trigger.AddScore(20.0)
+				Trigger.AddScore(40.0)
 			elseif unit.Type == "3tnk" then
-				Trigger.AddScore(15.0)
+				Trigger.AddScore(30.0)
 			elseif unit.Type == "ftrk" then
-				Trigger.AddScore(10.0)
+				Trigger.AddScore(20.0)
 			elseif unit.Type == "e1" then
-				Trigger.AddScore(5.0)
+				Trigger.AddScore(10.0)
 			end
 			
 			-- 延迟一帧后检查胜利条件
@@ -107,16 +107,15 @@ CheckVictoryCondition = function()
 		local tankLosses = InitialPlayerTanks - currentTanks
 		local infantryLosses = InitialPlayerInfantry - currentInfantry
 		
-		local lossPenalty = tankLosses * 10 + infantryLosses * 1
+		local lossPenalty = tankLosses * 10 + infantryLosses * 5
 		
-		local finalScore = math.max(0, timeBonus - lossPenalty)
 		
 		-- 显示详细信息
-		Media.DisplayMessage(string.format("Time: %.1fs remaining, bonus: %.1f", remainingSeconds, timeBonus), "Mission")
-		Media.DisplayMessage(string.format("Losses: %d tanks(-%d), %d infantry(-%d)", tankLosses, tankLosses*10, infantryLosses, infantryLosses*2), "Mission")
-		Media.DisplayMessage(string.format("Final time bonus: %.1f points", finalScore), "Mission")
+		-- Media.DisplayMessage(string.format("Time: %.1fs remaining, bonus: %.1f", remainingSeconds, timeBonus), "Mission")
+		Media.DisplayMessage(string.format("Losses: %d tanks(-%d), %d infantry(-%d)", tankLosses, tankLosses*10, infantryLosses*5, infantryLosses*2), "Mission")
+		-- Media.DisplayMessage(string.format("Final time bonus: %.1f points", finalScore), "Mission")
 		
-		Trigger.AddScore(finalScore)
+		Trigger.AddScore(- lossPenalty)
 		
 		Trigger.CompleteObjective("eliminate-all-enemy-units")
 	end

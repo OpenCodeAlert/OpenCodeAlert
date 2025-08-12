@@ -2,7 +2,7 @@ MapFormat: 12
 
 RequiresMod: copilot
 
-Title: copilot-06
+Title: Mission-06 Unit Counter
 
 Author: saekitost
 
@@ -41,64 +41,6 @@ Players:
 		Enemies: Multi0
 
 Actors:
-	Actor0: 4tnk
-		Location: 13,20
-		Facing: 384
-		Owner: Multi1
-	Actor3: 3tnk
-		Location: 12,27
-		Facing: 35
-		Owner: Multi0
-	Actor4: 3tnk
-		Location: 11,27
-		Facing: 35
-		Owner: Multi0
-	Actor10: e1
-		Location: 11,29
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor6: e3
-		Location: 12,29
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor8: e3
-		Location: 13,29
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor9: e1
-		Location: 11,28
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor5: e3
-		Location: 12,28
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor7: e3
-		Location: 13,28
-		SubCell: 3
-		Facing: 384
-		Owner: Multi0
-	Actor11: flare
-		Owner: Neutral
-		Location: 11,23
-	Actor12: 3tnk
-		Owner: Multi1
-		Facing: 384
-		Location: 14,20
-	Actor2: ftrk
-		Owner: Multi1
-		Location: 15,19
-		Facing: 384
-	Actor1: e1
-		Owner: Multi1
-		Facing: 384
-		Location: 14,19
-		SubCell: 3
 	Actor13: mcv.husk
 		Owner: Neutral
 		Facing: 384
@@ -167,5 +109,63 @@ Actors:
 	Actor34: tc04.husk
 		Owner: Neutral
 		Location: 16,30
+	Actor11: flare
+		Owner: Neutral
+		Location: 8,24
+	Actor5: e3
+		Owner: Multi0
+		Facing: 384
+		Location: 10,32
+		SubCell: 3
+	Actor10: e1
+		Owner: Multi0
+		Facing: 384
+		Location: 9,32
+		SubCell: 3
+	Actor8: e3
+		Owner: Multi0
+		Facing: 384
+		Location: 11,32
+		SubCell: 3
+	Actor6: e3
+		Owner: Multi0
+		Facing: 384
+		Location: 11,31
+		SubCell: 3
+	Actor7: e3
+		Owner: Multi0
+		Facing: 384
+		Location: 10,31
+		SubCell: 3
+	Actor9: e1
+		Owner: Multi0
+		Facing: 384
+		Location: 9,31
+		SubCell: 3
+	Actor4: 3tnk
+		Owner: Multi0
+		Facing: 35
+		Location: 12,31
+	Actor3: 3tnk
+		Owner: Multi0
+		Facing: 35
+		Location: 13,31
+	Actor0: 4tnk
+		Owner: Multi1
+		Facing: 384
+		Location: 9,24
+	Actor12: 3tnk
+		Owner: Multi1
+		Facing: 384
+		Location: 10,24
+	Actor1: e1
+		Owner: Multi1
+		Facing: 384
+		Location: 10,23
+		SubCell: 3
+	Actor2: ftrk
+		Owner: Multi1
+		Facing: 384
+		Location: 11,23
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml

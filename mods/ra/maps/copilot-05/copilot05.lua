@@ -9,7 +9,7 @@ WorldLoaded = function()
 	InitObjectives(Player1)
 	
 	DefendBaseObjective = AddPrimaryObjective(Player1, "defend-base-180-seconds")
-	EliminateEnemyObjective = AddPrimaryObjective(Player1, "eliminate-all-enemy-units")
+	EliminateEnemyObjective = AddSecondaryObjective(Player1, "eliminate-all-enemy-units")
 	
 	PlayerBase = Map.NamedActor("Actor2")
 	EnemyBase1 = Map.NamedActor("Actor43")
@@ -48,6 +48,7 @@ WorldLoaded = function()
 	Trigger.OnAllKilled(AllEnemyUnits, function()
 		if not VictoryChecked then
 			VictoryChecked = true
+			Trigger.AddScore(50.0)
 			Player1.MarkCompletedObjective(EliminateEnemyObjective)
 			Player1.MarkCompletedObjective(DefendBaseObjective)
 		end
@@ -56,7 +57,7 @@ WorldLoaded = function()
 	-- 为每个敌方单位添加死亡监听，用于实时检查胜利条件
 	Utils.Do(AllEnemyUnits, function(unit)
 		Trigger.OnKilled(unit, function()
-			Trigger.AddScore(5.0)  -- 每消灭一个敌方单位奖励5分
+			Trigger.AddScore(2.0)  -- 每消灭一个敌方单位奖励5分
 			-- 延迟一帧后检查胜利条件
 			Trigger.AfterDelay(1, CheckVictoryCondition)
 		end)
@@ -64,9 +65,7 @@ WorldLoaded = function()
 	
 	-- 时间到达时检查胜利条件
 	Trigger.OnTimerExpired(function()
-		if not Player1.IsObjectiveCompleted(EliminateEnemyObjective) then
-			Player1.MarkFailedObjective(DefendBaseObjective)
-		end
+		Player1.MarkCompletedObjective(DefendBaseObjective)
 	end)
 	
 	Trigger.AfterDelay(DateTime.Seconds(30), function()
