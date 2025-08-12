@@ -1,5 +1,5 @@
 WorldLoaded = function()
-	-- Trigger.SetAgentMode(true)
+	Trigger.SetAgentMode(true)
 	Trigger.SetScore(0.0)  -- 初始化分数为0
 
 	Player1 = Player.GetPlayer("multi1")  -- 进攻方（玩家）

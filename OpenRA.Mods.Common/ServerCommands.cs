@@ -68,16 +68,14 @@ namespace OpenRA.Mods.Common.Commands
 
 			IEnumerable<Actor> actors;
 			if (faction is "己方" or "自己" or "我" or "我的" or "我方")
-				actors = world.Actors.Where(a => a.Owner == player && a.OccupiesSpace != null);
+				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "己方" && a.OccupiesSpace != null);
 			else if (faction is "敌方" or "敌人" or "对面" or "他的" or "他")
-				actors = world.Actors.Where(a => a.Owner != player && a.Owner.IsBot && a.OccupiesSpace != null);
+				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "敌方" && a.OccupiesSpace != null);
+			else if (faction == "中立")
+				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "中立" && a.OccupiesSpace != null);
+			else if (faction is "友方" or "盟军" or "盟友" or "同盟")
+				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "友方" && a.OccupiesSpace != null);
 			else
-				if (faction == "中立")
-				actors = world.Actors.Where(a => (a.Owner == null || (a.Owner != player && !a.Owner.IsBot)) && a.OccupiesSpace != null);
-			else
-
-				// throw new ArgumentException($"Invalid faction: {faction}");
-				//  throw new ArgumentException($"Invalid faction: {faction}");
 				actors = world.Actors.Where(a => a.OccupiesSpace != null);
 
 			// 根据范围筛选
@@ -1041,7 +1039,7 @@ namespace OpenRA.Mods.Common.Commands
 					{
 						["id"] = actor.ActorID,
 						["type"] = CopilotsConfig.GetChineseByConfigName(actor.Info.Name),
-						["faction"] = actor.Owner == player ? "己方" : (actor.Owner != null && actor.Owner.IsBot ? "敌方" : "中立"),
+						["faction"] = CopilotsUtils.GetFactionRelation(player, actor),
 						["hp"] = hashealth ? health.HP : -1,
 						["maxHp"] = hashealth ? health.MaxHP : -1,
 						["isDead"] = hashealth && health.IsDead,
