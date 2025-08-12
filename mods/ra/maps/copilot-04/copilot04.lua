@@ -7,7 +7,8 @@ WorldLoaded = function()
 
     InitObjectives(Player1)
 
-    MainObjective = AddPrimaryObjective(Player1, "destroy-enemy-base-in-120-seconds")
+    MainObjective = AddPrimaryObjective(Player1, "Destroy enemy base")
+    TimeObjective = AddSecondaryObjective(Player1, "Complete within 120 seconds")
     
     missionStartTime = DateTime.GameTime
     missionDuration = DateTime.Seconds(120)
@@ -38,11 +39,11 @@ WorldLoaded = function()
     
     Trigger.AfterDelay(missionDuration, function()
         if not missionCompleted then
-            missionFailed = true
-            Player1.MarkFailedObjective(MainObjective)
-            Media.PlaySpeechNotification(Player1, "ObjectiveNotMet")
-            Media.DisplayMessage("Mission Failed! Time's up!")
+            Player1.MarkFailedObjective(TimeObjective)
+            Media.DisplayMessage("Time's up! Time objective failed.", "Mission")
             ShowFinalReport()
+        else
+            Player1.MarkCompletedObjective(TimeObjective)
         end
     end)
     
@@ -59,6 +60,12 @@ WorldLoaded = function()
         if not missionCompleted and not missionFailed then
             missionCompleted = true
             Player1.MarkCompletedObjective(MainObjective)
+            
+            -- 检查时间目标
+            if not Player1.IsObjectiveFailed(TimeObjective) then
+                Player1.MarkCompletedObjective(TimeObjective)
+            end
+            
             Media.PlaySpeechNotification(Player1, "ObjectiveMet")
             Media.DisplayMessage("Mission Accomplished! Enemy base destroyed!")
             

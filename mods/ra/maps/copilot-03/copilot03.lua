@@ -7,7 +7,8 @@ WorldLoaded = function()
 
 	InitObjectives(Player1)
 	
-	MainObjective = AddPrimaryObjective(Player1, "complete-production-in-120-seconds")
+	MainObjective = AddPrimaryObjective(Player1, "Complete all building and production tasks")
+	TimeObjective = AddSecondaryObjective(Player1, "Complete within 120 seconds")
 	PowerPlantObjective = AddPrimaryObjective(Player1, "build-power-plant")
     -- 兵营的api有问题
 	BarracksObjective = AddPrimaryObjective(Player1, "build-barracks")
@@ -48,11 +49,11 @@ WorldLoaded = function()
 	
 	Trigger.AfterDelay(missionDuration, function()
 		if not missionCompleted then
-			missionFailed = true
-			Player1.MarkFailedObjective(MainObjective)
-			Media.PlaySpeechNotification(Player1, "ObjectiveNotMet")
-			Media.DisplayMessage("Mission failed! Time's up!")
+			Player1.MarkFailedObjective(TimeObjective)
+			Media.DisplayMessage("Time's up! Time objective failed.", "Mission")
 			ShowFinalProgress()
+		else
+			Player1.MarkCompletedObjective(TimeObjective)
 		end
 	end)
 	
@@ -123,6 +124,12 @@ function CheckVictoryConditions()
 	if allBuildingsBuilt and allUnitsProduced then
 		missionCompleted = true
 		Player1.MarkCompletedObjective(MainObjective)
+		
+		-- 检查时间目标
+		if not Player1.IsObjectiveFailed(TimeObjective) then
+			Player1.MarkCompletedObjective(TimeObjective)
+		end
+		
 		Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 		Media.DisplayMessage("Completed all objectives！")
 		

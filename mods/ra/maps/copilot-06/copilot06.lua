@@ -1,6 +1,6 @@
 WorldLoaded = function()
 
-	Trigger.SetAgentMode(false)
+	Trigger.SetAgentMode(true)
 	Trigger.SetScore(0.0)
 
 	Player1 = Player.GetPlayer("Multi0")  -- 玩家
@@ -10,6 +10,7 @@ WorldLoaded = function()
 	
 	-- 添加主要任务目标：消灭所有敌方单位
 	EliminateEnemyObjective = AddPrimaryObjective(Player1, "Eliminate all enemy units")
+	TimeObjective = AddSecondaryObjective(Player1, "Complete mission within 90 seconds")
 	
 	AllEnemyUnits = Enemy.GetActorsByTypes({ "4tnk", "ftrk", "e1", "3tnk" })
 	
@@ -51,8 +52,10 @@ WorldLoaded = function()
 	-- 时间到达时检查任务完成情况
 	Trigger.OnTimerExpired(function()
 		if not Player1.IsObjectiveCompleted(EliminateEnemyObjective) then
-			Media.DisplayMessage("Time's up! Mission failed!", "Mission")
-			Player1.MarkFailedObjective(EliminateEnemyObjective)
+			Media.DisplayMessage("Time's up! Time obje ctive failed.", "Mission")
+			Player1.MarkFailedObjective(TimeObjective)
+		else
+			Player1.MarkCompletedObjective(TimeObjective)
 		end
 	end)
 end

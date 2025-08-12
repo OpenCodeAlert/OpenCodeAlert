@@ -1,13 +1,14 @@
 WorldLoaded = function()
 
-	Trigger.SetAgentMode(true)
+	Trigger.SetAgentMode(false)
 
 	Player1 = Player.GetPlayer("Player")
 	MyPlane = Map.NamedActor("MyPlane")
 
 	InitObjectives(Player1)
 	
-	ExploreObjective = AddPrimaryObjective(Player1, "explore-80-percent-map-in-100-seconds")
+	ExploreObjective = AddPrimaryObjective(Player1, "Explore 80% of the map")
+	TimeObjective = AddSecondaryObjective(Player1, "Complete within 100 seconds")
 	
 	exploredCells = {}  -- 存储已探索的格子，使用格子坐标作为key
 	targetExploredCells = 600  -- 若设为800则可基本覆盖40x40的地图
@@ -27,14 +28,15 @@ WorldLoaded = function()
 	
 	Trigger.AfterDelay(missionDuration, function()
 		if not missionCompleted then
-			missionFailed = true
 			local currentExploredCount = 0
 			for _ in pairs(exploredCells) do
 				currentExploredCount = currentExploredCount + 1
 			end
-			Player1.MarkFailedObjective(ExploreObjective)
-			Media.PlaySpeechNotification(Player1, "ObjectiveNotMet")
-			Media.DisplayMessage("Mission Failed! Time's up. Final exploration: " .. currentExploredCount .. " cells (Target: " .. targetExploredCells .. ")")
+			Player1.MarkFailedObjective(TimeObjective)
+			Media.DisplayMessage("Time's up! Time objective failed.", "Mission")
+			Media.DisplayMessage("Current exploration: " .. currentExploredCount .. " cells (Target: " .. targetExploredCells .. ")", "Mission")
+		else
+			Player1.MarkCompletedObjective(TimeObjective)
 		end
 	end)
 	
@@ -102,6 +104,12 @@ function UpdateExplorationProgress()
 	if currentExploredCount >= targetExploredCells and not missionCompleted then
 		missionCompleted = true
 		Player1.MarkCompletedObjective(ExploreObjective)
+		
+		-- 检查时间目标
+		if not Player1.IsObjectiveFailed(TimeObjective) then
+			Player1.MarkCompletedObjective(TimeObjective)
+		end
+		
 		Media.PlaySpeechNotification(Player1, "ObjectiveMet")
 		Media.DisplayMessage("Mission Completed! Explored " .. currentExploredCount .. " cells (Target: " .. targetExploredCells .. ")")
 		
