@@ -335,3 +335,4 @@ install_linux_appdata() (
 		shift
 	done
 )
+# changeCR2LF

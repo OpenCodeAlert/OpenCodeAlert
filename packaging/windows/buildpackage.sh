@@ -202,3 +202,4 @@ fi
 rm rcedit-x64.exe
 
 echo "Build complete. Installers are available in: ${OUTPUTDIR}"
+# changeCR2LF

@@ -22,3 +22,4 @@ if [ -z "$(find . -path ./IP2LOCATION-LITE-DB1.IPV6.BIN.ZIP -mtime -30 -print)" 
 		wget -cq https://github.com/OpenRA/GeoIP-Database/releases/download/monthly/IP2LOCATION-LITE-DB1.IPV6.BIN.ZIP || echo "Warning: Download failed"
 	fi
 fi
+# changeCR2LF
