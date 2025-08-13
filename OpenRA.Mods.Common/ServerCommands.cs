@@ -7,6 +7,7 @@ using OpenRA.Graphics;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Widgets;
+using OpenRA.Support;
 using OpenRA.Traits;
 namespace OpenRA.Mods.Common.Commands
 {
@@ -637,8 +638,8 @@ namespace OpenRA.Mods.Common.Commands
 		public static string AttackCommand(JObject json, World world)
 		{
 			var player = world.LocalPlayer;
-			var attacker = GetTargets(json["attackers"], world, player).First();
-			var target = GetTargetsFromJson(json, world).FirstOrDefault();
+			var attacker = GetTargets(json["attackers"], world, player);
+			var target = GetTargetsFromJson(json, world);
 
 			if (attacker == null)
 			{
@@ -650,17 +651,23 @@ namespace OpenRA.Mods.Common.Commands
 				throw new NotImplementedException("No Attack Target");
 			}
 
-			// 是否是多点下令
-			const bool Queued = false;
-			var tar = Target.FromActor(target);
-			_ = tar.Recalculate(attacker.Owner, out var targetIsHiddenActor);
-			if (targetIsHiddenActor || !target.CanBeViewedByPlayer(attacker.Owner))
-				return "Target is hidden now";
+			var ret_str = "";
+			MersenneTwister random = new();
+			foreach (var a in attacker)
+			{
+				var taractor = target.RandomOrDefault(random);
+				var tar = Target.FromActor(taractor);
+				_ = tar.Recalculate(a.Owner, out var targetIsHiddenActor);
+				if (targetIsHiddenActor || !taractor.CanBeViewedByPlayer(a.Owner))
+				{
+					ret_str += $"Target is hidden now {tar.Actor.ActorID}\n";
+					continue;
+				}
+				world.IssueOrder(new Order("Attack", a, tar, false));
+				ret_str += $"Attack {a.ActorID} to {tar.Actor.ActorID}\n";
+			}
 
-			// throw new NotImplementedException("Target is hidden now");
-			world.IssueOrder(new Order("Attack", attacker, tar, Queued));
-
-			return "Attack action executed.";
+			return ret_str;
 		}
 
 		public static string DeployCommand(JObject json, World world)
