@@ -1,6 +1,6 @@
 WorldLoaded = function()
 
-	Trigger.SetAgentMode(false)
+	Trigger.SetAgentMode(true)
 
 	Player1 = Player.GetPlayer("Player")
 	MyPlane = Map.NamedActor("MyPlane")
@@ -104,22 +104,23 @@ function UpdateExplorationProgress()
 	if currentExploredCount >= targetExploredCells and not missionCompleted then
 		missionCompleted = true
 		Player1.MarkCompletedObjective(ExploreObjective)
-		
-		-- 检查时间目标
-		if not Player1.IsObjectiveFailed(TimeObjective) then
-			Player1.MarkCompletedObjective(TimeObjective)
-		end
-		
-		Media.PlaySpeechNotification(Player1, "ObjectiveMet")
-		Media.DisplayMessage("Mission Completed! Explored " .. currentExploredCount .. " cells (Target: " .. targetExploredCells .. ")")
-		
 		-- 计算用时
 		local timeUsed = DateTime.GameTime - missionStartTime
 		local secondsUsed = timeUsed / DateTime.Seconds(1)
 		Media.DisplayMessage("Time used: " .. string.format("%.1f", secondsUsed) .. " seconds")
-
 		local durationSeconds = missionDuration / DateTime.Seconds(1)
 		Trigger.SetScore(15.0  + durationSeconds - secondsUsed)  -- 根据用时计算分数
+		
+		-- 检查时间目标
+		if not Player1.IsObjectiveFailed(TimeObjective) then
+			Player1.MarkCompletedObjective(TimeObjective)
+		else
+			-- 如果时间目标失败，扣除分数
+			Trigger.AddScore(-50.0)
+		end
+		
+		Media.PlaySpeechNotification(Player1, "ObjectiveMet")
+		Media.DisplayMessage("Mission Completed! Explored " .. currentExploredCount .. " cells (Target: " .. targetExploredCells .. ")")
 	end
 	
 	return currentPercentage, newCellsCount

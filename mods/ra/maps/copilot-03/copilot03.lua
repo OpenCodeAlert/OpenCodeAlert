@@ -128,6 +128,9 @@ function CheckVictoryConditions()
 		-- 检查时间目标
 		if not Player1.IsObjectiveFailed(TimeObjective) then
 			Player1.MarkCompletedObjective(TimeObjective)
+		else
+			-- 如果时间目标失败，扣除分数
+			Trigger.AddScore(-50.0)
 		end
 		
 		Media.PlaySpeechNotification(Player1, "ObjectiveMet")

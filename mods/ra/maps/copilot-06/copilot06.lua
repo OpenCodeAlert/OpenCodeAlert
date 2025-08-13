@@ -54,6 +54,7 @@ WorldLoaded = function()
 		if not Player1.IsObjectiveCompleted(EliminateEnemyObjective) then
 			Media.DisplayMessage("Time's up! Time obje ctive failed.", "Mission")
 			Player1.MarkFailedObjective(TimeObjective)
+			Trigger.AddScore(-50.0)  -- 时间目标失败扣分
 		else
 			Player1.MarkCompletedObjective(TimeObjective)
 		end
