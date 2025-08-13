@@ -370,6 +370,24 @@ namespace OpenRA.Mods.Common
 			}
 		}
 
+		public static string GetFactionRelation(Player player, Actor actor)
+		{
+			if (actor.Owner == player)
+				return "己方";
+
+			if (actor.Owner != null)
+			{
+				var stance = player.RelationshipWith(actor.Owner);
+				if (stance == PlayerRelationship.Enemy)
+					return "敌方";
+				if (stance == PlayerRelationship.Neutral)
+					return "中立";
+				if (stance == PlayerRelationship.Ally)
+					return "友方";
+			}
+
+			return "中立"; // 默认兜底
+		}
 	}
 
 	[TraitLocation(SystemActors.World)]
