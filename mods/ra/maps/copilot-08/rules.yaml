@@ -1,0 +1,20 @@
+Player:
+	PlayerResources:
+		DefaultCash: 2000
+
+World:
+	LuaScript:
+		Scripts: campaign.lua, utils.lua, copilot08.lua
+	MissionData:
+		Briefing: Accumulate 15000 resources and construct 9 specific facilities. Avoid power outages and resource shortages. Complete within 300 seconds for bonus points.
+	WeatherOverlay:
+		UseSquares: true
+		ParticleSize: 2, 3
+		ScatterDirection: -1, 1
+		ParticleColors: F0E0C8, E8D0A8, D8B880, C8A060
+		LineTailAlphaValue: 0
+	TintPostProcessEffect:
+		Red: 0.88
+		Green: 0.93
+		Blue: 1.06
+		Ambient: 1.09

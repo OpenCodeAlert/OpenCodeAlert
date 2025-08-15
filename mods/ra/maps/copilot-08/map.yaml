@@ -1,0 +1,41 @@
+MapFormat: 12
+
+RequiresMod: copilot
+
+Title: Mission-08 Resource Management
+
+Author: saekitost
+
+Tileset: TEMPERAT
+
+MapSize: 27,27
+
+Bounds: 1,1,25,25
+
+Visibility: MissionSelector
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: russia
+	PlayerReference@Multi0:
+		Name: Multi0
+		Playable: True
+		Faction: russia
+		LockColor: True
+		Color: ABB7E4
+
+Actors:
+	MyYard: fact
+		Owner: Multi0
+		Location: 14,16
+
+Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
