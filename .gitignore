@@ -15,6 +15,7 @@ _ReSharper.*/
 
 # Visual Studio Code
 /.vscode/settings.json
+*.instructions.md
 
 # binaries
 IP2LOCATION-LITE-DB1.IPV6.BIN.ZIP
