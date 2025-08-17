@@ -2,7 +2,7 @@ MapFormat: 12
 
 RequiresMod: copilot
 
-Title: copilot-09
+Title: Mission-09 Attack on Allies
 
 Author: saekitost
 
@@ -259,9 +259,6 @@ Actors:
 	Actor84: barl
 		Location: 74,55
 		Owner: Creeps
-	Actor85: powr
-		Location: 52,80
-		Owner: Multi0
 	Actor100: e3
 		Location: 88,68
 		Owner: Multi1
@@ -380,10 +377,9 @@ Actors:
 		Location: 70,56
 		Owner: Multi1
 	Actor122: ftrk
-		Faction: allies
 		Location: 87,67
-		Owner: Multi1
 		Facing: 500
+		Owner: Neutral
 	Actor123: ftrk
 		Faction: allies
 		Location: 82,67
@@ -416,8 +412,8 @@ Actors:
 		Faction: allies
 		SubCell: 3
 		Location: 55,54
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor129: 4tnk
 		Faction: allies
 		Location: 73,64
@@ -435,44 +431,35 @@ Actors:
 		Location: 70,63
 		SubCell: 3
 		Facing: 493
-	DropPoint1: waypoint
-		Owner: Neutral
-		Location: 55,83
 	DropPoint3: waypoint
 		Owner: Neutral
 		Location: 50,74
 	rs1: e3
-		Faction: allies
 		SubCell: 3
 		Location: 52,75
 		Owner: Multi0
 		Facing: 384
 	rs2: e3
-		Faction: allies
 		Location: 52,76
 		SubCell: 3
 		Owner: Multi0
 		Facing: 384
 	rs3: e3
-		Faction: allies
 		Location: 53,75
 		SubCell: 3
 		Owner: Multi0
 		Facing: 384
 	rs4: e3
-		Faction: allies
 		Location: 53,76
 		SubCell: 3
 		Owner: Multi0
 		Facing: 384
 	rs5: e3
-		Faction: allies
 		SubCell: 3
 		Location: 54,75
 		Owner: Multi0
 		Facing: 384
 	rs6: e3
-		Faction: allies
 		Location: 54,76
 		SubCell: 3
 		Owner: Multi0
@@ -486,8 +473,8 @@ Actors:
 		Faction: allies
 		Location: 82,85
 		SubCell: 1
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor135: e1
 		Faction: allies
 		SubCell: 3
@@ -498,31 +485,30 @@ Actors:
 		Faction: allies
 		SubCell: 3
 		Location: 85,82
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor137: 4tnk.husk
-		Faction: allies
 		Facing: 384
 		Location: 40,54
-		Owner: Multi1
+		Owner: Neutral
 	Actor138: e3
 		Faction: allies
 		SubCell: 3
 		Location: 41,55
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor139: e3
 		Faction: allies
 		SubCell: 3
 		Location: 44,56
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor140: e1
 		Faction: allies
 		SubCell: 3
 		Location: 39,56
-		Facing: 384
 		Owner: Multi1
+		Facing: 384
 	Actor141: v2rl
 		Faction: allies
 		Location: 57,57
@@ -539,8 +525,8 @@ Actors:
 	Actor142: 4tnk
 		Faction: allies
 		Owner: Multi1
-		Facing: 522
 		Location: 68,63
+		Facing: 522
 	Actor143: e3
 		Faction: allies
 		Owner: Multi1
@@ -548,7 +534,6 @@ Actors:
 		Location: 70,64
 		SubCell: 3
 	Actor121: 3tnk
-		Faction: allies
 		Owner: Multi0
 		Location: 54,77
 		Facing: 874
@@ -560,14 +545,8 @@ Actors:
 	Actor144: 3tnk
 		Faction: allies
 		Owner: Multi1
-		Facing: 239
 		Location: 68,55
-	ParachuteBase1: waypoint
-		Owner: Neutral
-		Location: 64,54
-	ParachuteBase2: waypoint
-		Owner: Neutral
-		Location: 64,57
+		Facing: 239
 	Actor145: ftrk
 		Faction: allies
 		Location: 56,55
@@ -584,6 +563,18 @@ Actors:
 	DropPoint2: waypoint
 		Owner: Neutral
 		Location: 42,73
+	ParachuteBase1: waypoint
+		Owner: Neutral
+		Location: 60,53
+	ParachuteBase2: waypoint
+		Owner: Neutral
+		Location: 60,57
+	Actor85: powr
+		Location: 52,80
+		Owner: Multi0
+	DropPoint1: waypoint
+		Owner: Neutral
+		Location: 55,81
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
 

@@ -1,16 +1,12 @@
 Player:
 	PlayerResources:
-		DefaultCash: 3000
+		DefaultCash: 2500
 
 World:
 	LuaScript:
-		Scripts: campaign.lua, utils.lua, soviet02b.lua
+		Scripts: campaign.lua, utils.lua, copilot09.lua
 	MissionData:
-		Briefing: Tomorrow, the attack on Germany begins, but today, we must protect our facility from Allied attacks.\n\nKeep the Command Center intact at all costs, and destroy any Allied fortification you might find.
-		BriefingVideo: soviet2.vqa
-		StartVideo: spotter.vqa
-		WinVideo: sovtstar.vqa
-		LossVideo: sovcemet.vqa
+		Briefing: Commander, your mission is to infiltrate and destroy the Allied base. Locate and eliminate their Construction Yard to cripple their operations. Be prepared for enemy paratroop reinforcements and complete the mission within 6 minutes for maximum effectiveness. For the Soviet Union!
 
 SPEN:
 	Buildable:
@@ -94,17 +90,17 @@ GUN:
 
 powerproxy.paratroopers:
 	ParatroopersPower:
-		DropItems: E1,E1,E1,E3,E3
+		DropItems: 3tnk,E1,E1,E3,E3
 
 powerproxy.paratroopers2:
 	Inherits: powerproxy.paratroopers
 	ParatroopersPower:
-		DropItems: E1,E1,E1,E3,E3
+		DropItems: 3tnk,E1,E3,E3,E3
 
 powerproxy.paratroopers3:
 	Inherits: powerproxy.paratroopers
 	ParatroopersPower:
-		DropItems: E1,E1,E1,E3,E3
+		DropItems: 3tnk,E1,E3,E3,E3
 
 powerproxy.paratroopers4:
 	Inherits: powerproxy.paratroopers
@@ -114,9 +110,9 @@ powerproxy.paratroopers4:
 powerproxy.paratroopers5:
 	Inherits: powerproxy.paratroopers
 	ParatroopersPower:
-		DropItems: 4tnk, 4tnk, e3, e3, e3, e3
+		DropItems: 3tnk, 4tnk, e1, e1, e3, e3
 
 powerproxy.paratroopers6:
 	Inherits: powerproxy.paratroopers
 	ParatroopersPower:
-		DropItems: e3, e3, e3, e3
+		DropItems: 3tnk, 3tnk, e3, e3, e3, e3

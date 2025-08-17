@@ -7,9 +7,6 @@
    information, see COPYING.
 ]]
 IntroAttackers = { IntroSoldier1, IntroSoldier2, IntroSoldier3 }
-
---BridgeShroudTrigger = { CPos.New(63, 71), CPos.New(64, 71), CPos.New(65, 71), CPos.New(69, 65), CPos.New(70, 65), CPos.New(71, 65) }
---BridgeExplosionTrigger = { CPos.New(66, 69), CPos.New(67, 69), CPos.New(68, 69) }
 TransportTrigger = { CPos.New(75, 58) }
 EnemyBaseShroudTrigger = { CPos.New(64, 52), CPos.New(64, 53), CPos.New(64, 54), CPos.New(64, 55), CPos.New(64, 56), CPos.New(64, 57), CPos.New(64, 58), CPos.New(64, 59), CPos.New(64, 60), CPos.New(64, 61), CPos.New(64, 62), CPos.New(64, 63), CPos.New(64, 64) }
 ParachuteTrigger = { CPos.New(80, 66), CPos.New(81, 66), CPos.New(82, 66), CPos.New(83, 66), CPos.New(84, 66), CPos.New(85, 66),CPos.New(86, 66), CPos.New(87, 66), CPos.New(88, 66), CPos.New(89, 66) }
@@ -18,8 +15,35 @@ EnemyBaseEntranceShroudTrigger = { CPos.New(80, 73), CPos.New(81, 73), CPos.New(
 AttackWaypoints = { AttackWaypoint1, AttackWaypoint2 }
 TankDropPoints = { DropPoint1, DropPoint2 }
 AttackGroup = { }
-AttackGroupSize = 3
+AttackGroupSize = 5
 AlliedInfantry = { "e1", "e1", "e3" }
+
+-- 分数配置
+local SCORE_PRIMARY_OBJECTIVES = 150.0
+local SCORE_ROCKET_SOLDIER = 10.0
+local SCORE_TANK = 15.0
+local SCORE_TIME_BONUS = 50.0
+local SCORE_UNIT_PENALTY_E1 = -1.0
+local SCORE_UNIT_PENALTY_YAK = -4.0
+
+-- 游戏状态变量
+local gameScore = 0.0
+local gameStartTime = 0
+local gameCompleted = false
+local unitProductionCount = { e1 = 0, yak = 0 }
+
+-- 特殊触发器
+DropPoint4Trigger = { CPos.New(74, 61), CPos.New(75, 61), CPos.New(76, 61), CPos.New(74, 62), CPos.New(75, 62), CPos.New(76, 62) }
+DropPoint4Triggered = false
+
+-- 次要目标变量
+local keepSoldiersObjective
+local timeObjective
+
+ProtectedUnits = {rs1, rs2, rs3, rs4, rs5, rs6}
+ProtectedTank = Actor121
+EnemyYard = Actor50
+
 
 TankDropConfig = {
     { 
@@ -33,21 +57,12 @@ TankDropConfig = {
         radius = 2
     },
     {
-        timeRange = { min = 150, max = 180 },
+        timeRange = { min = 180, max = 240 },
         unitType = "powerproxy.paratroopers5",
         radius = 5
     }
 }
 TankDropTimes = {}
--- 坦克空投测试相关常量
--- TankDropZones = {
--- 	{ center = CPos.New(45, 75), radius = 3 },  -- 玩家基地附近区域1
--- 	{ center = CPos.New(50, 78), radius = 2 },  -- 玩家基地附近区域2
--- 	{ center = CPos.New(48, 82), radius = 3 }   -- 玩家基地附近区域3
--- }
--- TankDropTimes = { 20, 10, 15 }  -- 空投时间（秒）
--- 采用随机的空投时间
--- TankDropTimes = { Utils.Random(20, 30), Utils.Random(60, 80), Utils.Random(90, 120) }
 
 SendAttackGroup = function()
 	if #AttackGroup < AttackGroupSize then
@@ -73,7 +88,7 @@ ProduceInfantry = function()
 	Greece.Build({ Utils.Random(AlliedInfantry) }, function(units)
 		table.insert(AttackGroup, units[1])
 		SendAttackGroup()
-		Trigger.AfterDelay(DateTime.Seconds(10), ProduceInfantry)
+		Trigger.AfterDelay(DateTime.Seconds(5), ProduceInfantry)
 	end)
 end
 
@@ -100,7 +115,7 @@ GetRandomDropPosition = function(dropPoint, radius)
     return Map.CenterOfCell(randomPos)
 end
 
--- 执行坦克空投（增强版）
+-- 执行坦克空投
 SendTankDrop = function(config)
     -- 从配置的空投点中随机选择一个
     local randomDropPoint = Utils.Random(TankDropPoints)
@@ -114,8 +129,7 @@ SendTankDrop = function(config)
     Media.PlaySpeechNotification(USSR, "EnemyUnitsApproaching")
 end
 
--- 安排坦克空投测试（新版本）
-ScheduleTankDropTests = function()
+ScheduleTankDrop = function()
     -- 为每个空投配置生成随机时间并安排空投
     Utils.Do(TankDropConfig, function(config)
         local randomTime = Utils.RandomInteger(config.timeRange.min, config.timeRange.max + 1)
@@ -127,46 +141,108 @@ ScheduleTankDropTests = function()
     end)
 end
 
--- Trigger.OnEnteredFootprint(BridgeShroudTrigger, function(a)
--- 	if not BridgeShroudTriggered and a.Owner == USSR then
--- 		BridgeShroudTriggered = true
--- 		local cameraBridge = Actor.Create("camera", true, { Owner = USSR, Location = CameraBridge.Location })
--- 		Trigger.AfterDelay(DateTime.Seconds(15), function()
--- 			cameraBridge.Destroy()
--- 		end)
--- 	end
--- end)
+-- DropPoint4特殊空投
+SendSpecialDrop = function()
+    local dropPosition = GetRandomDropPosition(DropPoint4, 3)
+    local specialProxy = Actor.Create("powerproxy.paratroopers6", false, { Owner = USSR })
+    specialProxy.TargetParatroopers(dropPosition, Angle.South)
+    specialProxy.Destroy()
+    
+    Media.PlaySpeechNotification(USSR, "ReinforcementsArrived")
+end
 
--- Trigger.OnEnteredFootprint(BridgeExplosionTrigger, function(a)
--- 	if not BridgeExplosionTriggered and a.Owner == USSR then
--- 		BridgeExplosionTriggered = true
--- 		if not BarrelBridge.IsDead then
--- 			BarrelBridge.Kill()
--- 		end
--- 	end
--- end)
+-- 监听玩家生产的单位
+MonitorUnitProduction = function()
+    Trigger.OnAnyProduction(function(producer, produced, productionType)
+        if produced and produced.Owner == USSR then
+            local unitType = produced.Type
+            
+            if unitType == "e1" then
+                unitProductionCount.e1 = unitProductionCount.e1 + 1
+				if unitProductionCount.e1 % 10 == 0 then
+                    Media.DisplayMessage("Produced Infantry: " .. unitProductionCount.e1, "Notification")
+                end
+            elseif unitType == "yak" then
+                unitProductionCount.yak = unitProductionCount.yak + 1
+                if unitProductionCount.yak % 5 == 0 then
+                    Media.DisplayMessage("Produced Yak: " .. unitProductionCount.yak, "Notification")
+                end
+            end
+        end
+    end)
+end
 
-Trigger.OnEnteredFootprint(EnemyBaseEntranceShroudTrigger, function(a)
-	if not EnemyBaseEntranceShroudTriggered and a.Owner == USSR then
-		EnemyBaseEntranceShroudTriggered = true
-		local cameraBaseEntrance = Actor.Create("camera", true, { Owner = USSR, Location = CameraBaseEntrance.Location })
-		Trigger.AfterDelay(DateTime.Seconds(15), function()
-			cameraBaseEntrance.Destroy()
-		end)
-	end
-end)
+-- 计算最终分数
+CalculateFinalScore = function()
+    local finalScore = gameScore
+    
+    -- 计算保护单位奖励
+    local survivingCount = 0
+    if ProtectedUnits then
+        Utils.Do(ProtectedUnits, function(unit)
+            if unit and not unit.IsDead then
+                finalScore = finalScore + SCORE_ROCKET_SOLDIER
+                survivingCount = survivingCount + 1
+            end
+        end)
+    end
+    
+    -- 检查坦克存活
+    if ProtectedTank and not ProtectedTank.IsDead then
+        finalScore = finalScore + SCORE_TANK
+    end
+    
+    -- 时间奖励检查
+    local currentTime = (DateTime.GameTime - gameStartTime) / 25
+    if currentTime <= 360 then
+        finalScore = finalScore + SCORE_TIME_BONUS
+        USSR.MarkCompletedObjective(timeObjective)
+    else
+        USSR.MarkFailedObjective(timeObjective)
+		finalScore = finalScore - (SCORE_TIME_BONUS / 2)
+    end
+    
+    -- 生产单位惩罚
+    finalScore = finalScore + (unitProductionCount.e1 * SCORE_UNIT_PENALTY_E1)
+    finalScore = finalScore + (unitProductionCount.yak * SCORE_UNIT_PENALTY_YAK)
+    
+    return finalScore
+end
 
-Trigger.OnEnteredFootprint(EnemyBaseShroudTrigger, function(a)
-	if not EnemyBaseShroudTriggered and a.Owner == USSR then
-		EnemyBaseShroudTriggered = true
-		local cameraBase1 = Actor.Create("camera", true, { Owner = USSR, Location = CameraBase1.Location })
-		local cameraBase2 = Actor.Create("camera", true, { Owner = USSR, Location = CameraBase2.Location })
-		Trigger.AfterDelay(DateTime.Seconds(15), function()
-			cameraBase1.Destroy()
-			cameraBase2.Destroy()
-		end)
-	end
-end)
+-- 完成游戏
+CompleteGame = function()
+    if gameCompleted then
+        return
+    end
+    
+    gameCompleted = true
+    local finalScore = CalculateFinalScore()
+    
+    Trigger.SetScore(finalScore)
+    
+    local survivingUnits = 0
+    if ProtectedUnits then
+        Utils.Do(ProtectedUnits, function(unit)
+            if unit and not unit.IsDead then
+                survivingUnits = survivingUnits + 1
+            end
+        end)
+    end
+    
+    local tankSurvived = false
+    if ProtectedTank and not ProtectedTank.IsDead then
+        tankSurvived = true
+    end
+    
+    if ProtectedUnits and survivingUnits == #ProtectedUnits and tankSurvived then
+        USSR.MarkCompletedObjective(keepSoldiersObjective)
+    else
+        USSR.MarkFailedObjective(keepSoldiersObjective)
+    end
+    
+    local currentTime = (DateTime.GameTime - gameStartTime) / 25
+    Media.DisplayMessage("Mission completed! Time: " .. math.floor(currentTime) .. "s, Score: " .. math.floor(finalScore), "Menacing")
+end
 
 Trigger.OnEnteredFootprint(ParachuteTrigger, function(a)
 	if not ParachuteTriggered and a.Owner == USSR then
@@ -193,17 +269,20 @@ Trigger.OnEnteredFootprint(TransportTrigger, function(a, id)
 	end
 end)
 
-Trigger.OnKilled(BarrelBase, function()
+-- DropPoint4特殊触发器
+Trigger.OnEnteredFootprint(DropPoint4Trigger, function(a)
+	if not DropPoint4Triggered and a.Owner == USSR then
+		DropPoint4Triggered = true
+		SendSpecialDrop()
+		Media.PlaySpeechNotification(USSR, "EnemyUnitsApproaching")
+	end
+end)
+
+-- Actor141被击杀时触发
+Trigger.OnKilled(Actor141, function()
 		SendUSSRParadropsBase()
 		Media.PlaySpeechNotification(USSR, "ReinforcementsArrived")
 end)
-
--- Trigger.OnKilled(BarrelBridge, function()
--- 	local bridgepart = Map.ActorsInBox(BridgeCheck1.CenterPosition, BridgeCheck2.CenterPosition, function(self) return self.Type == "br1" end)[1]
--- 	if not bridgepart.IsDead then
--- 		bridgepart.Kill()
--- 	end
--- end)
 
 Trigger.OnKilled(Church1, function()
 	Actor.Create("moneycrate", true, { Owner = USSR, Location = TransportWaypoint3.Location })
@@ -217,16 +296,25 @@ Trigger.OnKilled(ForwardCommand, function()
 	Greece.MarkCompletedObjective(AlliedObjective)
 end)
 
--- Trigger.OnKilled(IntroSoldier1, function()
--- 	local cameraIntro = Actor.Create("camera", true, { Owner = USSR, Location = CameraStart.Location })
--- 	Trigger.AfterDelay(DateTime.Seconds(15), function()
--- 		cameraIntro.Destroy()
--- 	end)
--- end)
+-- 添加敌方基地被摧毁的胜利条件
+Trigger.OnKilled(EnemyYard, function()
+	if not gameCompleted then
+		gameScore = gameScore + SCORE_PRIMARY_OBJECTIVES
+		USSR.MarkCompletedObjective(SovietObjective1)
+		USSR.MarkCompletedObjective(SovietObjective2)
+		CompleteGame()
+	end
+end)
 
 WorldLoaded = function()
+	Trigger.SetAgentMode(true)
+	
 	USSR = Player.GetPlayer("Multi0")
 	Greece = Player.GetPlayer("Multi1")
+
+	gameStartTime = DateTime.GameTime
+	Trigger.SetScore(0.0)
+	
 	Utils.Do(IntroAttackers, function(actor)
 		if not actor.IsDead then
 			Trigger.OnIdle(actor, actor.Hunt)
@@ -246,24 +334,27 @@ WorldLoaded = function()
 	InitObjectives(USSR)
 	AlliedObjective = AddPrimaryObjective(Greece, "")
 	SovietObjective1 = AddPrimaryObjective(USSR, "protect-command-center")
-	SovietObjective2 = AddPrimaryObjective(USSR, "destroy-allied-units-structures")
+	SovietObjective2 = AddPrimaryObjective(USSR, "destroy-enemy-base")
+	
+	keepSoldiersObjective = AddSecondaryObjective(USSR, "keep-rocket-soldier-alive")
+	timeObjective = AddSecondaryObjective(USSR, "complete-within-360-seconds")
 
-	Greece.Resources = 2000
+	Greece.Resources = 5000
 	Trigger.AfterDelay(DateTime.Seconds(30), ProduceInfantry)
 	
-	-- 启动坦克空投测试
-	ScheduleTankDropTests()
+	-- 启动坦克空投
+	ScheduleTankDrop()
+	
+	-- 延迟启动单位生产监控，确保所有建筑都已加载
+	Trigger.AfterDelay(DateTime.Seconds(1), MonitorUnitProduction)
 end
 
 Tick = function()
 	if USSR.HasNoRequiredUnits() then
 		Greece.MarkCompletedObjective(AlliedObjective)
 	end
-
-	if Greece.HasNoRequiredUnits() then
-		USSR.MarkCompletedObjective(SovietObjective1)
-		USSR.MarkCompletedObjective(SovietObjective2)
-	end
+	-- 移除了原来的"摧毁所有敌方单位"检查
+	-- 现在胜利条件改为摧毁EnemyYard，在OnKilled触发器中处理
 
 	if Greece.Resources >= Greece.ResourceCapacity * 0.75 then
 		Greece.Cash = Greece.Cash + Greece.Resources - Greece.ResourceCapacity * 0.25
