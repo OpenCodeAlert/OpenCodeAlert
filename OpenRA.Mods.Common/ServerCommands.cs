@@ -927,6 +927,7 @@ namespace OpenRA.Mods.Common.Commands
 				throw new ArgumentException($"玩家没有类型为 {queueType} 的生产队列建筑");
 
 			// 查找有就绪项目的队列
+			var buildingActor = validBuildings.FirstOrDefault().Actor;
 			ProductionQueue queue = validBuildings.FirstOrDefault().Queue;
 			var readyBuilding = queue.AllQueued().Any(item => item.Done);
 			if (readyBuilding == null)
@@ -960,6 +961,7 @@ namespace OpenRA.Mods.Common.Commands
 			{
 				TargetString = readyItem.Item,
 				ExtraLocation = location.Value,
+				ExtraData = buildingActor.ActorID
 			});
 
 			return $"已在位置({location.Value.X}, {location.Value.Y})放置建筑: {CopilotsConfig.GetChineseByConfigName(readyItem.Item)}";
