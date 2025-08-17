@@ -279,7 +279,8 @@ namespace OpenRA.Mods.Common.Widgets
 				Scroll(mi.Delta.Y);
 				return true;
 			}
-
+			if (Game.Settings.Game.IsAgentMode)
+				return true;
 			if (mi.Button != MouseButton.Left)
 				return true;
 

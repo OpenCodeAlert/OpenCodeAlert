@@ -90,7 +90,7 @@ namespace OpenRA.Mods.Common.Widgets
 
 			if (World.OrderGenerator is not UnitOrderGenerator uog)
 			{
-				// ÔÚAgentMode¾Í×è¶ÏÁË
+				// ï¿½ï¿½AgentModeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				if (Game.Settings.Game.IsAgentMode)
 					return true;
 				ApplyOrders(World, mi);
@@ -114,6 +114,8 @@ namespace OpenRA.Mods.Common.Widgets
 					!IsValidDragbox && World.Selection.Actors.Count != 0 &&
 					!multiClick && uog.InputOverridesSelection(World, mousePos, mi))
 				{
+					if (Game.Settings.Game.IsAgentMode)
+						return true;
 					// Order units instead of selecting
 					ApplyOrders(World, mi);
 					isDragging = false;
@@ -167,6 +169,8 @@ namespace OpenRA.Mods.Common.Widgets
 
 			if (mi.Button == MouseButton.Right && mi.Event == MouseInputEvent.Up)
 			{
+				if (Game.Settings.Game.IsAgentMode)
+					return true;
 				// Don't do anything while selecting
 				if (!IsValidDragbox)
 				{

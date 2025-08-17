@@ -480,7 +480,8 @@ namespace OpenRA.Mods.Common.Widgets
 					}
 				}
 			}
-
+			if (Game.Settings.Game.IsAgentMode)
+				return true;
 			return world.OrderGenerator.HandleKeyPress(e);
 		}
 
