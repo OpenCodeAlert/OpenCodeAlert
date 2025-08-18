@@ -37,20 +37,20 @@ namespace OpenRA.Mods.Common.Commands
 				// {
 				// 	foreach (var restrain in restrainss)
 				// 	{
-						// 这里默认就只能看见 visible的才合理啊，不然作弊了
+				// 这里默认就只能看见 visible的才合理啊，不然作弊了
 
-						// var visible = restrain["visible"]?.ToObject<bool>();
-						// if (visible == true)
-						// {
-							result = result.Where(a =>
-							{
-								var tar = Target.FromActor(a);
-								_ = tar.Recalculate(player.PlayerActor.Owner, out var targetIsHiddenActor);
-								return !targetIsHiddenActor && a.CanBeViewedByPlayer(player.PlayerActor.Owner);
-							})
-							.ToList();
-						// }
-					// }
+				// var visible = restrain["visible"]?.ToObject<bool>();
+				// if (visible == true)
+				// {
+				result = result.Where(a =>
+				{
+					var tar = Target.FromActor(a);
+					_ = tar.Recalculate(player.PlayerActor.Owner, out var targetIsHiddenActor);
+					return !targetIsHiddenActor && a.CanBeViewedByPlayer(player.PlayerActor.Owner);
+				})
+				.ToList();
+				// }
+				// }
 				// }
 
 				return result;
@@ -148,7 +148,7 @@ namespace OpenRA.Mods.Common.Commands
 					}
 					// else if (visible == true)
 					// {
-						
+
 					// }
 				}
 			}
@@ -359,6 +359,11 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string MoveActorInPath(IEnumerable<Actor> actors, List<JToken> path, bool isAttackMove, bool isAssaultMove, World world)
 		{
+			if (path.Count == 0)
+			{
+				throw new NotImplementedException("Missing parameters for moveactor command");
+			}
+
 			var num = 0;
 			foreach (var actor in actors)
 			{
@@ -366,64 +371,15 @@ namespace OpenRA.Mods.Common.Commands
 				if (move == null)
 					continue;
 				num++;
-				
+
 				// 将输入的路径点转换为 CPos
 				var inputPath = new List<CPos>();
 				foreach (var c in path)
 					inputPath.Add(GetLocation(c));
-				
-				// 生成连续的路径
-				var cposPath = new List<CPos>();
-				var pathFinder = actor.World.WorldActor.Trait<PathFinder>();
-				
-				// 从当前位置开始
-				var currentPos = actor.Location;
-				
-				// 为每两个相邻点之间生成连续路径
-				for (int i = 0; i < inputPath.Count; i++)
+				for (var i = 0; i < inputPath.Count; i++)
 				{
 					var targetPos = inputPath[i];
-					
-					// 如果目标点与当前位置相同，跳过
-					if (targetPos == currentPos)
-						continue;
-					
-					// 使用 FindPathToTargetCell 找到到目标点的路径
-					var pathToTarget = pathFinder.FindPathToTargetCell(
-						actor,
-						new[] { currentPos },
-						targetPos,
-						BlockedByActor.Immovable);
-					
-					// 检查是否找到路径
-					if (pathToTarget == PathFinder.NoPath || pathToTarget.Count == 0)
-					{
-						throw new InvalidOperationException($"无法到达路径点 {i} (坐标: {targetPos.X}, {targetPos.Y})。该点不可达或路径被阻塞。");
-					}
-					
-					// 将路径添加到结果中（跳过第一个点，因为它是起始点）
-					for (int j = 1; j < pathToTarget.Count; j++)
-					{
-						cposPath.Add(pathToTarget[j]);
-					}
-					
-					// 更新当前位置
-					currentPos = targetPos;
-				}
-				
-				// 如果没有生成任何路径点，跳过这个 actor
-				if (cposPath.Count == 0)
-					continue;
-				
-				actor.CancelActivity();
-
-				if (isAttackMove || isAssaultMove)
-				{
-					actor.QueueActivity(new AttackMoveActivity(actor, () => new Move(actor, check => cposPath), isAssaultMove));
-				}
-				else
-				{
-					actor.QueueActivity(new Move(actor, check => cposPath));
+					world.IssueOrder(new Order("Move", actor, Target.FromCell(world, targetPos), true));
 				}
 			}
 
@@ -965,7 +921,7 @@ namespace OpenRA.Mods.Common.Commands
 			// 获取放置位置
 			var locationToken = json.TryGetFieldValue("location");
 			CPos? location = null;
-			
+
 			if (locationToken != null)
 			{
 				location = GetTargetLocation(locationToken, world, player);
@@ -974,7 +930,7 @@ namespace OpenRA.Mods.Common.Commands
 			if (location == null)
 			{
 				CopilotsUtils.TryBuild(world, readyItem.Item, player.PlayerActor, queue);
-				
+
 			}
 
 			// 检查位置是否可建造
@@ -1394,8 +1350,8 @@ namespace OpenRA.Mods.Common.Commands
 				["progress_percent"] = item.TotalCost > 0 ?
 					(int)((item.TotalCost - item.RemainingCost) * 100 / item.TotalCost) : 0,
 				["owner_actor_id"] = item.Queue.Actor.ActorID,
-				["status"] = item.Done ? "completed" : 
-					item.Paused ? "paused" : 
+				["status"] = item.Done ? "completed" :
+					item.Paused ? "paused" :
 					index == 0 ? "in_progress" : "waiting"
 			}).ToArray();
 
