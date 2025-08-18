@@ -673,6 +673,17 @@ namespace OpenRA.Mods.Common.Commands
 		public static string DeployCommand(JObject json, World world)
 		{
 			var actors = GetTargetsFromJson(json, world);
+
+			var harvs = actors.Where(a => a.Info.HasTraitInfo<HarvesterInfo>()).ToList();
+			if (harvs.Count > 0)
+			{
+				foreach (var h in harvs)
+				{
+					//self.QueueActivity(new FindAndDeliverResources(self));
+					h.QueueActivity(new FindAndDeliverResources(h));
+				}
+			}
+
 			var selectedDeploys = Array.Empty<TraitPair<IIssueDeployOrder>>();
 			selectedDeploys = actors
 				.SelectMany(a => a.TraitsImplementing<IIssueDeployOrder>()
