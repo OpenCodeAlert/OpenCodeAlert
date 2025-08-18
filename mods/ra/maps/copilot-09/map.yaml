@@ -226,14 +226,8 @@ Actors:
 	Actor70: fact
 		Location: 41,76
 		Owner: Multi0
-	Actor71: powr
-		Location: 46,80
-		Owner: Multi0
 	Actor72: powr
 		Location: 49,80
-		Owner: Multi0
-	Actor73: powr
-		Location: 43,80
 		Owner: Multi0
 	Actor75: afld
 		Location: 45,77
@@ -575,6 +569,24 @@ Actors:
 	DropPoint1: waypoint
 		Owner: Neutral
 		Location: 55,81
+	Actor146: dome
+		Owner: Multi0
+		Location: 38,76
+	Actor147: weap
+		Owner: Multi0
+		Location: 42,80
+	Actor148: powr
+		Owner: Multi0
+		Location: 46,80
+	Actor149: mine
+		Owner: Neutral
+		Location: 42,66
+	Actor150: mine
+		Owner: Neutral
+		Location: 66,80
+	DefaultCameraPosition: waypoint
+		Owner: Neutral
+		Location: 49,77
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml
 

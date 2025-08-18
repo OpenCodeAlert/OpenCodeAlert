@@ -307,6 +307,7 @@ Trigger.OnKilled(EnemyYard, function()
 end)
 
 WorldLoaded = function()
+    Camera.Position = DefaultCameraPosition.CenterPosition
 	Trigger.SetAgentMode(true)
 	
 	USSR = Player.GetPlayer("Multi0")

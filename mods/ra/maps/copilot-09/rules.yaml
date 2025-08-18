@@ -1,6 +1,6 @@
 Player:
 	PlayerResources:
-		DefaultCash: 2500
+		DefaultCash: 3500
 
 World:
 	LuaScript:
@@ -73,6 +73,22 @@ THF:
 		Prerequisites: ~disabled
 
 MIG:
+	Buildable:
+		Prerequisites: ~disabled
+
+FTRK:
+	Buildable:
+		Prerequisites: ~disabled
+
+3TNK:
+	Buildable:
+		Prerequisites: ~disabled
+
+4TNK:
+	Buildable:
+		Prerequisites: ~disabled		
+
+V2RL:
 	Buildable:
 		Prerequisites: ~disabled
 

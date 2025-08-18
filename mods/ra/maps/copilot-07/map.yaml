@@ -1094,5 +1094,8 @@ Actors:
 	Actor263: fix
 		Owner: multi1
 		Location: 6,16
+	DefaultCameraPosition: waypoint
+		Owner: Neutral
+		Location: 10,23
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml, rules.yaml

@@ -1,4 +1,5 @@
 WorldLoaded = function()
+	Camera.Position = DefaultCameraPosition.CenterPosition
 	Trigger.SetAgentMode(true)
 	Trigger.SetScore(0.0)  -- 初始化分数为0
 
@@ -36,7 +37,7 @@ WorldLoaded = function()
 	FailureChecked = false
 	
 	-- 设置相机位置到玩家基地
-	Camera.Position = Map.NamedActor("Actor69").CenterPosition  -- 玩家工厂位置
+	-- Camera.Position = Map.NamedActor("Actor69").CenterPosition  -- 玩家工厂位置
 	
 	-- 监听敌方单位死亡
 	Utils.Do(AllEnemyUnits, function(unit)
