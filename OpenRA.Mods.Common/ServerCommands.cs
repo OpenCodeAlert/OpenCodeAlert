@@ -366,39 +366,55 @@ namespace OpenRA.Mods.Common.Commands
 				if (move == null)
 					continue;
 				num++;
-				var cposPath = new List<CPos>();
+				
+				// 将输入的路径点转换为 CPos
+				var inputPath = new List<CPos>();
 				foreach (var c in path)
-					cposPath.Add(GetLocation(c));
-				if (cposPath[^1] != actor.Location)
+					inputPath.Add(GetLocation(c));
+				
+				// 生成连续的路径
+				var cposPath = new List<CPos>();
+				var pathFinder = actor.World.WorldActor.Trait<PathFinder>();
+				
+				// 从当前位置开始
+				var currentPos = actor.Location;
+				
+				// 为每两个相邻点之间生成连续路径
+				for (int i = 0; i < inputPath.Count; i++)
 				{
-					static int ChebyshevDistance(CPos a, CPos b) => Math.Max(Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
-
-					var nearestIdx = -1;
-					var shortestDist = int.MaxValue;
-					for (var i = 0; i < cposPath.Count; i++)
+					var targetPos = inputPath[i];
+					
+					// 如果目标点与当前位置相同，跳过
+					if (targetPos == currentPos)
+						continue;
+					
+					// 使用 FindPathToTargetCell 找到到目标点的路径
+					var pathToTarget = pathFinder.FindPathToTargetCell(
+						actor,
+						new[] { currentPos },
+						targetPos,
+						BlockedByActor.Immovable);
+					
+					// 检查是否找到路径
+					if (pathToTarget == PathFinder.NoPath || pathToTarget.Count == 0)
 					{
-						var dist = ChebyshevDistance(actor.Location, cposPath[i]);
-						if (dist < shortestDist)
-						{
-							shortestDist = dist;
-							nearestIdx = i;
-						}
+						throw new InvalidOperationException($"无法到达路径点 {i} (坐标: {targetPos.X}, {targetPos.Y})。该点不可达或路径被阻塞。");
 					}
-
-					if (nearestIdx >= 0)
+					
+					// 将路径添加到结果中（跳过第一个点，因为它是起始点）
+					for (int j = 1; j < pathToTarget.Count; j++)
 					{
-						var pathFinder = actor.World.WorldActor.Trait<PathFinder>();
-						var pathToNearest = pathFinder.FindPathToTargetCell(
-							actor,
-							new[] { actor.Location },
-							cposPath[nearestIdx],
-							BlockedByActor.Immovable);
-
-						cposPath.RemoveRange(nearestIdx, cposPath.Count - nearestIdx);
-						cposPath.InsertRange(nearestIdx, pathToNearest);
+						cposPath.Add(pathToTarget[j]);
 					}
+					
+					// 更新当前位置
+					currentPos = targetPos;
 				}
-
+				
+				// 如果没有生成任何路径点，跳过这个 actor
+				if (cposPath.Count == 0)
+					continue;
+				
 				actor.CancelActivity();
 
 				if (isAttackMove || isAssaultMove)
