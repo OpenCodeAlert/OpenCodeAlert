@@ -63,6 +63,8 @@ units:
     weap:
         战车工厂
         车间
+        车间工厂
+        造坦克的
         坦克厂
         坦克工厂
         载具工厂
@@ -80,6 +82,10 @@ units:
         dome
     fix:
         维修厂
+        修理中心
+        维修中心
+        修理车间
+        修理所
         修理厂
         维修站
         修理站
@@ -386,6 +392,7 @@ units:
     yak:
         雅克战机
         雅克
+        Yak
         雅克攻击机
         苏联战机
         yak fighter
@@ -464,6 +471,9 @@ nickname:
         apc
         ttnk
         qtnk
+        v2rl
+        yak
+        mig
     建筑:
         powr
         tent
@@ -484,3 +494,7 @@ nickname:
         mslo
         fact
         oilb
+    防御塔:
+        ftur
+        tsla
+    
