@@ -24,22 +24,26 @@ namespace OpenRA.Mods.Common
 		public static void LoadConfig()
 		{
 
-			var parentDirectory = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+			var baseDir = AppContext.BaseDirectory;
+			string? filePath = null;
 
+			// macOS .app: BaseDirectory = .../YourApp.app/Contents/MacOS/
+			var macResources = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "Resources", "mods", "common", "Copilot.yaml"));
+			if (File.Exists(macResources))
+				filePath = macResources;
 
-			// 这里指定 Copilot.yaml 文件的相对路径
-			var filePath = Path.Combine(parentDirectory, "mods", "common", "Copilot.yaml");
+			// Windows: BaseDirectory = ...\bin\Debug\net6.0\ or .exe所在目录
+			var winPath = Path.Combine(baseDir, "mods", "common", "Copilot.yaml");
+			if (filePath == null && File.Exists(winPath))
+				filePath = winPath;
 
-			if (!File.Exists(filePath))
+			if (filePath == null)
 			{
-				parentDirectory = Path.GetDirectoryName(parentDirectory);
-				filePath = Path.Combine(parentDirectory, "mods", "common", "Copilot.yaml");
-				if (!File.Exists(filePath))
-				{
-					Console.WriteLine($"文件路径无效: {filePath}");
-					return;
-				}
+				Console.WriteLine("未找到 Copilot.yaml 配置文件");
+				return;
 			}
+
+			Console.WriteLine($"加载配置文件: {filePath}");
 
 			var yamlNodes = MiniYaml.FromFile(filePath);
 			var unitsNode = yamlNodes.FirstOrDefault(node => node.Key == "units")?.Value;

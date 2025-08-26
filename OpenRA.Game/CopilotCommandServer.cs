@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -235,11 +236,26 @@ namespace OpenRA
 						}
 						catch (Exception ex)
 						{
+							var detail = new JObject
+							{
+								["type"] = ex.GetType().FullName,
+								["message"] = ex.Message,
+								["stack"] = ex.StackTrace ?? "",
+								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
+								["inner"] = ex.InnerException?.ToString(),
+								["data"] = new JObject(
+			ex.Data?.Cast<System.Collections.DictionaryEntry>()
+				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
+			?? new Dictionary<string, string>()
+		),
+								["isDebug"] = DebugMode
+							};
+
 							SendErrorResponse(clientSocket, new MCPError
 							{
 								Code = MCPErrorCodes.CommandExecutionError,
 								Message = GetErrorMessage("COMMAND_EXECUTION_ERROR", language),
-								Details = new JObject { ["error"] = ex.Message }
+								Details = detail
 							}, request.RequestId, DebugMode);
 						}
 					}
@@ -255,11 +271,25 @@ namespace OpenRA
 						}
 						catch (Exception ex)
 						{
+							var detail = new JObject
+							{
+								["type"] = ex.GetType().FullName,
+								["message"] = ex.Message,
+								["stack"] = ex.StackTrace ?? "",
+								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
+								["inner"] = ex.InnerException?.ToString(),
+								["data"] = new JObject(
+			ex.Data?.Cast<System.Collections.DictionaryEntry>()
+				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
+			?? new Dictionary<string, string>()
+		),
+								["isDebug"] = DebugMode
+							};
 							SendErrorResponse(clientSocket, new MCPError
 							{
 								Code = MCPErrorCodes.CommandExecutionError,
 								Message = GetErrorMessage("QUERY_EXECUTION_ERROR", language),
-								Details = new JObject { ["error"] = ex.Message }
+								Details = detail
 							}, request.RequestId, DebugMode);
 						}
 					}
@@ -274,11 +304,25 @@ namespace OpenRA
 				}
 				catch (Exception ex)
 				{
+					var detail = new JObject
+							{
+								["type"] = ex.GetType().FullName,
+								["message"] = ex.Message,
+								["stack"] = ex.StackTrace ?? "",
+								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
+								["inner"] = ex.InnerException?.ToString(),
+								["data"] = new JObject(
+			ex.Data?.Cast<System.Collections.DictionaryEntry>()
+				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
+			?? new Dictionary<string, string>()
+		),
+								["isDebug"] = DebugMode
+							};
 					SendErrorResponse(clientSocket, new MCPError
 					{
 						Code = MCPErrorCodes.InternalError,
 						Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
-						Details = new JObject { ["error"] = ex.Message }
+						Details = detail
 					}, null, DebugMode);
 				}
 			}
