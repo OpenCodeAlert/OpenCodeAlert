@@ -23,7 +23,7 @@ namespace OpenRA.Mods.Common
 
 		public static void LoadConfig()
 		{
-
+			var parentDirectory = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
 			var baseDir = AppContext.BaseDirectory;
 			string? filePath = null;
 
@@ -33,14 +33,19 @@ namespace OpenRA.Mods.Common
 				filePath = macResources;
 
 			// Windows: BaseDirectory = ...\bin\Debug\net6.0\ or .exe所在目录
-			var winPath = Path.Combine(baseDir, "mods", "common", "Copilot.yaml");
+			var winPath = Path.Combine(parentDirectory, "mods", "common", "Copilot.yaml");
 			if (filePath == null && File.Exists(winPath))
 				filePath = winPath;
 
 			if (filePath == null)
 			{
-				Console.WriteLine("未找到 Copilot.yaml 配置文件");
-				return;
+				parentDirectory = Path.GetDirectoryName(parentDirectory);
+				filePath = Path.Combine(parentDirectory, "mods", "common", "Copilot.yaml");
+				if (!File.Exists(filePath))
+				{
+					Console.WriteLine("未找到 Copilot.yaml 配置文件");
+					return;
+				}
 			}
 
 			Console.WriteLine($"加载配置文件: {filePath}");

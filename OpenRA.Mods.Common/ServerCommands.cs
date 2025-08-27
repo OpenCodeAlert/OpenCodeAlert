@@ -323,11 +323,11 @@ namespace OpenRA.Mods.Common.Commands
 				actor.CancelActivity();
 				if (isAttackMove || isAssaultMove)
 				{
-					actor.QueueActivity(new AttackMoveActivity(actor, () => move.MoveTo(targetLocation, 8, null, true), isAssaultMove));
+					world.IssueOrder(new Order("AttackMove", null, Target.FromCell(world, targetLocation), false, groupedActors: new[] { actor }));
 				}
 				else
 				{
-					actor.QueueActivity(move.MoveTo(targetLocation, 5, null, true));
+					world.IssueOrder(new Order("Move", actor, Target.FromCell(world, targetLocation), false));
 				}
 			}
 
@@ -336,25 +336,17 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string MoveActorToLocation(IEnumerable<Actor> actors, CPos targetLocation, bool isAttackMove, bool isAssaultMove, World world)
 		{
-			var num = 0;
-			foreach (var actor in actors)
+			actors = actors.Where(a => a.TraitOrDefault<IMove>() != null);
+			if (isAttackMove || isAssaultMove)
 			{
-				var move = actor.TraitOrDefault<IMove>();
-				if (move == null)
-					continue;
-				num++;
-				actor.CancelActivity();
-				if (isAttackMove || isAssaultMove)
-				{
-					actor.QueueActivity(new AttackMoveActivity(actor, () => move.MoveTo(targetLocation, 8, null, true), isAssaultMove));
-				}
-				else
-				{
-					actor.QueueActivity(move.MoveTo(targetLocation, 5, null, true));
-				}
+				world.IssueOrder(new Order("AttackMove", null, Target.FromCell(world, targetLocation), false, groupedActors: actors.ToArray()));
+			}
+			else
+			{
+				world.IssueOrder(new Order("Move", null, Target.FromCell(world, targetLocation), false, groupedActors: actors.ToArray()));
 			}
 
-			return $"{num} Actor Moved";
+			return $"{actors.ToArray().Length} Actor Moved";
 		}
 
 		public static string MoveActorInPath(IEnumerable<Actor> actors, List<JToken> path, bool isAttackMove, bool isAssaultMove, World world)
@@ -364,26 +356,19 @@ namespace OpenRA.Mods.Common.Commands
 				throw new NotImplementedException("Missing parameters for moveactor command");
 			}
 
-			var num = 0;
-			foreach (var actor in actors)
-			{
-				var move = actor.TraitOrDefault<IMove>();
-				if (move == null)
-					continue;
-				num++;
+			actors = actors.Where(a => a.TraitOrDefault<IMove>() != null);
 
-				// 将输入的路径点转换为 CPos
-				var inputPath = new List<CPos>();
-				foreach (var c in path)
-					inputPath.Add(GetLocation(c));
-				for (var i = 0; i < inputPath.Count; i++)
-				{
-					var targetPos = inputPath[i];
-					world.IssueOrder(new Order("Move", actor, Target.FromCell(world, targetPos), true));
-				}
+			// 将输入的路径点转换为 CPos
+			var inputPath = new List<CPos>();
+			foreach (var c in path)
+				inputPath.Add(GetLocation(c));
+			for (var i = 0; i < inputPath.Count; i++)
+			{
+				var targetPos = inputPath[i];
+				world.IssueOrder(new Order("Move", null, Target.FromCell(world, targetPos), true, groupedActors: actors.ToArray()));
 			}
 
-			return $"{num} Actor Moved";
+			return $"{actors.ToArray().Length} Actor Moved";
 		}
 
 		public static JObject StartProductionCommand(JObject json, World world)
