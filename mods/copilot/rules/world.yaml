@@ -172,6 +172,7 @@ World:
 	Inherits: ^BaseWorld
 	ChatCommands:
 	DevCommands:
+	CopilotBridge:
 	ServerCommands:
 	GameStatsTracker:
 		Enabled: true

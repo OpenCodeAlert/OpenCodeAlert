@@ -320,14 +320,30 @@ namespace OpenRA.Mods.Common.Commands
 					throw new NotImplementedException("Target location is out of bounads");
 				}
 
-				actor.CancelActivity();
+				// route to main thread via bus
+				CopilotBus.Enqueue(new CancelActivityIntent { ActorId = (int)actor.ActorID });
 				if (isAttackMove || isAssaultMove)
 				{
-					world.IssueOrder(new Order("AttackMove", null, Target.FromCell(world, targetLocation), false, groupedActors: new[] { actor }));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						OrderId = "AttackMove",
+						SubjectActorId = null,
+						TargetA = TargetSpec.FromCell(targetLocation),
+						TargetB = TargetSpec.None(),
+						Queued = false,
+						GroupedActorIds = new[] { (int)actor.ActorID }
+					});
 				}
 				else
 				{
-					world.IssueOrder(new Order("Move", actor, Target.FromCell(world, targetLocation), false));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						OrderId = "Move",
+						SubjectActorId = (int)actor.ActorID,
+						TargetA = TargetSpec.FromCell(targetLocation),
+						TargetB = TargetSpec.None(),
+						Queued = false
+					});
 				}
 			}
 
@@ -337,16 +353,18 @@ namespace OpenRA.Mods.Common.Commands
 		public static string MoveActorToLocation(IEnumerable<Actor> actors, CPos targetLocation, bool isAttackMove, bool isAssaultMove, World world)
 		{
 			actors = actors.Where(a => a.TraitOrDefault<IMove>() != null);
-			if (isAttackMove || isAssaultMove)
+			var groupedIds = actors.Select(a => (int)a.ActorID).ToArray();
+			CopilotBus.Enqueue(new IssueOrderIntent
 			{
-				world.IssueOrder(new Order("AttackMove", null, Target.FromCell(world, targetLocation), false, groupedActors: actors.ToArray()));
-			}
-			else
-			{
-				world.IssueOrder(new Order("Move", null, Target.FromCell(world, targetLocation), false, groupedActors: actors.ToArray()));
-			}
+				OrderId = isAttackMove || isAssaultMove ? "AttackMove" : "Move",
+				SubjectActorId = null,
+				TargetA = TargetSpec.FromCell(targetLocation),
+				TargetB = TargetSpec.None(),
+				Queued = false,
+				GroupedActorIds = groupedIds
+			});
 
-			return $"{actors.ToArray().Length} Actor Moved";
+			return $"{groupedIds.Length} Actor Moved";
 		}
 
 		public static string MoveActorInPath(IEnumerable<Actor> actors, List<JToken> path, bool isAttackMove, bool isAssaultMove, World world)
@@ -362,13 +380,22 @@ namespace OpenRA.Mods.Common.Commands
 			var inputPath = new List<CPos>();
 			foreach (var c in path)
 				inputPath.Add(GetLocation(c));
+			var groupedIds = actors.Select(a => (int)a.ActorID).ToArray();
 			for (var i = 0; i < inputPath.Count; i++)
 			{
 				var targetPos = inputPath[i];
-				world.IssueOrder(new Order("Move", null, Target.FromCell(world, targetPos), true, groupedActors: actors.ToArray()));
+				CopilotBus.Enqueue(new IssueOrderIntent
+				{
+					OrderId = "Move",
+					SubjectActorId = null,
+					TargetA = TargetSpec.FromCell(targetPos),
+					TargetB = TargetSpec.None(),
+					Queued = true,
+					GroupedActorIds = groupedIds
+				});
 			}
 
-			return $"{actors.ToArray().Length} Actor Moved";
+			return $"{groupedIds.Length} Actor Moved";
 		}
 
 		public static JObject StartProductionCommand(JObject json, World world)
@@ -424,7 +451,15 @@ namespace OpenRA.Mods.Common.Commands
 				{
 					var validUnit = validUnits[0];
 
-					world.IssueOrder(Order.StartProduction(validUnit.queue.Actor, validUnit.unitName, quantity.Value, true, autoPlace));
+					var buildingId = (int)validUnit.queue.Actor.ActorID;
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						Factory = "StartProduction",
+						SubjectActorId = buildingId,
+						FactoryItem = validUnit.unitName,
+						FactoryCount = quantity.Value,
+						ExtraData = autoPlace ? 1 : 0
+					});
 
 					ret_str += $"{unitName} built.\n";
 					var newWait = Tuple.Create(unitName, quantity.Value);
@@ -473,96 +508,6 @@ namespace OpenRA.Mods.Common.Commands
 
 			return $"Camera moved {direction} by {distance.Value}.";
 		}
-
-		static List<List<byte>> GetTileInfo(World world, Actor actor)
-		{
-			var map = world.Map;
-			var tileInfo = new List<List<byte>>();
-			for (var x = 0; x < map.Bounds.Width; x++)
-			{
-				var tempList = new List<byte>();
-				for (var y = 0; y < map.Bounds.Height; y++)
-				{
-					var pos = new CPos(x, y);
-
-					// var target = Target.FromCell(world, pos);
-					var mobile = actor.TraitOrDefault<Mobile>();
-					if (mobile == null)
-						return null;
-
-					var pathFinder = actor.World.WorldActor.Trait<PathFinder>();
-					var locomotor = mobile.Locomotor;
-					var canMove = pathFinder.PathExistsForLocomotor(locomotor, actor.Location, pos);
-
-					// 	var orders = actor.TraitsImplementing<IIssueOrder>()
-					// .SelectMany(trait => trait.Orders.Select(x => new { Trait = trait, Order = x }))
-					// .Where(order => order.Order. == "Move" || order.OrderName == "AttackMove")
-					// .Select(x => x)
-					// .OrderByDescending(x => x.Order.OrderPriority)
-					// .ToList();
-					// 	var CanMove = false;
-					// 	foreach (var o in orders)
-					// 	{
-					// 		var localModifiers = TargetModifiers.None;
-					// 		string cursor = null;
-					// 		if (o.Order.CanTarget(actor, target, ref localModifiers, ref cursor))
-					// 			CanMove = true;
-					// 	}
-					tempList.Add((byte)(canMove ? 0 : 1));
-
-					// var terrainTile = map.Tiles[new MPos(x, y)];
-				}
-
-				tileInfo.Add(tempList);
-			}
-
-			return tileInfo;
-		}
-
-		static List<List<byte>> CompressTileInfo(List<List<byte>> tileInfo, int compressLevel)
-		{
-			var width = tileInfo.Count;
-			var height = tileInfo[0].Count;
-			var compressedWidth = (width + compressLevel - 1) / compressLevel;
-			var compressedHeight = (height + compressLevel - 1) / compressLevel;
-
-			var compressedTileInfo = new List<List<byte>>();
-
-			for (var x = 0; x < compressedWidth; x++)
-			{
-				var compressedRow = new List<byte>();
-				for (var y = 0; y < compressedHeight; y++)
-				{
-					var count = 0;
-					var total = 0;
-
-					for (var i = 0; i < compressLevel; i++)
-					{
-						for (var j = 0; j < compressLevel; j++)
-						{
-							var xi = x * compressLevel + i;
-							var yj = y * compressLevel + j;
-							if (xi < width && yj < height)
-							{
-								total++;
-								if (tileInfo[xi][yj] == 1)
-								{
-									count++;
-								}
-							}
-						}
-					}
-
-					// 如果1的数量超过50%，则压缩后的格子为1，否则为0
-					compressedRow.Add((byte)(count > total / 2 ? 1 : 0));
-				}
-
-				compressedTileInfo.Add(compressedRow);
-			}
-
-			return compressedTileInfo;
-		}
-
 		static CPos? FindClosestEmptyPoint(List<List<byte>> map, int x, int y)
 		{
 			var centerX = x + 2;
@@ -620,7 +565,14 @@ namespace OpenRA.Mods.Common.Commands
 					ret_str += $"Target is hidden now {tar.Actor.ActorID}\n";
 					continue;
 				}
-				world.IssueOrder(new Order("Attack", a, tar, false));
+				CopilotBus.Enqueue(new IssueOrderIntent
+				{
+					OrderId = "Attack",
+					SubjectActorId = (int)a.ActorID,
+					TargetA = TargetSpec.FromActorId((int)tar.Actor.ActorID),
+					TargetB = TargetSpec.None(),
+					Queued = false
+				});
 				ret_str += $"Attack {a.ActorID} to {tar.Actor.ActorID}\n";
 			}
 
@@ -636,9 +588,10 @@ namespace OpenRA.Mods.Common.Commands
 			{
 				foreach (var h in harvs)
 				{
-					//self.QueueActivity(new FindAndDeliverResources(self));
-					h.QueueActivity(new FindAndDeliverResources(h));
+					CopilotBus.Enqueue(new CancelActivityIntent { ActorId = (int)h.ActorID });
+					CopilotBus.Enqueue(new QueueActivityIntent { ActorId = (int)h.ActorID, ActivityName = "FindAndDeliverResources" });
 				}
+				return "Deploy action executed.";
 			}
 
 			var selectedDeploys = Array.Empty<TraitPair<IIssueDeployOrder>>();
@@ -656,7 +609,19 @@ namespace OpenRA.Mods.Common.Commands
 				.ToArray();
 
 			foreach (var o in orders)
-				world.IssueOrder(o);
+			{
+				var subjectId = o.Subject != null ? (int)o.Subject.ActorID : (int?)null;
+				var tA = o.Target.Type == TargetType.Actor ? TargetSpec.FromActorId((int)o.Target.Actor.ActorID)
+					: TargetSpec.None();
+				CopilotBus.Enqueue(new IssueOrderIntent
+				{
+					OrderId = o.OrderString,
+					SubjectActorId = subjectId,
+					TargetA = tA,
+					TargetB = TargetSpec.None(),
+					Queued = o.Queued
+				});
+			}
 
 			orders.PlayVoiceForOrders();
 			return "Deploy action executed.";
@@ -711,7 +676,14 @@ namespace OpenRA.Mods.Common.Commands
 				if (targetActor == null)
 					continue;
 
-				world.IssueOrder(new Order("CaptureActor", capturer.Actor, Target.FromActor(targetActor), true));
+				CopilotBus.Enqueue(new IssueOrderIntent
+				{
+					OrderId = "CaptureActor",
+					SubjectActorId = (int)capturer.Actor.ActorID,
+					TargetA = TargetSpec.FromActorId((int)targetActor.ActorID),
+					TargetB = TargetSpec.None(),
+					Queued = true
+				});
 			}
 
 			return "Order Executed";
@@ -724,7 +696,14 @@ namespace OpenRA.Mods.Common.Commands
 			foreach (var a in actors)
 			{
 				if (a.Info.HasTraitInfo<RepairableBuildingInfo>())
-					world.IssueOrder(new Order("RepairBuilding", player.PlayerActor, Target.FromActor(a), false));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						OrderId = "RepairBuilding",
+						SubjectActorId = (int)player.PlayerActor.ActorID,
+						TargetA = TargetSpec.FromActorId((int)a.ActorID),
+						TargetB = TargetSpec.None(),
+						Queued = false
+					});
 				else
 				{
 					Actor repairBuilding = null;
@@ -747,7 +726,14 @@ namespace OpenRA.Mods.Common.Commands
 					if (repairBuilding == null)
 						continue;
 
-					world.IssueOrder(new Order(orderId, a, Target.FromActor(repairBuilding), Target.FromActor(a), false));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						OrderId = orderId,
+						SubjectActorId = (int)a.ActorID,
+						TargetA = TargetSpec.FromActorId((int)repairBuilding.ActorID),
+						TargetB = TargetSpec.FromActorId((int)a.ActorID),
+						Queued = false
+					});
 				}
 			}
 
@@ -759,7 +745,14 @@ namespace OpenRA.Mods.Common.Commands
 			var actors = GetTargetsFromJson(json, world);
 			foreach (var a in actors)
 			{
-				world.IssueOrder(new Order("Stop", a, false));
+				CopilotBus.Enqueue(new IssueOrderIntent
+				{
+					OrderId = "Stop",
+					SubjectActorId = (int)a.ActorID,
+					TargetA = TargetSpec.None(),
+					TargetB = TargetSpec.None(),
+					Queued = false
+				});
 			}
 
 			return "Stop Executed";
@@ -793,8 +786,13 @@ namespace OpenRA.Mods.Common.Commands
 					continue;
 				}
 
-				world.IssueOrder(new Order("SetRallyPoint", building, Target.FromCell(world, location.Value), false)
+				CopilotBus.Enqueue(new IssueOrderIntent
 				{
+					OrderId = "SetRallyPoint",
+					SubjectActorId = (int)building.ActorID,
+					TargetA = TargetSpec.FromCell(location.Value),
+					TargetB = TargetSpec.None(),
+					Queued = false,
 					SuppressVisualFeedback = true
 				});
 
@@ -853,7 +851,13 @@ namespace OpenRA.Mods.Common.Commands
 					if (firstItem.Paused)
 						return "生产已经处于暂停状态";
 
-					world.IssueOrder(Order.PauseProduction(building, firstItem.Item, true));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						Factory = "PauseProduction",
+						SubjectActorId = (int)building.ActorID,
+						FactoryItem = firstItem.Item,
+						FactoryCount = 1
+					});
 					return $"已暂停生产: {CopilotsConfig.GetChineseByConfigName(firstItem.Item)}";
 
 				case "resume":
@@ -861,12 +865,24 @@ namespace OpenRA.Mods.Common.Commands
 					if (!firstItem.Paused)
 						return "生产已经处于进行状态";
 
-					world.IssueOrder(Order.PauseProduction(building, firstItem.Item, false));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						Factory = "PauseProduction",
+						SubjectActorId = (int)building.ActorID,
+						FactoryItem = firstItem.Item,
+						FactoryCount = 0
+					});
 					return $"已恢复生产: {CopilotsConfig.GetChineseByConfigName(firstItem.Item)}";
 
 				case "cancel":
 					// 取消生产
-					world.IssueOrder(Order.CancelProduction(building, firstItem.Item, 1));
+					CopilotBus.Enqueue(new IssueOrderIntent
+					{
+						Factory = "CancelProduction",
+						SubjectActorId = (int)building.ActorID,
+						FactoryItem = firstItem.Item,
+						FactoryCount = 1
+					});
 					return $"已取消生产: {CopilotsConfig.GetChineseByConfigName(firstItem.Item)}";
 
 				default:
@@ -914,8 +930,8 @@ namespace OpenRA.Mods.Common.Commands
 
 			if (location == null)
 			{
-				CopilotsUtils.TryBuild(world, readyItem.Item, player.PlayerActor, queue);
-
+				CopilotsUtils.TryBuildIntent(world, readyItem.Item, player.PlayerActor, queue);
+				return $"已尝试自动放置建筑: {CopilotsConfig.GetChineseByConfigName(readyItem.Item)}";
 			}
 
 			// 检查位置是否可建造
@@ -925,11 +941,16 @@ namespace OpenRA.Mods.Common.Commands
 				return "无法在指定位置放置建筑";
 
 			// 放置建筑
-			world.IssueOrder(new Order("PlaceBuilding", player.PlayerActor, Target.FromCell(world, location.Value), false)
+			CopilotBus.Enqueue(new IssueOrderIntent
 			{
+				OrderId = "PlaceBuilding",
+				SubjectActorId = (int)player.PlayerActor.ActorID,
+				TargetA = TargetSpec.FromCell(location.Value),
+				TargetB = TargetSpec.None(),
+				Queued = false,
 				TargetString = readyItem.Item,
 				ExtraLocation = location.Value,
-				ExtraData = buildingActor.ActorID
+				ExtraData = (int)buildingActor.ActorID
 			});
 
 			return $"已在位置({location.Value.X}, {location.Value.Y})放置建筑: {CopilotsConfig.GetChineseByConfigName(readyItem.Item)}";

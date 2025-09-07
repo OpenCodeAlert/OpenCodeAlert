@@ -236,7 +236,8 @@ World:
 	Inherits: ^BaseWorld
 	ChatCommands:
 	DevCommands:
-    ServerCommands:
+	CopilotBridge:
+  ServerCommands:
 	DebugVisualizationCommands:
 	PathFinderOverlay:
 	HierarchicalPathFinderOverlay:

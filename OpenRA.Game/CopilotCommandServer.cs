@@ -12,7 +12,7 @@ namespace OpenRA
 {
 	public class CopilotCommandServer
 	{
-		readonly Socket serverSocket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		Socket serverSocket;
 		readonly int port;
 		readonly World world;
 		bool isRunning;
@@ -20,6 +20,11 @@ namespace OpenRA
 
 		// 添加调试模式开关
 		public bool DebugMode { get; set; } = false;
+
+		// 重连相关配置
+		private const int MaxRetryAttempts = 5;
+		private const int RetryDelayMs = 1000; // 初始重试延迟
+		private int currentRetryCount = 0;
 
 		// 统计记录器接口
 		public interface IGameStatsRecorder
@@ -117,26 +122,101 @@ namespace OpenRA
 
 		public void Start()
 		{
-			serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-			serverSocket.Listen(10);
 			isRunning = true;
-			Console.WriteLine($"Listening for connections on port {port}");
+			_ = Task.Run(() => StartServerLoop());
+		}
 
-			_ = Task.Run(async () =>
+		private async Task StartServerLoop()
+		{
+			while (isRunning)
 			{
-				while (isRunning)
+				try
+				{
+					await StartServerInternal();
+					currentRetryCount = 0; // 成功启动后重置重试计数
+				}
+				catch (Exception ex)
+				{
+					LogError($"服务器启动失败: {ex.Message}");
+					
+					if (!isRunning)
+						break;
+
+					currentRetryCount++;
+					if (currentRetryCount >= MaxRetryAttempts)
+					{
+						LogError($"已达到最大重试次数 {MaxRetryAttempts}，停止重试");
+						break;
+					}
+
+					var delay = RetryDelayMs * currentRetryCount; // 递增延迟
+					LogError($"将在 {delay}ms 后进行第 {currentRetryCount} 次重试...");
+					await Task.Delay(delay);
+				}
+			}
+		}
+
+		private async Task StartServerInternal()
+		{
+			// 清理之前的socket
+			try
+			{
+				serverSocket?.Close();
+				serverSocket?.Dispose();
+			}
+			catch (Exception ex)
+			{
+				LogError($"清理旧socket时出错: {ex.Message}");
+			}
+
+			// 创建新的socket
+			serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+			
+			try
+			{
+				serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+				serverSocket.Listen(10);
+				LogInfo($"CopilotCommandServer 成功启动，监听端口 {port}");
+
+				// 主要的客户端接受循环
+				while (isRunning && serverSocket.IsBound)
 				{
 					try
 					{
 						var clientSocket = await serverSocket.AcceptAsync();
-						HandleClient(clientSocket);
+						LogInfo("接受新的客户端连接");
+						
+						// 使用Task.Run来并发处理客户端，避免阻塞Accept循环
+						_ = Task.Run(() => HandleClientSafely(clientSocket));
 					}
-					catch (SocketException) when (!isRunning)
+					catch (SocketException ex) when (!isRunning)
 					{
+						LogInfo("服务器正在停止，退出Accept循环");
 						break;
 					}
+					catch (ObjectDisposedException) when (!isRunning)
+					{
+						LogInfo("Socket已被释放，退出Accept循环");
+						break;
+					}
+					catch (SocketException ex)
+					{
+						LogError($"Accept客户端连接时发生Socket异常: {ex.Message}");
+						throw; // 重新抛出以触发重试
+					}
+					catch (Exception ex)
+					{
+						LogError($"Accept客户端连接时发生未知异常: {ex.Message}");
+						throw; // 重新抛出以触发重试
+					}
 				}
-			});
+			}
+			catch (SocketException ex)
+			{
+				LogError($"Socket操作失败: {ex.Message}");
+				throw; // 重新抛出以触发重试逻辑
+			}
 		}
 
 		public void End()
@@ -144,12 +224,55 @@ namespace OpenRA
 			if (isRunning)
 			{
 				isRunning = false;
-				serverSocket.Close();
-				Console.WriteLine("CopilotServer has been stopped.");
+				try
+				{
+					serverSocket?.Close();
+					serverSocket?.Dispose();
+					LogInfo("CopilotCommandServer 已停止");
+				}
+				catch (Exception ex)
+				{
+					LogError($"停止服务器时出错: {ex.Message}");
+				}
 			}
 		}
 
-		async void HandleClient(Socket clientSocket)
+		// 安全的客户端处理方法，包含完整的异常处理
+		private async Task HandleClientSafely(Socket clientSocket)
+		{
+			try
+			{
+				await HandleClient(clientSocket);
+			}
+			catch (Exception ex)
+			{
+				LogError($"处理客户端时发生异常: {ex.Message}");
+				try
+				{
+					clientSocket?.Close();
+					clientSocket?.Dispose();
+				}
+				catch (Exception closeEx)
+				{
+					LogError($"关闭客户端连接时出错: {closeEx.Message}");
+				}
+			}
+		}
+
+		// 日志记录方法
+		private void LogInfo(string message)
+		{
+			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			Console.WriteLine($"[{timestamp}] [INFO] CopilotCommandServer: {message}");
+		}
+
+		private void LogError(string message)
+		{
+			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			Console.WriteLine($"[{timestamp}] [ERROR] CopilotCommandServer: {message}");
+		}
+
+		async Task HandleClient(Socket clientSocket)
 		{
 			using (clientSocket)
 			{
@@ -304,72 +427,111 @@ namespace OpenRA
 				}
 				catch (Exception ex)
 				{
-					var detail = new JObject
-							{
-								["type"] = ex.GetType().FullName,
-								["message"] = ex.Message,
-								["stack"] = ex.StackTrace ?? "",
-								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
-								["inner"] = ex.InnerException?.ToString(),
-								["data"] = new JObject(
-			ex.Data?.Cast<System.Collections.DictionaryEntry>()
-				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
-			?? new Dictionary<string, string>()
-		),
-								["isDebug"] = DebugMode
-							};
-					SendErrorResponse(clientSocket, new MCPError
+					LogError($"HandleClient中发生未处理的异常: {ex.Message}");
+					
+					try
 					{
-						Code = MCPErrorCodes.InternalError,
-						Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
-						Details = detail
-					}, null, DebugMode);
+						var detail = new JObject
+								{
+									["type"] = ex.GetType().FullName,
+									["message"] = ex.Message,
+									["stack"] = ex.StackTrace ?? "",
+									["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
+									["inner"] = ex.InnerException?.ToString(),
+									["data"] = new JObject(
+				ex.Data?.Cast<System.Collections.DictionaryEntry>()
+					.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
+				?? new Dictionary<string, string>()
+			),
+									["isDebug"] = DebugMode
+								};
+						SendErrorResponse(clientSocket, new MCPError
+						{
+							Code = MCPErrorCodes.InternalError,
+							Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
+							Details = detail
+						}, null, DebugMode);
+					}
+					catch (Exception sendEx)
+					{
+						LogError($"发送错误响应时失败: {sendEx.Message}");
+					}
 				}
 			}
 		}
 
 		static void SendSuccessResponse(Socket clientSocket, string message = null, string requestId = null, JObject data = null, bool debugMode = false)
 		{
-			var response = new MCPResponse
+			try
 			{
-				Status = 1,
-				RequestId = requestId,
-				Response = message,
-				Data = data
-			};
+				var response = new MCPResponse
+				{
+					Status = 1,
+					RequestId = requestId,
+					Response = message,
+					Data = data
+				};
 
-			var responseJson = JsonConvert.SerializeObject(response);
-			var buffer = Encoding.UTF8.GetBytes(responseJson);
-			_ = clientSocket.Send(buffer);
+				var responseJson = JsonConvert.SerializeObject(response);
+				var buffer = Encoding.UTF8.GetBytes(responseJson);
+				
+				if (clientSocket.Connected)
+				{
+					_ = clientSocket.Send(buffer);
+				}
 
-			// 只在调试模式下打印发送的数据
-			if (debugMode)
+				// 只在调试模式下打印发送的数据
+				if (debugMode)
+				{
+					Console.WriteLine("=== 发送成功响应 ===");
+					Console.WriteLine(CustomJsonFormat(responseJson));
+					Console.WriteLine("==================");
+				}
+			}
+			catch (SocketException ex)
 			{
-				Console.WriteLine("=== 发送成功响应 ===");
-				Console.WriteLine(CustomJsonFormat(responseJson));
-				Console.WriteLine("==================");
+				Console.WriteLine($"[ERROR] 发送成功响应时Socket异常: {ex.Message}");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"[ERROR] 发送成功响应时异常: {ex.Message}");
 			}
 		}
 
 		static void SendErrorResponse(Socket clientSocket, MCPError error, string requestId = null, bool debugMode = false)
 		{
-			var response = new MCPResponse
+			try
 			{
-				Status = -1,
-				RequestId = requestId,
-				Error = error
-			};
+				var response = new MCPResponse
+				{
+					Status = -1,
+					RequestId = requestId,
+					Error = error
+				};
 
-			var responseJson = JsonConvert.SerializeObject(response);
-			var buffer = Encoding.UTF8.GetBytes(responseJson);
-			_ = clientSocket.Send(buffer);
+				var responseJson = JsonConvert.SerializeObject(response);
+				var buffer = Encoding.UTF8.GetBytes(responseJson);
+				
+				if (clientSocket.Connected)
+				{
+					_ = clientSocket.Send(buffer);
+				}
 
-			// 只在调试模式下打印发送的数据
-			if (debugMode)
+				// 只在调试模式下打印发送的数据
+				if (debugMode)
+				{
+					Console.WriteLine("=== 发送错误响应 ===");
+					Console.WriteLine(CustomJsonFormat(responseJson));
+					Console.WriteLine("==================");
+				}
+			}
+			catch (SocketException ex)
 			{
-				Console.WriteLine("=== 发送错误响应 ===");
-				Console.WriteLine(CustomJsonFormat(responseJson));
-				Console.WriteLine("==================");
+				Console.WriteLine($"[ERROR] 发送错误响应时Socket异常: {ex.Message}");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"[ERROR] 发送错误响应时异常: {ex.Message}");
 			}
 		}
 

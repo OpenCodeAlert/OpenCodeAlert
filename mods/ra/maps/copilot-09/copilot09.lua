@@ -195,7 +195,7 @@ CalculateFinalScore = function()
     -- 时间奖励检查
     local currentTime = (DateTime.GameTime - gameStartTime) / 25
     if currentTime <= 360 then
-        finalScore = finalScore + SCORE_TIME_BONUS
+             finalScore = finalScore + SCORE_TIME_BONUS
         USSR.MarkCompletedObjective(timeObjective)
     else
         USSR.MarkFailedObjective(timeObjective)

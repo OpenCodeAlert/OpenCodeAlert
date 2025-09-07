@@ -62,6 +62,7 @@ namespace OpenRA
 			public DateTime StartTime { get; set; }
 			public DateTime? EndTime { get; set; }
 			public TimeSpan? Duration { get; set; }
+			public bool IsAgentMode { get; set; }
 			public bool Victory { get; set; }
 			public double Score { get; set; } = 100.0f;
 			public List<ObjectiveInfo> Objectives { get; set; } = new();
@@ -84,6 +85,7 @@ namespace OpenRA
 			stats.StartTime = DateTime.Now;
 			stats.MapName = world.Map.Title;
 			stats.PlayerName = player.PlayerName;
+			stats.IsAgentMode = Game.Settings.Game.IsAgentMode;
 
 			var playerRes = player.PlayerActor.Trait<PlayerResources>();
 			var resources = player.PlayerActor.TraitOrDefault<PlayerResources>();
