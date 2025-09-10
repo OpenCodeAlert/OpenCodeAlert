@@ -106,6 +106,25 @@ E1:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: barracks.upgraded
+	ExternalCondition@CP_INF_DMG_UP:
+		Condition: cp_inf_dmg_up
+	ExternalCondition@CP_INF_SLOW:
+		Condition: cp_inf_slow
+	ExternalCondition@CP_INF_BERSERK:
+		Condition: cp_inf_berserk
+
+	FirepowerMultiplier@CP_INF_DMG_UP:
+		RequiresCondition: cp_inf_dmg_up
+		Modifier: 225
+	SpeedMultiplier@CP_INF_SLOW:
+		RequiresCondition: cp_inf_slow
+		Modifier: 20
+	FirepowerMultiplier@CP_INF_BERSERK:
+		RequiresCondition: cp_inf_berserk
+		Modifier: 175
+	DamageMultiplier@CP_INF_BERSERK_FRAGILE:
+		RequiresCondition: cp_inf_berserk
+		Modifier: 140
 
 E1R1:
 	Inherits: E1
