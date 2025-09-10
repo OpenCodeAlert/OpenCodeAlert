@@ -2,6 +2,7 @@ V2RL:
 	Inherits: ^Vehicle
 	Inherits@GAINSEXPERIENCE: ^GainsExperience
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 230
@@ -50,6 +51,61 @@ V2RL:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
+
+	ExternalCondition@CP_V2_RAPIDFIRE:
+		Condition: cp_v2_rapidfire
+	ExternalCondition@CP_V2_RANGE_DECAY:
+		Condition: cp_v2_range_decay
+	ExternalCondition@CP_V2_OVERDRIVE:
+		Condition: cp_v2_overdrive
+	ExternalCondition@CP_V2_SPLASH:
+		Condition: cp_v2_splash
+	ExternalCondition@CP_V2_GUIDANCE_FAILURE:
+		Condition: cp_v2_guidance_failure
+	ExternalCondition@CP_V2_FRAGILE:
+		Condition: cp_v2_fragile
+	ExternalCondition@CP_V2_CANT_MOVE:
+		Condition: cp_v2_cant_move
+
+	ReloadDelayMultiplier@CP_V2_RAPIDFIRE:
+		RequiresCondition: cp_v2_rapidfire
+		Modifier: 30
+	FirepowerMultiplier@CP_V2_RAPIDFIRE:
+		RequiresCondition: cp_v2_rapidfire
+		Modifier: 50
+	RangeMultiplier@CP_V2_RANGE_DECAY:
+		RequiresCondition: cp_v2_range_decay
+		Modifier: 70
+	FirepowerMultiplier@CP_V2_RANGE_DECAY:
+		RequiresCondition: cp_v2_range_decay
+		Modifier: 150
+	SpeedMultiplier@CP_V2_OVERDRIVE:
+		RequiresCondition: cp_v2_overdrive
+		Modifier: 200
+	FirepowerMultiplier@CP_V2_OVERDRIVE:
+		RequiresCondition: cp_v2_overdrive
+		Modifier: 180
+	FirepowerMultiplier@CP_V2_SPLASH:
+		RequiresCondition: cp_v2_splash
+		Modifier: 200
+	RangeMultiplier@CP_V2_SPLASH:
+		RequiresCondition: cp_v2_splash
+		Modifier: 90
+	FirepowerMultiplier@CP_V2_GUIDANCE_FAILURE:
+		RequiresCondition: cp_v2_guidance_failure
+		Modifier: 25
+	RangeMultiplier@CP_V2_GUIDANCE_FAILURE:
+		RequiresCondition: cp_v2_guidance_failure
+		Modifier: 40
+	ReloadDelayMultiplier@CP_V2_GUIDANCE_FAILURE:
+		RequiresCondition: cp_v2_guidance_failure
+		Modifier: 200
+	DamageMultiplier@CP_V2_FRAGILE:
+		RequiresCondition: cp_v2_fragile
+		Modifier: 200
+	SpeedMultiplier@CP_V2_CANT_MOVE:
+		RequiresCondition: cp_v2_cant_move
+		Modifier: 10
 
 1TNK:
 	Inherits: ^TrackedVehicle
@@ -149,6 +205,7 @@ V2RL:
 	Inherits: ^TrackedVehicle
 	Inherits@GAINSEXPERIENCE: ^GainsExperience
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 220
@@ -194,10 +251,52 @@ V2RL:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
 
+	ExternalCondition@CP_TANK_ARMOR_UP:
+		Condition: cp_tank_armor_up
+	ExternalCondition@CP_TANK_SLOW:
+		Condition: cp_tank_slow
+	ExternalCondition@CP_TANK_OVERDRIVE:
+		Condition: cp_tank_overdrive
+	ExternalCondition@CP_TANK_AP_ROUNDS:
+		Condition: cp_tank_ap_rounds
+	ExternalCondition@CP_TANK_ENGINE_FAILURE:
+		Condition: cp_tank_engine_failure
+	ExternalCondition@CP_TANK_FRAGILE:
+		Condition: cp_tank_fragile
+
+	DamageMultiplier@CP_TANK_ARMOR_UP:
+		RequiresCondition: cp_tank_armor_up
+		Modifier: 50
+	SpeedMultiplier@CP_TANK_SLOW:
+		RequiresCondition: cp_tank_slow
+		Modifier: 30
+	SpeedMultiplier@CP_TANK_OVERDRIVE:
+		RequiresCondition: cp_tank_overdrive
+		Modifier: 160
+	FirepowerMultiplier@CP_TANK_OVERDRIVE:
+		RequiresCondition: cp_tank_overdrive
+		Modifier: 120
+	FirepowerMultiplier@CP_TANK_AP_ROUNDS:
+		RequiresCondition: cp_tank_ap_rounds
+		Modifier: 250
+	RangeMultiplier@CP_TANK_AP_ROUNDS:
+		RequiresCondition: cp_tank_ap_rounds
+		Modifier: 120
+	SpeedMultiplier@CP_TANK_ENGINE_FAILURE:
+		RequiresCondition: cp_tank_engine_failure
+		Modifier: 20
+	FirepowerMultiplier@CP_TANK_ENGINE_FAILURE:
+		RequiresCondition: cp_tank_engine_failure
+		Modifier: 60
+	DamageMultiplier@CP_TANK_FRAGILE:
+		RequiresCondition: cp_tank_fragile
+		Modifier: 200
+
 4TNK:
 	Inherits: ^TrackedVehicle
 	Inherits@GAINSEXPERIENCE: ^GainsExperience
 	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 320
@@ -255,6 +354,53 @@ V2RL:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
+
+	ExternalCondition@CP_MAMMOTH_ARMOR_UP:
+		Condition: cp_mammoth_armor_up
+	ExternalCondition@CP_MAMMOTH_SLOW:
+		Condition: cp_mammoth_slow
+	ExternalCondition@CP_MAMMOTH_DUAL_CANNON:
+		Condition: cp_mammoth_dual_cannon
+	ExternalCondition@CP_MAMMOTH_APEX:
+		Condition: cp_mammoth_apex
+	ExternalCondition@CP_MAMMOTH_SYSTEM_OVERLOAD:
+		Condition: cp_mammoth_system_overload
+	ExternalCondition@CP_MAMMOTH_FRAGILE:
+		Condition: cp_mammoth_fragile
+
+	DamageMultiplier@CP_MAMMOTH_ARMOR_UP:
+		RequiresCondition: cp_mammoth_armor_up
+		Modifier: 40
+	SpeedMultiplier@CP_MAMMOTH_SLOW:
+		RequiresCondition: cp_mammoth_slow
+		Modifier: 25
+	FirepowerMultiplier@CP_MAMMOTH_DUAL_CANNON:
+		RequiresCondition: cp_mammoth_dual_cannon
+		Modifier: 180
+	ReloadDelayMultiplier@CP_MAMMOTH_DUAL_CANNON:
+		RequiresCondition: cp_mammoth_dual_cannon
+		Modifier: 80
+	FirepowerMultiplier@CP_MAMMOTH_APEX:
+		RequiresCondition: cp_mammoth_apex
+		Modifier: 300
+	SpeedMultiplier@CP_MAMMOTH_APEX:
+		RequiresCondition: cp_mammoth_apex
+		Modifier: 80
+	RangeMultiplier@CP_MAMMOTH_APEX:
+		RequiresCondition: cp_mammoth_apex
+		Modifier: 110
+	SpeedMultiplier@CP_MAMMOTH_SYSTEM_OVERLOAD:
+		RequiresCondition: cp_mammoth_system_overload
+		Modifier: 15
+	FirepowerMultiplier@CP_MAMMOTH_SYSTEM_OVERLOAD:
+		RequiresCondition: cp_mammoth_system_overload
+		Modifier: 40
+	ReloadDelayMultiplier@CP_MAMMOTH_SYSTEM_OVERLOAD:
+		RequiresCondition: cp_mammoth_system_overload
+		Modifier: 250
+	DamageMultiplier@CP_MAMMOTH_FRAGILE:
+		RequiresCondition: cp_mammoth_fragile
+		Modifier: 600
 
 ARTY:
 	Inherits: ^TrackedVehicle
@@ -698,6 +844,7 @@ FTRK:
 	Inherits: ^Vehicle
 	Inherits@GAINSEXPERIENCE: ^GainsExperience
 	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 130
@@ -745,6 +892,56 @@ FTRK:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
+
+	ExternalCondition@CP_AA_RAPIDFIRE:
+		Condition: cp_aa_rapidfire
+	ExternalCondition@CP_AA_OVERDRIVE:
+		Condition: cp_aa_overdrive
+	ExternalCondition@CP_AA_ANTI_AIR:
+		Condition: cp_aa_anti_air
+	ExternalCondition@CP_AA_ANTI_GROUND:
+		Condition: cp_aa_anti_ground
+	ExternalCondition@CP_AA_JAMMED:
+		Condition: cp_aa_jammed
+	ExternalCondition@CP_AA_FRAGILE:
+		Condition: cp_aa_fragile
+
+	ReloadDelayMultiplier@CP_AA_RAPIDFIRE:
+		RequiresCondition: cp_aa_rapidfire
+		Modifier: 25
+	FirepowerMultiplier@CP_AA_RAPIDFIRE:
+		RequiresCondition: cp_aa_rapidfire
+		Modifier: 70
+	SpeedMultiplier@CP_AA_OVERDRIVE:
+		RequiresCondition: cp_aa_overdrive
+		Modifier: 150
+	FirepowerMultiplier@CP_AA_OVERDRIVE:
+		RequiresCondition: cp_aa_overdrive
+		Modifier: 180
+	FirepowerMultiplier@CP_AA_ANTI_AIR:
+		RequiresCondition: cp_aa_anti_air
+		Modifier: 300
+	RangeMultiplier@CP_AA_ANTI_AIR:
+		RequiresCondition: cp_aa_anti_air
+		Modifier: 130
+	FirepowerMultiplier@CP_AA_ANTI_GROUND:
+		RequiresCondition: cp_aa_anti_ground
+		Modifier: 250
+	RangeMultiplier@CP_AA_ANTI_GROUND:
+		RequiresCondition: cp_aa_anti_ground
+		Modifier: 110
+	ReloadDelayMultiplier@CP_AA_JAMMED:
+		RequiresCondition: cp_aa_jammed
+		Modifier: 400
+	FirepowerMultiplier@CP_AA_JAMMED:
+		RequiresCondition: cp_aa_jammed
+		Modifier: 20
+	RangeMultiplier@CP_AA_JAMMED:
+		RequiresCondition: cp_aa_jammed
+		Modifier: 30
+	DamageMultiplier@CP_AA_FRAGILE:
+		RequiresCondition: cp_aa_fragile
+		Modifier: 200
 
 DTRK:
 	Inherits: ^Vehicle

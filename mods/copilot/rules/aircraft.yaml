@@ -64,6 +64,7 @@ BADR.Bomber:
 MIG:
 	Inherits: ^Plane
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -139,9 +140,57 @@ MIG:
 		Types: Veterancy
 		Prerequisites: aircraft.upgraded
 
+	ExternalCondition@CP_MIG_SPEED_UP:
+		Condition: cp_mig_speed_up
+	ExternalCondition@CP_MIG_ANTI_ARMOR:
+		Condition: cp_mig_anti_armor
+	ExternalCondition@CP_MIG_OVERDRIVE:
+		Condition: cp_mig_overdrive
+	ExternalCondition@CP_MIG_MAVERICK:
+		Condition: cp_mig_maverick
+	ExternalCondition@CP_MIG_STALL:
+		Condition: cp_mig_stall
+	ExternalCondition@CP_MIG_FRAGILE:
+		Condition: cp_mig_fragile
+
+	SpeedMultiplier@CP_MIG_SPEED_UP:
+		RequiresCondition: cp_mig_speed_up
+		Modifier: 130
+	FirepowerMultiplier@CP_MIG_ANTI_ARMOR:
+		RequiresCondition: cp_mig_anti_armor
+		Modifier: 250
+	RangeMultiplier@CP_MIG_ANTI_ARMOR:
+		RequiresCondition: cp_mig_anti_armor
+		Modifier: 120
+	SpeedMultiplier@CP_MIG_OVERDRIVE:
+		RequiresCondition: cp_mig_overdrive
+		Modifier: 150
+	FirepowerMultiplier@CP_MIG_OVERDRIVE:
+		RequiresCondition: cp_mig_overdrive
+		Modifier: 140
+	FirepowerMultiplier@CP_MIG_MAVERICK:
+		RequiresCondition: cp_mig_maverick
+		Modifier: 300
+	ReloadDelayMultiplier@CP_MIG_MAVERICK:
+		RequiresCondition: cp_mig_maverick
+		Modifier: 60
+	SpeedMultiplier@CP_MIG_STALL:
+		RequiresCondition: cp_mig_stall
+		Modifier: 30
+	FirepowerMultiplier@CP_MIG_STALL:
+		RequiresCondition: cp_mig_stall
+		Modifier: 40
+	RangeMultiplier@CP_MIG_STALL:
+		RequiresCondition: cp_mig_stall
+		Modifier: 50
+	DamageMultiplier@CP_MIG_FRAGILE:
+		RequiresCondition: cp_mig_fragile
+		Modifier: 200
+
 YAK:
 	Inherits: ^Plane
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -215,6 +264,56 @@ YAK:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: aircraft.upgraded
+
+	ExternalCondition@CP_YAK_RAPIDFIRE:
+		Condition: cp_yak_rapidfire
+	ExternalCondition@CP_YAK_ANTI_INFANTRY:
+		Condition: cp_yak_anti_infantry
+	ExternalCondition@CP_YAK_OVERDRIVE:
+		Condition: cp_yak_overdrive
+	ExternalCondition@CP_YAK_CHAINGUN:
+		Condition: cp_yak_chaingun
+	ExternalCondition@CP_YAK_JAMMED:
+		Condition: cp_yak_jammed
+	ExternalCondition@CP_YAK_FRAGILE:
+		Condition: cp_yak_fragile
+
+	ReloadDelayMultiplier@CP_YAK_RAPIDFIRE:
+		RequiresCondition: cp_yak_rapidfire
+		Modifier: 20
+	FirepowerMultiplier@CP_YAK_RAPIDFIRE:
+		RequiresCondition: cp_yak_rapidfire
+		Modifier: 80
+	FirepowerMultiplier@CP_YAK_ANTI_INFANTRY:
+		RequiresCondition: cp_yak_anti_infantry
+		Modifier: 200
+	SpeedMultiplier@CP_YAK_ANTI_INFANTRY:
+		RequiresCondition: cp_yak_anti_infantry
+		Modifier: 120
+	SpeedMultiplier@CP_YAK_OVERDRIVE:
+		RequiresCondition: cp_yak_overdrive
+		Modifier: 140
+	FirepowerMultiplier@CP_YAK_OVERDRIVE:
+		RequiresCondition: cp_yak_overdrive
+		Modifier: 130
+	FirepowerMultiplier@CP_YAK_CHAINGUN:
+		RequiresCondition: cp_yak_chaingun
+		Modifier: 180
+	ReloadDelayMultiplier@CP_YAK_CHAINGUN:
+		RequiresCondition: cp_yak_chaingun
+		Modifier: 30
+	ReloadDelayMultiplier@CP_YAK_JAMMED:
+		RequiresCondition: cp_yak_jammed
+		Modifier: 500
+	FirepowerMultiplier@CP_YAK_JAMMED:
+		RequiresCondition: cp_yak_jammed
+		Modifier: 10
+	SpeedMultiplier@CP_YAK_JAMMED:
+		RequiresCondition: cp_yak_jammed
+		Modifier: 60
+	DamageMultiplier@CP_YAK_FRAGILE:
+		RequiresCondition: cp_yak_fragile
+		Modifier: 200
 
 TRAN:
 	Inherits: ^Helicopter

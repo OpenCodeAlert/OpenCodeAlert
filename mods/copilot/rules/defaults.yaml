@@ -1354,3 +1354,56 @@
 		RequiresSelection: true
 		Image: pips
 		Sequence: tag-primary
+
+^CopilotBase:
+	ExternalCondition@CP_DMG_UP_50:
+		Condition: cp_dmg_up_50
+	ExternalCondition@CP_DMG_UP_150:
+		Condition: cp_dmg_up_150
+	ExternalCondition@CP_DMG_DOWN_75:
+		Condition: cp_dmg_down_75
+	ExternalCondition@CP_DMG_DOWN_30:
+		Condition: cp_dmg_down_30
+	ExternalCondition@CP_ARMOR_30:
+		Condition: cp_armor_30
+	ExternalCondition@CP_ARMOR_75:
+		Condition: cp_armor_75
+	ExternalCondition@CP_ARMOR_150:
+		Condition: cp_armor_150
+	ExternalCondition@CP_ARMOR_300:
+		Condition: cp_armor_300
+	ExternalCondition@CP_SPEED_50:
+		Condition: cp_speed_50
+	ExternalCondition@CP_SPEED_200:
+		Condition: cp_speed_200
+
+	FirepowerMultiplier@CP_DMG_UP_50:
+		RequiresCondition: cp_dmg_up_50
+		Modifier: 150
+	FirepowerMultiplier@CP_DMG_UP_150:
+		RequiresCondition: cp_dmg_up_150
+		Modifier: 250
+	FirepowerMultiplier@CP_DMG_DOWN_75:
+		RequiresCondition: cp_dmg_down_75
+		Modifier: 75
+	FirepowerMultiplier@CP_DMG_DOWN_30:
+		RequiresCondition: cp_dmg_down_30
+		Modifier: 30
+	DamageMultiplier@CP_ARMOR_30:
+		RequiresCondition: cp_armor_30
+		Modifier: 30
+	DamageMultiplier@CP_ARMOR_75:
+		RequiresCondition: cp_armor_75
+		Modifier: 75
+	DamageMultiplier@CP_ARMOR_150:
+		RequiresCondition: cp_armor_150
+		Modifier: 150
+	DamageMultiplier@CP_ARMOR_300:
+		RequiresCondition: cp_armor_300
+		Modifier: 300
+	SpeedMultiplier@CP_SPEED_50:
+		RequiresCondition: cp_speed_50
+		Modifier: 50
+	SpeedMultiplier@CP_SPEED_200:
+		RequiresCondition: cp_speed_200
+		Modifier: 200

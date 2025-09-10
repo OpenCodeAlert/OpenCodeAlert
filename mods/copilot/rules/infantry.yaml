@@ -71,6 +71,7 @@ DOG:
 E1:
 	Inherits: ^Soldier
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
@@ -106,25 +107,52 @@ E1:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: barracks.upgraded
-	ExternalCondition@CP_INF_DMG_UP:
-		Condition: cp_inf_dmg_up
 	ExternalCondition@CP_INF_SLOW:
 		Condition: cp_inf_slow
 	ExternalCondition@CP_INF_BERSERK:
 		Condition: cp_inf_berserk
+	ExternalCondition@CP_INF_RAPIDFIRE:
+		Condition: cp_inf_rapidfire
+	ExternalCondition@CP_INF_ACCURACY:
+		Condition: cp_inf_accuracy
+	ExternalCondition@CP_INF_OVERHEAT:
+		Condition: cp_inf_overheat
+	ExternalCondition@CP_INF_FRAGILE:
+		Condition: cp_inf_fragile
 
-	FirepowerMultiplier@CP_INF_DMG_UP:
-		RequiresCondition: cp_inf_dmg_up
-		Modifier: 225
 	SpeedMultiplier@CP_INF_SLOW:
 		RequiresCondition: cp_inf_slow
 		Modifier: 20
 	FirepowerMultiplier@CP_INF_BERSERK:
 		RequiresCondition: cp_inf_berserk
-		Modifier: 175
+		Modifier: 300
 	DamageMultiplier@CP_INF_BERSERK_FRAGILE:
 		RequiresCondition: cp_inf_berserk
-		Modifier: 140
+		Modifier: 300
+	SpeedMultiplier@CP_INF_BERSERK_FRAGILE2:
+		RequiresCondition: cp_inf_berserk
+		Modifier: 200
+	ReloadDelayMultiplier@CP_INF_RAPIDFIRE:
+		RequiresCondition: cp_inf_rapidfire
+		Modifier: 30
+	FirepowerMultiplier@CP_INF_RAPIDFIRE:
+		RequiresCondition: cp_inf_rapidfire
+		Modifier: 80
+	RangeMultiplier@CP_INF_ACCURACY:
+		RequiresCondition: cp_inf_accuracy
+		Modifier: 150
+	FirepowerMultiplier@CP_INF_ACCURACY:
+		RequiresCondition: cp_inf_accuracy
+		Modifier: 120
+	ReloadDelayMultiplier@CP_INF_OVERHEAT:
+		RequiresCondition: cp_inf_overheat
+		Modifier: 200
+	FirepowerMultiplier@CP_INF_OVERHEAT:
+		RequiresCondition: cp_inf_overheat
+		Modifier: 50
+	DamageMultiplier@CP_INF_FRAGILE:
+		RequiresCondition: cp_inf_fragile
+		Modifier: 200
 
 E1R1:
 	Inherits: E1
@@ -190,6 +218,7 @@ E2:
 E3:
 	Inherits: ^Soldier
 	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Inherits@COPILOT: ^CopilotBase
 	Buildable:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
@@ -236,6 +265,68 @@ E3:
 	WithProductionIconOverlay:
 		Types: Veterancy
 		Prerequisites: barracks.upgraded
+	ExternalCondition@CP_RKT_SLOW:
+		Condition: cp_rkt_slow
+	ExternalCondition@CP_RKT_RAPIDFIRE:
+		Condition: cp_rkt_rapidfire
+	ExternalCondition@CP_RKT_OVERCHARGE:
+		Condition: cp_rkt_overcharge
+	ExternalCondition@CP_RKT_ANTI_ARMOR:
+		Condition: cp_rkt_anti_armor
+	ExternalCondition@CP_RKT_SPLASH:
+		Condition: cp_rkt_splash
+	ExternalCondition@CP_RKT_ACCURACY:
+		Condition: cp_rkt_accuracy
+	ExternalCondition@CP_RKT_MALFUNCTION:
+		Condition: cp_rkt_malfunction
+	ExternalCondition@CP_RKT_FRAGILE:
+		Condition: cp_rkt_fragile
+
+	SpeedMultiplier@CP_RKT_SLOW:
+		RequiresCondition: cp_rkt_slow
+		Modifier: 20
+	ReloadDelayMultiplier@CP_RKT_RAPIDFIRE:
+		RequiresCondition: cp_rkt_rapidfire
+		Modifier: 20
+	FirepowerMultiplier@CP_RKT_RAPIDFIRE:
+		RequiresCondition: cp_rkt_rapidfire
+		Modifier: 60
+	ReloadDelayMultiplier@CP_RKT_OVERCHARGE:
+		RequiresCondition: cp_rkt_overcharge
+		Modifier: 300
+	FirepowerMultiplier@CP_RKT_OVERCHARGE:
+		RequiresCondition: cp_rkt_overcharge
+		Modifier: 500
+	FirepowerMultiplier@CP_RKT_ANTI_ARMOR:
+		RequiresCondition: cp_rkt_anti_armor
+		Modifier: 400
+	RangeMultiplier@CP_RKT_ANTI_ARMOR:
+		RequiresCondition: cp_rkt_anti_armor
+		Modifier: 120
+	FirepowerMultiplier@CP_RKT_SPLASH:
+		RequiresCondition: cp_rkt_splash
+		Modifier: 180
+	RangeMultiplier@CP_RKT_SPLASH:
+		RequiresCondition: cp_rkt_splash
+		Modifier: 80
+	RangeMultiplier@CP_RKT_ACCURACY:
+		RequiresCondition: cp_rkt_accuracy
+		Modifier: 150
+	FirepowerMultiplier@CP_RKT_ACCURACY:
+		RequiresCondition: cp_rkt_accuracy
+		Modifier: 120
+	ReloadDelayMultiplier@CP_RKT_MALFUNCTION:
+		RequiresCondition: cp_rkt_malfunction
+		Modifier: 300
+	FirepowerMultiplier@CP_RKT_MALFUNCTION:
+		RequiresCondition: cp_rkt_malfunction
+		Modifier: 30
+	RangeMultiplier@CP_RKT_MALFUNCTION:
+		RequiresCondition: cp_rkt_malfunction
+		Modifier: 50
+	DamageMultiplier@CP_RKT_FRAGILE:
+		RequiresCondition: cp_rkt_fragile
+		Modifier: 200
 
 E3R1:
 	Inherits: E3

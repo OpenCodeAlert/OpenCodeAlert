@@ -1,23 +1,19 @@
 
-# 简单的塔：不可选中，不会被自动攻击，显示半径圈（可选）
 CP_Tower:
-  Inherits@1: ^ExistsInWorld
-  Inherits@shape: ^2x2Shape
-  Inherits@sprite: ^SpriteActor
+	Inherits@1: ^ExistsInWorld
+	Inherits@shape: ^2x2Shape
+	Inherits@sprite: ^SpriteActor
 
-  # 可见性/雷达点（可按需开启）
-  AppearsOnRadar:
-    UseLocation: true
+	AppearsOnRadar:
+		UseLocation: true
 
-  # 不可被攻击/选中
-  Targetable:
-    TargetTypes: NoAutoTarget
-  Selectable:
-    Class: None
+	Targetable:
+		TargetTypes: NoAutoTarget
+	Selectable:
+		Class: None
 
-  # 可视圈（aura 半径 25 格）；这只是装饰，实际生效在 Lua
-  RenderShroudCircle@AURA:
-    Color: 00FF0080     # 绿色半透明
-    Width: 2
-    BorderColor: 00000080
-    BorderWidth: 3
+	RenderShroudCircle@AURA:
+		Color: 00FF0080
+		Width: 2
+		BorderColor: 00000080
+		BorderWidth: 3
