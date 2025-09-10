@@ -1371,6 +1371,37 @@ namespace OpenRA.Mods.Common.Commands
 			return result;
 		}
 
+		public static JObject QueryControlPointsCommand(JObject json, World world)
+		{
+			var controlPointManager = world.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			if (controlPointManager == null)
+				throw new ArgumentException("ControlPoint manager not found");
+
+			var controlPoints = controlPointManager.GetAllControlPoints();
+			var controlPointsInfo = controlPoints.Select(cp => new JObject
+			{
+				["name"] = cp.Name,
+				["x"] = cp.X,
+				["y"] = cp.Y,
+				["hasBuffs"] = cp.HasBuffs,
+				["createdTime"] = cp.CreatedTime.Ticks,
+				["buffRefreshTime"] = cp.BuffRefreshTime.Ticks,
+				["buffs"] = new JArray(cp.Buffs.Select(buff => new JObject
+				{
+					["unitType"] = buff.UnitType,
+					["buffType"] = buff.BuffType,
+					["buffName"] = buff.BuffName
+				}).ToArray())
+			}).ToArray();
+
+			var result = new JObject
+			{
+				["controlPoints"] = new JArray(controlPointsInfo)
+			};
+
+			return result;
+		}
+
 
 
 		public void WorldLoaded(World w, WorldRenderer wr)
@@ -1398,6 +1429,7 @@ namespace OpenRA.Mods.Common.Commands
 				w.CopilotServer.QueryHandlers["query_path"] = PathQueryCommand;
 				w.CopilotServer.QueryHandlers["query_can_produce"] = QueryCanProduceCommand;
 				w.CopilotServer.QueryHandlers["query_production_queue"] = QueryProductionQueueCommand;
+				w.CopilotServer.QueryHandlers["query_control_points"] = QueryControlPointsCommand;
 				w.CopilotServer.QueryHandlers["map_query"] = MapQueryCommand;
 				w.CopilotServer.QueryHandlers["fog_query"] = FogQueryCommand;
 				w.CopilotServer.QueryHandlers["unit_attribute_query"] = UnitAttributeQueryCommand;

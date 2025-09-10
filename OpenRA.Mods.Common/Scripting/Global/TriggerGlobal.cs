@@ -15,6 +15,7 @@ using Eluant;
 using OpenRA.Effects;
 using OpenRA.Scripting;
 using OpenRA.Mods.Common.Traits;
+using OpenRA.Mods.Common;
 
 namespace OpenRA.Mods.Common.Scripting
 {
@@ -622,6 +623,108 @@ namespace OpenRA.Mods.Common.Scripting
 				throw new NullReferenceException(nameof(actor));
 
 			GetScriptTriggers(actor).Clear(trigger);
+		}
+
+		[Desc("Add a control point to the world. Usage: Trigger.AddControlPoint('name', actor, x, y)")]
+		public void AddControlPoint(string name, Actor actor, int x, int y)
+		{
+			if (actor == null)
+				throw new NullReferenceException(nameof(actor));
+
+			var controlPointManager = Context.World.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			if (controlPointManager != null)
+				controlPointManager.AddControlPoint(name, actor, x, y);
+		}
+
+		[Desc("Remove a control point from the world. Usage: Trigger.RemoveControlPoint('name')")]
+		public void RemoveControlPoint(string name)
+		{
+			var controlPointManager = Context.World.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			if (controlPointManager != null)
+				controlPointManager.RemoveControlPoint(name);
+		}
+
+		[Desc("Set buffs for a control point. Usage: Trigger.SetControlPointBuffs('name', buffs)")]
+		public void SetControlPointBuffs(string name, LuaTable buffs)
+		{
+			var controlPointManager = Context.World.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			if (controlPointManager == null)
+				return;
+
+			var buffList = new System.Collections.Generic.List<ControlPointBuff>();
+			
+			using (buffs)
+			{
+				foreach (var kvp in buffs)
+				{
+					if (kvp.Value is LuaTable buffTable)
+					{
+						using (buffTable)
+						{
+							var unitType = buffTable[1].ToString();
+							var buffType = buffTable[2].ToString();
+							var buffName = buffTable[3].ToString();
+							
+							buffList.Add(new ControlPointBuff
+							{
+								UnitType = unitType,
+								BuffType = buffType,
+								BuffName = buffName
+							});
+						}
+					}
+				}
+			}
+
+			controlPointManager.SetBuffs(name, buffList);
+		}
+
+		[Desc("Check if a control point should refresh its buffs. Usage: Trigger.ShouldRefreshControlPointBuffs('name')")]
+		public bool ShouldRefreshControlPointBuffs(string name)
+		{
+			var controlPointManager = Context.World.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			return controlPointManager?.ShouldRefreshBuffs(name) ?? false;
+		}
+
+		[Desc("Get all control points. Usage: Trigger.GetAllControlPoints()")]
+		public LuaTable GetAllControlPoints()
+		{
+			var controlPointManager = Context.World.WorldActor.TraitOrDefault<CopilotControlPoint>();
+			if (controlPointManager == null)
+				return Context.CreateTable();
+
+			var controlPoints = controlPointManager.GetAllControlPoints();
+			var result = Context.CreateTable();
+
+			for (int i = 0; i < controlPoints.Count; i++)
+			{
+				var cp = controlPoints[i];
+				var cpTable = Context.CreateTable();
+				
+				cpTable[1] = cp.Name;
+				cpTable[2] = cp.X;
+				cpTable[3] = cp.Y;
+				cpTable[4] = cp.HasBuffs;
+				cpTable[5] = cp.CreatedTime.Ticks;
+				cpTable[6] = cp.BuffRefreshTime.Ticks;
+
+				// Add buffs
+				var buffsTable = Context.CreateTable();
+				for (int j = 0; j < cp.Buffs.Count; j++)
+				{
+					var buff = cp.Buffs[j];
+					var buffTable = Context.CreateTable();
+					buffTable[1] = buff.UnitType;
+					buffTable[2] = buff.BuffType;
+					buffTable[3] = buff.BuffName;
+					buffsTable[j + 1] = buffTable;
+				}
+				cpTable[7] = buffsTable;
+
+				result[i + 1] = cpTable;
+			}
+
+			return result;
 		}
 	}
 }
