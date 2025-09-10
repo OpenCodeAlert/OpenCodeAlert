@@ -42,6 +42,7 @@ Packages:
 
 MapFolders:
 	ra|maps: System
+	copilot|maps: System
 	~^SupportDir|maps/ra/{DEV_VERSION}: User
 
 Rules:
