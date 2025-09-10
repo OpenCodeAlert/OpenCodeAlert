@@ -1,0 +1,3 @@
+World:
+	LuaScript:
+		Scripts: campaign.lua, utils.lua, copilot-fin.lua
