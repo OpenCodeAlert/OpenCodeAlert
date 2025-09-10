@@ -727,7 +727,7 @@
 	GivesBuildableArea:
 		AreaTypes: building, fake
 	RepairableBuilding:
-		RepairStep: 700
+		RepairStep: 2800
 		PlayerExperience: 5
 		RepairingNotification: Repairing
 	InstantlyRepairable:
