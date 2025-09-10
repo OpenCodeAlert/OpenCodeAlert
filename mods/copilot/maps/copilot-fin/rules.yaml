@@ -1,3 +1,9 @@
+
+Player:
+	PlayerResources:
+		DefaultCash: 8000
+
 World:
+  -CrateSpawner:
 	LuaScript:
 		Scripts: campaign.lua, utils.lua, copilot-fin.lua
