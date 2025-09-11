@@ -371,12 +371,14 @@ local ScoreSystem = {
   
   updateScores = function(self, p1Units, p2Units)
     local scoreGained = false
+    local players = GameCore.players
     
     -- 如果玩家1有优势
     if (p2Units > 0 and p1Units >= p2Units * CONFIG.scoring.advantageRatio) or 
        (p2Units == 0 and p1Units > 0) then
       self.scores[1] = self.scores[1] + CONFIG.scoring.pointsPerSecond
       scoreGained = true
+      Trigger.AddMatchScore(players[1], CONFIG.scoring.pointsPerSecond)
       Utils.debugMsg(string.format("Player 1 gains %d point! (%d vs %d units)", 
         CONFIG.scoring.pointsPerSecond, p1Units, p2Units))
     -- 如果玩家2有优势  
@@ -384,6 +386,7 @@ local ScoreSystem = {
            (p1Units == 0 and p2Units > 0) then
       self.scores[2] = self.scores[2] + CONFIG.scoring.pointsPerSecond
       scoreGained = true
+      Trigger.AddMatchScore(players[2], CONFIG.scoring.pointsPerSecond)
       Utils.debugMsg(string.format("Player 2 gains %d point! (%d vs %d units)", 
         CONFIG.scoring.pointsPerSecond, p2Units, p1Units))
     end

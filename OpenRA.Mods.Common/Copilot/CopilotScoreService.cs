@@ -37,13 +37,15 @@ namespace OpenRA.Mods.Common
 			World = w;
 		}
 
-		public void AddMatchScore(Player player, int score, WPos pos)
+		public void AddMatchScore(Player player, int score, WPos? pos = null)
 		{
 			if (!Score.ContainsKey(player))
 				Score[player] = 0;
 			Score[player] += score;
-
-			World.Add(new FloatingText(pos, player.Color, FloatingText.FormatCashTick(score), 30));
+			if (pos != null)
+			{
+				World.Add(new FloatingText(pos.Value, player.Color, FloatingText.FormatCashTick(score), 30));
+			}
 		}
 
 		public int GetScore(Player player)
