@@ -10,7 +10,7 @@ local BUFF_RADIUS_CELLS = 12           -- Buff生效半径（12格）
 local MAX_CONTROL_POINTS = 5           -- 最大控制点数量
 
 -- Debug开关
-local DEBUG_ENABLED          = true    -- 是否启用debug输出
+local DEBUG_ENABLED          = false    -- 是否启用debug输出
 
 -- 兵种类型
 local UNIT_TYPES = {
@@ -566,7 +566,7 @@ WorldLoaded = function()
   
   debugMsg("Starting control point occupation check...")
   checkControlPointOccupation()  -- 启动占领检查
-  
+
   debugMsg("ControlPoint system fully initialized")
 end
 
