@@ -896,7 +896,6 @@ Actors:
 		Owner: Multi0
 		Location: 15,86
 	Actor354: powr
-		Faction: england
 		Owner: Multi0
 		Location: 21,95
 	Actor361: fix
@@ -912,23 +911,18 @@ Actors:
 		Owner: Multi0
 		Location: 23,100
 	Actor358: proc
-		Faction: england
 		Owner: Multi0
 		Location: 15,90
 	Actor356: apwr
-		Faction: england
 		Owner: Multi0
 		Location: 34,103
 	Actor355: powr
-		Faction: england
 		Owner: Multi0
 		Location: 31,99
 	Actor351: fact
-		Faction: england
 		Owner: Multi0
 		Location: 27,94
 	Actor352: fact
-		Faction: england
 		Owner: Multi1
 		Location: 83,12
 	Actor363: powr
@@ -986,14 +980,12 @@ Actors:
 		Owner: Multi0
 		Location: 43,99
 	Actor357: weap
-		Faction: england
 		Owner: Multi0
 		Location: 38,97
 	Actor362: barr
 		Owner: Multi0
 		Location: 43,95
 	Actor353: barr
-		Faction: england
 		Owner: Multi0
 		Location: 39,93
 	Actor396: tsla
