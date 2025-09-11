@@ -10,7 +10,11 @@ import time
 import json
 
 # 添加父目录到Python路径
+print()
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from OpenRA_Copilot_Library import GameAPI, GameAPIError, Location, Actor, TargetsQueryParam
 
@@ -308,11 +312,59 @@ def test_unit_movement(game_api):
     except Exception as e:
         print(f"❌ 单位移动异常: {e}")
 
+def test_control_point_operations(game_api):
+    """测试控制点操作"""
+    print_separator("测试控制点操作")
+    
+    try:
+        # 查询控制点信息
+        print("🔍 查询控制点信息...")
+        control_points = game_api.control_point_query()
+        print_result("控制点信息", control_points)
+
+    except GameAPIError as e:
+        print(f"❌ 控制点操作失败: {e.code} - {e.message}")
+    except Exception as e:
+        print(f"❌ 控制点操作异常: {e}")
+
+    try:
+        # 查询比赛信息
+        print("🔍 查询比赛信息...")
+        match_info = game_api.match_info_query()
+        print_result("比赛信息", match_info)
+
+    except GameAPIError as e:
+        print(f"❌ 比赛信息查询失败: {e.code} - {e.message}")
+    except Exception as e:
+        print(f"❌ 比赛信息查询异常: {e}")
+
+def test_query_actorwithfrozen(game_api):
+    """测试查询Actor和FrozenActor"""
+    print_separator("测试查询Actor和FrozenActor")
+    
+    try:
+        # 查询Actor和FrozenActor
+        print("🔍 查询Actor和FrozenActor...")
+        actors, frozen_actors = game_api.query_actorwithfrozen(TargetsQueryParam(faction="自己"))
+        print_result("Actor和FrozenActor", {
+            "Actor数量": len(actors),
+            "FrozenActor数量": len(frozen_actors)
+        })
+        if frozen_actors:
+            print("📋 FrozenActor详情:")
+            for frozen_actor in frozen_actors:
+                print(f" 类型:{frozen_actor.type} 阵营:{frozen_actor.faction} 位置:({frozen_actor.position.x}, {frozen_actor.position.y})")
+
+    except GameAPIError as e:
+        print(f"❌ 查询Actor和FrozenActor失败: {e.code} - {e.message}")
+    except Exception as e:
+        print(f"❌ 查询Actor和FrozenActor异常: {e}")
+
 def main():
     """主函数"""
     print("🚀 开始真实GameAPI测试")
     print("=" * 60)
-    
+
     # 测试服务器连接
     if not test_server_connection():
         print("❌ 服务器连接失败，测试终止")
@@ -325,7 +377,16 @@ def main():
     except Exception as e:
         print(f"❌ GameAPI实例创建失败: {e}")
         return
-    time.sleep(2)
+    time.sleep(0.1)
+
+    for i in range(100):
+        test_query_actorwithfrozen(game_api)
+        time.sleep(2)
+
+    
+    test_control_point_operations(game_api)
+    time.sleep(20)
+    
     
     # 执行各种测试
     test_camera_operations(game_api)

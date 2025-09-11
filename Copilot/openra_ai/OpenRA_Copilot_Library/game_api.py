@@ -480,17 +480,6 @@ class GameAPI:
             raise GameAPIError("FORM_GROUP_ERROR", "编组时发生错误: {0}".format(str(e)))
 
     def query_actor(self, query_params: TargetsQueryParam) -> List[Actor]:
-        '''查询符合条件的Actor，获取Actor应该使用的接口
-
-        Args:
-            query_params (TargetsQueryParam): 查询参数
-
-        Returns:
-            List[Actor]: 符合条件的Actor列表
-
-        Raises:
-            GameAPIError: 当查询Actor失败时
-        '''
         try:
             response = self._send_request('query_actor', {
                 "targets": query_params.to_dict()
@@ -519,6 +508,61 @@ class GameAPI:
                     raise GameAPIError("INVALID_ACTOR_DATA", "Actor数据格式无效: {0}".format(str(e)))
 
             return actors
+
+        except GameAPIError:
+            raise
+        except Exception as e:
+            raise GameAPIError("QUERY_ACTOR_ERROR", "查询Actor时发生错误: {0}".format(str(e)))
+
+    def query_actorwithfrozen(self, query_params: TargetsQueryParam) ->Tuple[ List[Actor], List[FrozenActor]]:
+        '''查询符合条件的Actor，获取Actor应该使用的接口
+
+        Args:
+            query_params (TargetsQueryParam): 查询参数
+
+        Returns:
+            Tuple[List[Actor], List[FrozenActor]]: 符合条件的Actor列表和FrozenActor列表
+            List[FrozenActor]: 符合条件的FrozenActor列表
+        Raises:
+            GameAPIError: 当查询Actor失败时
+        '''
+        try:
+            response = self._send_request('query_actor', {
+                "targets": query_params.to_dict()
+            })
+            result = self._handle_response(response, "查询Actor失败")
+
+            actors = []
+            frozen_actors = []
+            actors_data = result.get("actors", [])
+            frozen_actors_data = result.get("frozenActors", [])
+
+            for data in actors_data:
+                try:
+                    actor = Actor(data["id"])
+                    position = Location(
+                        data["position"]["x"],
+                        data["position"]["y"]
+                    )
+                    hp_percent = data["hp"] * 100 // data["maxHp"] if data["maxHp"] > 0 else -1
+                    actor.update_details(
+                        data["type"],
+                        data["faction"],
+                        position,
+                        hp_percent
+                    )
+                    actors.append(actor)
+                except KeyError as e:
+                    raise GameAPIError("INVALID_ACTOR_DATA", "Actor数据格式无效: {0}".format(str(e)))
+
+            for data in frozen_actors_data:
+                try:
+                    frozen_actor = FrozenActor( data["type"], data["faction"], Location(data["position"]["x"], data["position"]["y"]))
+                    frozen_actors.append(frozen_actor)
+                except KeyError as e:
+                    raise GameAPIError("INVALID_FROZEN_ACTOR_DATA", "FrozenActor数据格式无效: {0}".format(str(e)))
+
+            return actors, frozen_actors
 
         except GameAPIError:
             raise
@@ -1216,3 +1260,53 @@ class GameAPI:
             raise
         except Exception as e:
             raise GameAPIError("SET_RALLY_POINT_ERROR", "设置集结点时发生错误: {0}".format(str(e)))
+    
+    def control_point_query(self) -> ControlPointQueryResult:
+        '''查询控制点信息
+        '''
+        '''
+        Args:
+            None
+
+        Returns:
+            ControlPointQueryResult: 控制点信息查询结果
+
+        Raises:
+            GameAPIError: 当查询控制点信息失败时
+        '''
+        try:
+            response = self._send_request('query_control_points', {})
+            result = self._handle_response(response, "查询控制点信息失败")
+            return ControlPointQueryResult(
+                ControlPoints=result.get('controlPoints', [])
+            )
+        except GameAPIError:
+            raise
+        except Exception as e:
+            raise GameAPIError("CONTROL_POINT_QUERY_ERROR", "查询控制点信息时发生错误: {0}".format(str(e)))
+
+    def match_info_query(self) -> MatchInfoQueryResult:
+        '''查询比赛信息
+        '''
+        '''
+        Args:
+            None
+
+        Returns:
+            MatchInfoQueryResult: 比赛信息查询结果
+
+        Raises:
+            GameAPIError: 当查询比赛信息失败时
+        '''
+        try:
+            response = self._send_request('match_info_query', {})
+            result = self._handle_response(response, "查询比赛信息失败")
+            return MatchInfoQueryResult(
+                SelfScore=result.get('selfScore', 0),
+                EnemyScore=result.get('enemyScore', 0),
+                RemainingTime=result.get('remainingTime', 0)
+            )
+        except GameAPIError:
+            raise
+        except Exception as e:
+            raise GameAPIError("MATCH_INFO_QUERY_ERROR", "查询比赛信息时发生错误: {0}".format(str(e)))

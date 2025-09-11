@@ -685,10 +685,10 @@ namespace OpenRA.Mods.Common.Scripting
 			return scoreService?.RemainingTime ?? 0;
 		}
 
-		public void AddMatchScore(Player player, int score)
+		public void AddMatchScore(Player player, int score, WPos pos)
 		{
 			var scoreService = Context.World.WorldActor.TraitOrDefault<CopilotScoreService>();
-			scoreService?.AddScore(player, score);
+			scoreService?.AddMatchScore(player, score, pos);
 		}
 
 		public int GetMatchScore(Player player)

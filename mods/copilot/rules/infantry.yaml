@@ -120,6 +120,9 @@ E1:
 	ExternalCondition@CP_INF_FRAGILE:
 		Condition: cp_inf_fragile
 
+	FirepowerMultiplier:
+		Modifier: 150
+
 	SpeedMultiplier@CP_INF_SLOW:
 		RequiresCondition: cp_inf_slow
 		Modifier: 20

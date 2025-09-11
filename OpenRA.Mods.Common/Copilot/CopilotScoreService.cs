@@ -1,4 +1,5 @@
 using OpenRA.Graphics;
+using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 using System.Collections.Generic;
@@ -36,11 +37,13 @@ namespace OpenRA.Mods.Common
 			World = w;
 		}
 
-		public void AddScore(Player player, int score)
+		public void AddMatchScore(Player player, int score, WPos pos)
 		{
 			if (!Score.ContainsKey(player))
 				Score[player] = 0;
 			Score[player] += score;
+
+			World.Add(new FloatingText(pos, player.Color, FloatingText.FormatCashTick(score), 30));
 		}
 
 		public int GetScore(Player player)

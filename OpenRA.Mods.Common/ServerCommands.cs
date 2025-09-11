@@ -15,6 +15,21 @@ namespace OpenRA.Mods.Common.Commands
 	public class ServerCommandsInfo : TraitInfo<ServerCommands> { }
 	public class ServerCommands : IWorldLoaded, ITick
 	{
+
+		public static bool IsFactionOk(Player player, Actor actor, string faction)
+		{
+			if (faction is "己方" or "自己" or "我" or "我的" or "我方")
+				return CopilotsUtils.GetFactionRelation(player, actor) == "己方";
+			else if (faction is "敌方" or "敌人" or "对面" or "他的" or "他")
+				return CopilotsUtils.GetFactionRelation(player, actor) == "敌方";
+			else if (faction == "中立")
+				return CopilotsUtils.GetFactionRelation(player, actor) == "中立";
+			else if (faction is "友方" or "盟军" or "盟友" or "同盟")
+				return CopilotsUtils.GetFactionRelation(player, actor) == "友方";
+			else
+				return actor.OccupiesSpace != null;
+		}
+
 		public static List<Actor> GetTargets(JToken targets, World world, Player player)
 		{
 			var result = new List<Actor>();
@@ -67,16 +82,7 @@ namespace OpenRA.Mods.Common.Commands
 			}
 
 			IEnumerable<Actor> actors;
-			if (faction is "己方" or "自己" or "我" or "我的" or "我方")
-				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "己方" && a.OccupiesSpace != null);
-			else if (faction is "敌方" or "敌人" or "对面" or "他的" or "他")
-				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "敌方" && a.OccupiesSpace != null);
-			else if (faction == "中立")
-				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "中立" && a.OccupiesSpace != null);
-			else if (faction is "友方" or "盟军" or "盟友" or "同盟")
-				actors = world.Actors.Where(a => CopilotsUtils.GetFactionRelation(player, a) == "友方" && a.OccupiesSpace != null);
-			else
-				actors = world.Actors.Where(a => a.OccupiesSpace != null);
+			actors = world.Actors.Where(a => IsFactionOk(player, a, faction) && a.OccupiesSpace != null);
 
 			// 根据范围筛选
 			switch (range)
@@ -1009,6 +1015,64 @@ namespace OpenRA.Mods.Common.Commands
 			return result;
 		}
 
+		public static IEnumerable<JObject> QueryFrozenActors(JToken targets, World world, Player player,
+	string range, IReadOnlyCollection<string> types)
+		{
+			var result = new List<JObject>();
+
+
+			// 1) 取玩家的 FrozenActorLayer
+			var layer = player.PlayerActor.TraitOrDefault<FrozenActorLayer>();
+			if (layer == null)
+				return result;
+
+			var faction = targets["faction"]?.ToString() ?? "己方";
+			var viewport = Game.worldRenderer.Viewport;
+
+			var dis = new WDist(307200);
+			foreach (var eachFrozenActor in layer.FrozenActorsInCircle(world, WPos.Zero, dis))
+			{
+				var id = -1;
+				var frozenActor = eachFrozenActor;
+				var info = frozenActor.Info;
+				var owner = frozenActor.Owner;
+				var center = frozenActor.CenterPosition;
+				var loc = world.Map.CellContaining(center);
+				var infoName = info.Name;
+				var wpos = center;
+				var relationOk = IsFactionOk(player, owner.PlayerActor, "敌方");
+
+				var typeOk = types == null || types.Count == 0 || types.Contains(infoName);
+
+				var rangeOk = range switch
+				{
+					"screen" => CopilotsUtils.IsVisibleInViewport(Game.worldRenderer, world.Map.CenterOfCell(loc)),
+					"selected" => false, // Frozen 残像不在选中集里，直接 false
+					_ => true
+				};
+
+				if (!(relationOk && typeOk && rangeOk)) continue;
+
+				result.Add(new JObject
+				{
+					["id"] = id,
+					["isFrozen"] = true,
+					["type"] = CopilotsConfig.GetChineseByConfigName(infoName),
+					["faction"] = CopilotsUtils.GetFactionRelation(player, owner.PlayerActor),
+					["hp"] = -1,
+					["maxHp"] = -1,
+					["isDead"] = false,
+					["position"] = new JObject
+					{
+						["x"] = loc.X,
+						["y"] = loc.Y
+					}
+				});
+			}
+
+			return result;
+		}
+
 		public static JObject ActorQueryCommand(JObject json, World world)
 		{
 			var player = world.LocalPlayer;
@@ -1035,6 +1099,7 @@ namespace OpenRA.Mods.Common.Commands
 					return new JObject
 					{
 						["id"] = actor.ActorID,
+						["isFrozen"] = false,
 						["type"] = CopilotsConfig.GetChineseByConfigName(actor.Info.Name),
 						["faction"] = CopilotsUtils.GetFactionRelation(player, actor),
 						["hp"] = hashealth ? health.HP : -1,
@@ -1048,10 +1113,23 @@ namespace OpenRA.Mods.Common.Commands
 					};
 				});
 
+			var range = targets["range"]?.ToString() ?? "all";
+			var groupIds = targets["groupId"]?.ToObject<List<int>>() ?? new List<int>();
+			var rawtypes = targets["type"]?.ToObject<List<string>>() ?? new List<string>();
+			var faction = targets["faction"]?.ToString() ?? "己方";
+			var types = new List<string>();
+			foreach (var type in rawtypes)
+			{
+				types.AddRange(CopilotsConfig.GetConfigNameByChinese(type));
+			}
+
+			var frozenActors = QueryFrozenActors(targets, world, player, range, types);
+
 			var result = new JObject
 			{
 				// ["status"] = "success",
-				["actors"] = new JArray(actorsInfo)
+				["actors"] = new JArray(actorsInfo),
+				["frozenActors"] = new JArray(frozenActors)
 			};
 
 			return result;

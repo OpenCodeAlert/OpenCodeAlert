@@ -237,7 +237,7 @@ class GameAPI:
         '''
         pass
 
-    def query_actor(self, query_params: TargetsQueryParam) -> List[Actor]:
+    def query_actor(self, query_params: TargetsQueryParam) -> Tuple[List[Actor], List[FrozenActor]]:
         '''查询符合条件的Actor
 
         Args:
