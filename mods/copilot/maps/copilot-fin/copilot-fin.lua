@@ -1,7 +1,6 @@
 -- mods/copilot/maps/copilot_showdown/copilot_mode.lua
 
 -- === 参数区 ===
-local MATCH_SECONDS          = 15 * 60
 local CONTROL_POINT_LIFETIME = 2 * 60  -- 控制点持续时间（2分钟）
 local CONTROL_POINT_SPAWN_MIN = 30     -- 控制点生成间隔最小值（30秒）
 local CONTROL_POINT_SPAWN_MAX = 90     -- 控制点生成间隔最大值（90秒）
@@ -65,13 +64,18 @@ local SPECIAL_BUFFS = {
 -- === 内部状态 ===
 local Players = {}
 local Multi0, Multi1 -- 玩家引用
+local Self, Enemy -- 自己和敌人引用
 local ControlPoints = {}  -- 控制点列表
 local ControlPointTimes = {}  -- 控制点创建时间记录
 local ControlPointCounter = 0  -- 控制点计数器
 
+-- 控制点占领相关
+local OCCUPATION_MIN_UNITS = 5  -- 占领所需最少单位数
+local OCCUPATION_RATIO = 5  -- 占领比例要求（5倍）
+
 -- 游戏目标相关
 local gameCompleted = false
-local SovietObjective1, SovietObjective2, AlliedObjective1, AlliedObjective2
+local SovietObjective, AlliedObjective
 
 -- Buff处理计时器
 local buffCheckTicks = 0
@@ -427,6 +431,67 @@ local function checkVictoryConditions()
   end
 end
 
+
+-- 检查控制点占领状态并加分
+local function checkControlPointOccupation()
+  if #ControlPoints == 0 then
+    -- 如果没有控制点，1秒后再次检查
+    Trigger.AfterDelay(secs(1), checkControlPointOccupation)
+    return
+  end
+  
+  for _, cp in ipairs(ControlPoints) do
+    if cp.actor and not cp.actor.IsDead then
+      local pos = cp.actor.CenterPosition
+      local radius = WDist.FromCells(BUFF_RADIUS_CELLS)
+      local nearbyUnits = Map.ActorsInCircle(pos, radius)
+      
+      -- 统计各阵营单位数量，因为有摄像机，所以需要-1
+      local player0Units = -1
+      local player1Units = -1
+      
+      for _, unit in ipairs(nearbyUnits) do
+        if unit and not unit.IsDead and unit.Owner ~= Player.GetPlayer("Neutral") then
+          if unit.Owner == Multi0 then
+            player0Units = player0Units + 1
+          elseif unit.Owner == Multi1 then
+            player1Units = player1Units + 1
+          end
+        end
+      end
+      
+      -- 检查占领条件
+      local occupiedBy = nil
+      local occupationScore = 0
+      
+      -- 检查Multi0是否占领
+      if player0Units >= OCCUPATION_MIN_UNITS and player0Units >= player1Units * OCCUPATION_RATIO then
+        occupiedBy = Multi0
+        occupationScore = 1
+        debugMsg(string.format("Control point %s occupied by %s (%d vs %d units)", 
+          cp.name, Multi0.Name, player0Units, player1Units))
+      -- 检查Multi1是否占领
+      elseif player1Units >= OCCUPATION_MIN_UNITS and player1Units >= player0Units * OCCUPATION_RATIO then
+        occupiedBy = Multi1
+        occupationScore = 1
+        debugMsg(string.format("Control point %s occupied by %s (%d vs %d units)", 
+          cp.name, Multi1.Name, player1Units, player0Units))
+      end
+      
+      -- 如果被占领，给对应玩家加分
+      if occupiedBy and occupationScore > 0 then
+        Trigger.AddMatchScore(occupiedBy, occupationScore, pos)
+        debugMsg(string.format("Added %d point to %s for controlling %s", 
+          occupationScore, occupiedBy.Name, cp.name))
+      end
+    end
+  end
+  
+  -- 1秒后再次检查
+  Trigger.AfterDelay(secs(1), checkControlPointOccupation)
+end
+
+
 -- === 入口 ===
 WorldLoaded = function()
   Trigger.SetAgentMode(false)
@@ -436,25 +501,41 @@ WorldLoaded = function()
       if not p.IsNonCombatant then
           table.insert(Players, p)
       end
+      if p.IsLocalPlayer then
+        Self = p
+      end
   end
   -- debugMsg(string.format("PlayersNum:%d", #Players))
   Multi0 = Players[1]
   Multi1 = Players[2]
-  if not Multi0 then
-    debugMsg("Warning: Multi0 not found")
-  end
-  if not Multi1 then
-    debugMsg("Warning: Multi1 not found")
-  end
+
+   if not Self then
+     debugMsg("Warning: Self not found")
+   end
+   if not Multi0 then
+     debugMsg("Warning: Multi0 not found")
+   end
+   if not Multi1 then
+     debugMsg("Warning: Multi1 not found")
+   end
+   
+   -- 设置敌人引用
+   if Self.Name == Multi0.Name then
+     Enemy = Multi1
+   elseif Self.Name == Multi1.Name then
+     Enemy = Multi0
+   else
+     debugMsg("Warning: Could not determine enemy player")
+   end
   
   InitObjectives(Multi0)
   InitObjectives(Multi1)
   
   -- 设置目标
-  SovietObjective1 = AddPrimaryObjective(Multi0, "destroy-all-enemy-buildings")
-  SovietObjective2 = AddSecondaryObjective(Multi0, "control-strategic-points")
-  AlliedObjective1 = AddPrimaryObjective(Multi1, "defend-your-base")
-  AlliedObjective2 = AddSecondaryObjective(Multi1, "eliminate-enemy-forces")
+  SovietObjective = AddPrimaryObjective(Multi0, "control-strategic-points")
+  AddSecondaryObjective(Multi0, "defend-your-base")
+  AlliedObjective = AddPrimaryObjective(Multi1, "control-strategic-points")
+  AddSecondaryObjective(Multi1, "defend-your-base")
   
   -- 设置摄像机位置到玩家基地附近
   -- Camera.Position = CPos.New(30, 95).CenterPosition
@@ -482,6 +563,9 @@ WorldLoaded = function()
   
   debugMsg("Starting control point check scheduler...")
   scheduleControlPointCheck()  -- 启动控制点检查
+  
+  debugMsg("Starting control point occupation check...")
+  checkControlPointOccupation()  -- 启动占领检查
   
   debugMsg("ControlPoint system fully initialized")
 end
@@ -569,6 +653,34 @@ end
 
 -- Tick函数：处理控制点Buff的应用和移除，以及胜利条件检查
 Tick = function()
+  -- 检查比赛时间是否结束
+  local matchTime = Trigger.GetMatchTime()
+  if matchTime == 0 and not gameCompleted then
+    gameCompleted = true
+    
+    -- 获取自己和敌人的分数
+    local Multi0Score = Trigger.GetMatchScore(Multi0)
+    local Multi1Score = Trigger.GetMatchScore(Multi1)
+    
+    debugMsg(string.format("Match time ended! Multi0 score: %d, Multi1 score: %d", Multi0Score, Multi1Score))
+    
+    -- 比较分数判断胜负
+    if Multi0Score > Multi1Score then
+      -- Multi0胜利
+      Multi0.MarkCompletedObjective(SovietObjective)
+      Multi1.MarkFailedObjective(AlliedObjective)
+    elseif Multi1Score > Multi0Score then
+      Multi1.MarkCompletedObjective(AlliedObjective)
+      Multi0.MarkFailedObjective(SovietObjective)
+    else
+      -- 平局
+      debugMsg("Draw! Same score.")
+      Media.DisplayMessage("Draw! Same score.", "Menacing")
+    end
+    
+    return
+  end
+  
   -- 检查胜利条件（每个tick检查，因为这个很轻量）
   checkVictoryConditions()
   
