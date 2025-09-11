@@ -424,6 +424,12 @@ units:
         oil field
         oil
         derrick
+    gap:
+        控制点
+        control point
+        cp
+        control
+        gap
 
 
 nickname:

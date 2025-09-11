@@ -4,6 +4,8 @@ Player:
 		DefaultCash: 8000
 
 World:
+	CopilotScoreService:
+		TimeLimit: 7500
 	CopilotControlPoint:
 	-CrateSpawner:
 	LuaScript:

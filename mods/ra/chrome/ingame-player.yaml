@@ -1,6 +1,28 @@
 Container@PLAYER_WIDGETS:
 	Logic: LoadIngameChatLogic
 	Children:
+		Container@CopilotScoreHUD:
+		  LogicTicker@COPILOT_SCORE_TICKER:
+			Logic: CopilotScoreChrome
+			X: 10
+			Y: 10
+			Width: 240
+			Height: 40
+			Children:
+				Container@CopilotScorePanel:
+					Width: PARENT_RIGHT
+					Height: PARENT_BOTTOM
+					Children:
+						Label@ScoreLabel:
+							Id: CopilotScoreLabel
+							Text: "0 - 0"
+							Align: Left
+							Font: Bold
+						Label@TimerLabel:
+							Id: CopilotTimerLabel
+							Text: "15:00"
+							Align: Right
+							Font: Bold
 		Container@CHAT_ROOT:
 		LogicKeyListener@PLAYER_KEYHANDLER:
 			Logic: RemoveFromControlGroupHotkeyLogic

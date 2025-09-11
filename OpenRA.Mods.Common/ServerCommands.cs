@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenRA.Graphics;
-using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Widgets;
 using OpenRA.Support;
 using OpenRA.Traits;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 namespace OpenRA.Mods.Common.Commands
 {
 	[TraitLocation(SystemActors.World)]
@@ -1400,6 +1399,25 @@ namespace OpenRA.Mods.Common.Commands
 			return result;
 		}
 
+		public static JObject QueryMatchInfoCommand(JObject json, World world)
+		{
+			var scoreService = world.WorldActor.TraitOrDefault<CopilotScoreService>();
+			if (scoreService == null)
+				throw new ArgumentException("ScoreService or ControlPoint manager not found");
+			var player = world.LocalPlayer;
+			var enemyPlayer = world.Players.FirstOrDefault(p => p != player && !p.NonCombatant);
+			var remainingTime = scoreService.RemainingTime;
+			if (remainingTime < 0) remainingTime = 0;
+
+			var result = new JObject
+			{
+				["selfScore"] = scoreService.GetScore(player),
+				["enemyScore"] = scoreService.GetScore(enemyPlayer),
+				["remainingTime"] = $"{remainingTime / 25:D2}:{remainingTime % 25:D2}"
+
+			};
+			return result;
+		}
 
 
 		public void WorldLoaded(World w, WorldRenderer wr)
@@ -1428,6 +1446,7 @@ namespace OpenRA.Mods.Common.Commands
 				w.CopilotServer.QueryHandlers["query_can_produce"] = QueryCanProduceCommand;
 				w.CopilotServer.QueryHandlers["query_production_queue"] = QueryProductionQueueCommand;
 				w.CopilotServer.QueryHandlers["query_control_points"] = QueryControlPointsCommand;
+				w.CopilotServer.QueryHandlers["match_info_query"] = QueryMatchInfoCommand;
 				w.CopilotServer.QueryHandlers["map_query"] = MapQueryCommand;
 				w.CopilotServer.QueryHandlers["fog_query"] = FogQueryCommand;
 				w.CopilotServer.QueryHandlers["unit_attribute_query"] = UnitAttributeQueryCommand;

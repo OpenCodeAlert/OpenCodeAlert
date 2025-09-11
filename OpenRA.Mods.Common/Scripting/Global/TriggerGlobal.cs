@@ -679,6 +679,24 @@ namespace OpenRA.Mods.Common.Scripting
 			controlPointManager.SetBuffs(name, buffList);
 		}
 
+		public int GetMatchTime()
+		{
+			var scoreService = Context.World.WorldActor.TraitOrDefault<CopilotScoreService>();
+			return scoreService?.RemainingTime ?? 0;
+		}
+
+		public void AddMatchScore(Player player, int score)
+		{
+			var scoreService = Context.World.WorldActor.TraitOrDefault<CopilotScoreService>();
+			scoreService?.AddScore(player, score);
+		}
+
+		public int GetMatchScore(Player player)
+		{
+			var scoreService = Context.World.WorldActor.TraitOrDefault<CopilotScoreService>();
+			return scoreService?.GetScore(player) ?? 0;
+		}
+
 		[Desc("Check if a control point should refresh its buffs. Usage: Trigger.ShouldRefreshControlPointBuffs('name')")]
 		public bool ShouldRefreshControlPointBuffs(string name)
 		{
