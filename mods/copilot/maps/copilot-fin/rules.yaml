@@ -5,7 +5,7 @@ Player:
 
 World:
 	CopilotScoreService:
-		TimeLimit: 7500
+		TimeLimit: 1500
 	CopilotControlPoint:
 	-CrateSpawner:
 	LuaScript:
