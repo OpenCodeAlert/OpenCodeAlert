@@ -973,9 +973,6 @@ Actors:
 	Actor373: barr
 		Owner: Multi0
 		Location: 29,85
-	Actor398: tsla
-		Owner: Multi0
-		Location: 48,101
 	Actor376: weap
 		Owner: Multi0
 		Location: 43,99
@@ -1277,9 +1274,6 @@ Actors:
 	Actor450: tsla
 		Owner: Multi1
 		Location: 99,29
-	Actor451: tsla
-		Owner: Multi1
-		Location: 70,6
 	Actor400: tsla
 		Owner: Multi1
 		Location: 68,18
@@ -1292,9 +1286,6 @@ Actors:
 	Actor453: sam
 		Owner: Multi1
 		Location: 66,9
-	Actor402: tsla
-		Owner: Multi1
-		Location: 63,11
 	Actor454: e1
 		Owner: Multi1
 		Facing: 384
@@ -1646,6 +1637,99 @@ Actors:
 	Actor526: sam
 		Owner: Multi1
 		Location: 62,18
+	Actor527: apwr
+		Owner: Multi0
+		Location: 29,76
+	Actor528: apwr
+		Owner: Multi0
+		Location: 47,98
+	Actor529: apwr
+		Owner: Multi1
+		Location: 79,31
+	Actor398: tsla
+		Owner: Multi0
+		Location: 49,101
+	Actor530: apwr
+		Owner: Multi1
+		Location: 63,10
+	Actor402: tsla
+		Owner: Multi1
+		Location: 63,13
+	Actor531: ftur
+		Owner: Multi1
+		Location: 75,30
+	Actor532: ftur
+		Owner: Multi1
+		Location: 81,33
+	Actor533: ftur
+		Owner: Multi1
+		Location: 66,21
+	Actor534: ftur
+		Owner: Multi1
+		Location: 61,19
+	Actor535: ftur
+		Owner: Multi1
+		Location: 76,27
+	Actor536: ftur
+		Owner: Multi1
+		Location: 71,21
+	Actor537: ftur
+		Owner: Multi1
+		Location: 94,32
+	Actor451: tsla
+		Owner: Multi1
+		Location: 71,7
+	Actor538: ftur
+		Owner: Multi1
+		Location: 73,6
+	Actor539: ftur
+		Owner: Multi1
+		Location: 77,18
+	Actor540: ftur
+		Owner: Multi1
+		Location: 80,21
+	Actor541: ftur
+		Owner: Multi0
+		Location: 17,78
+	Actor542: ftur
+		Owner: Multi0
+		Location: 38,105
+	Actor543: ftur
+		Owner: Multi0
+		Location: 36,81
+	Actor544: ftur
+		Owner: Multi0
+		Location: 30,75
+	Actor545: ftur
+		Owner: Multi0
+		Location: 36,85
+	Actor546: ftur
+		Owner: Multi0
+		Location: 33,89
+	Actor547: ftur
+		Owner: Multi0
+		Location: 53,93
+	Actor548: ftur
+		Owner: Multi0
+		Location: 48,89
+	Actor550: ftur
+		Owner: Multi0
+		Location: 38,90
+	Actor549: ftur
+		Owner: Multi0
+		Location: 43,88
+	Actor552: sam
+		Owner: Multi0
+		Location: 32,99
+	Actor551: sam
+		Owner: Multi0
+		Location: 23,95
+	Actor554: sam
+		Owner: Multi1
+		Location: 87,16
+	Actor553: sam
+		Owner: Multi1
+		Location: 81,10
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml,rules.yaml
 
