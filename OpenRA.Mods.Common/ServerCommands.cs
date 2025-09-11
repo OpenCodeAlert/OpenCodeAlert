@@ -309,50 +309,27 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string MoveActorInDirection(IEnumerable<Actor> actors, string direction, int distance, bool isAttackMove, bool isAssaultMove, World world)
 		{
-			var num = 0;
-			foreach (var actor in actors)
+			if (!actors.Any())
 			{
-				var move = actor.TraitOrDefault<IMove>();
-				if (move == null)
-					continue;
-				num++;
-				var directionVector = CopilotsUtils.GetDirectionVector(direction);
-				var targetLocation = actor.Location + directionVector * distance;
-
-				if (!world.Map.Contains(targetLocation))
-				{
-					TextNotificationsManager.Debug("Target location is out of bounads");
-					throw new NotImplementedException("Target location is out of bounads");
-				}
-
-				// route to main thread via bus
-				CopilotBus.Enqueue(new CancelActivityIntent { ActorId = (int)actor.ActorID });
-				if (isAttackMove || isAssaultMove)
-				{
-					CopilotBus.Enqueue(new IssueOrderIntent
-					{
-						OrderId = "AttackMove",
-						SubjectActorId = null,
-						TargetA = TargetSpec.FromCell(targetLocation),
-						TargetB = TargetSpec.None(),
-						Queued = false,
-						GroupedActorIds = new[] { (int)actor.ActorID }
-					});
-				}
-				else
-				{
-					CopilotBus.Enqueue(new IssueOrderIntent
-					{
-						OrderId = "Move",
-						SubjectActorId = (int)actor.ActorID,
-						TargetA = TargetSpec.FromCell(targetLocation),
-						TargetB = TargetSpec.None(),
-						Queued = false
-					});
-				}
+				return "No Actor";
 			}
+			var firstActor = actors.FirstOrDefault();
+			var directionVector = CopilotsUtils.GetDirectionVector(direction);
+			var targetLocation = firstActor.Location + directionVector * distance;
 
-			return $"{num} Actor Moved";
+			var groupedIds = actors.Select(a => (int)a.ActorID).ToArray();
+
+			CopilotBus.Enqueue(new IssueOrderIntent
+			{
+				OrderId = isAttackMove || isAssaultMove ? "AttackMove" : "Move",
+				SubjectActorId = null,
+				TargetA = TargetSpec.FromCell(targetLocation),
+				TargetB = TargetSpec.None(),
+				Queued = false,
+				GroupedActorIds = groupedIds
+			});
+
+			return $"{groupedIds.Length}　Actor Moved";
 		}
 
 		public static string MoveActorToLocation(IEnumerable<Actor> actors, CPos targetLocation, bool isAttackMove, bool isAssaultMove, World world)
