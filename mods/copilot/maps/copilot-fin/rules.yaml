@@ -19,3 +19,5 @@ CAMERA:
 GAP:
 	DamageMultiplier:
 		Modifier: 0
+	Power:
+		Amount: 10
