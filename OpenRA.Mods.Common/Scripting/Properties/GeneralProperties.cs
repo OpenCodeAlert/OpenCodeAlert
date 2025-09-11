@@ -110,6 +110,9 @@ namespace OpenRA.Mods.Common.Scripting
 			tooltips = self.TraitsImplementing<Tooltip>().ToArray();
 		}
 
+		[Desc("The actor ID.")]
+		public int ActorID => (int)Self.ActorID;
+
 		[Desc("The actor position in cell coordinates.")]
 		public CPos Location => Self.Location;
 

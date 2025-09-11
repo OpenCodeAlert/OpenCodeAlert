@@ -27,6 +27,13 @@ namespace OpenRA.Mods.Common.Scripting
 			return Context.World.Players.FirstOrDefault(p => p.InternalName == name);
 		}
 
+		[Desc("Returns the player with the specified internal name, or nil if a match is not found.")]
+		public Player[] GetAllPlayer()
+		{
+			return Context.World.Players.ToArray();
+		}
+
+
 		[Desc("Returns a table of players filtered by the specified function.")]
 		public Player[] GetPlayers(LuaFunction filter)
 		{

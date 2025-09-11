@@ -320,7 +320,8 @@ local function cleanupExpiredControlPoints()
       
       -- 清理相关的Buff记录
       for buffName, units in pairs(cp.buffedUnits) do
-        for unit, buffData in pairs(units) do
+        for unitActorID, buffData in pairs(units) do
+          local unit = buffData.unit
           if buffData.token and not unit.IsDead then
             unit.RevokeCondition(buffData.token)
             debugMsg(string.format("Removed buff %s from %s due to control point removal", 
@@ -412,15 +413,22 @@ end
 WorldLoaded = function()
   Trigger.SetAgentMode(false)
   -- 获取玩家引用
-  for _, p in Player.GetPlayer() do
-      if not p.IsObserver and not p.IsNeutral then
+  for _, p in ipairs(Player.GetAllPlayer()) do
+      -- debugMsg(string.format("Player:%s", tostring(p.IsNonCombatant)))
+      if not p.IsNonCombatant then
           table.insert(Players, p)
       end
   end
-  Multi0 = Players[0]
-  Multi1 = Players[1]
+  -- debugMsg(string.format("PlayersNum:%d", #Players))
+  Multi0 = Players[1]
+  Multi1 = Players[2]
+  if not Multi0 then
+    debugMsg("Warning: Multi0 not found")
+  end
+  if not Multi1 then
+    debugMsg("Warning: Multi1 not found")
+  end
   
-  -- 初始化目标系统
   InitObjectives(Multi0)
   InitObjectives(Multi1)
   
@@ -432,19 +440,6 @@ WorldLoaded = function()
   
   -- 设置摄像机位置到玩家基地附近
   -- Camera.Position = CPos.New(30, 95).CenterPosition
-  
-  -- 为测试提供一些初始单位
-  Trigger.AfterDelay(DateTime.Seconds(2), function()
-    local testUnits = Reinforcements.Reinforce(Multi0, {"e1", "e1", "e3", "e3", "3tnk"}, {CPos.New(25, 95), CPos.New(26, 95)})
-    debugMsg(string.format("Spawned %d test units for player", #testUnits))
-    Media.DisplayMessage("Test units deployed! Use them to test the control point system.", "Notification")
-  end)
-  
-  -- 立即创建第一个控制点用于测试
-  Trigger.AfterDelay(DateTime.Seconds(5), function()
-    debugMsg("Creating initial test control point...")
-    createControlPoint()
-  end)
   
   debugMsg("ControlPoint system initializing...")
   debugMsg(string.format("Players: %s vs %s", Multi0.Name, Multi1.Name))
@@ -492,7 +487,7 @@ local function processControlPointBuffs()
       local currentUnits = {}
       for _, unit in ipairs(nearbyUnits) do
         if unit and not unit.IsDead and unit.Owner ~= Player.GetPlayer("Neutral") then
-          currentUnits[unit] = true
+          currentUnits[unit.ActorID] = unit
           for _, buff in ipairs(cp.buffs) do
             local unitType, buffType, buffName = buff[1], buff[2], buff[3]
             -- 初始化buffName表
@@ -501,21 +496,19 @@ local function processControlPointBuffs()
             end
             if unit.Type == unitType then
                 -- 如果单位还没有这个Buff，添加它
-                if not cp.buffedUnits[buffName][unit] then
-                local token = unit.GrantCondition(buffName)
-                if token then
-                    cp.buffedUnits[buffName][unit] = {
-                    unit = unit,
-                    token = token
-                    }
-                    debugMsg(string.format("Applied buff %s to %s at control point %s", 
-                    buffName, unitType, cp.name))
-                else
-                    debugMsg(string.format("Failed to grant buff %s to %s at control point %s", 
-                    buffName, unitType, cp.name))
-                end
-                else
-                --   debugMsg(string.format("Unit %s already has buff %s at control point %s", unitType, buffName, cp.name))
+                if not cp.buffedUnits[buffName][unit.ActorID] then
+                  local token = unit.GrantCondition(buffName)
+                  if token then
+                      cp.buffedUnits[buffName][unit.ActorID] = {
+                      unit = unit,
+                      token = token
+                      }
+                      debugMsg(string.format("Applied buff %s to %s at control point %s", 
+                      buffName, unitType, cp.name))
+                  else
+                      debugMsg(string.format("Failed to grant buff %s to %s at control point %s", 
+                      buffName, unitType, cp.name))
+                  end
                 end
             end
           end
@@ -525,25 +518,29 @@ local function processControlPointBuffs()
       -- 清理不在范围内的单位的Buff
       for buffName, units in pairs(cp.buffedUnits) do
         local toRemove = {}
-        for unit, buffData in pairs(units) do
+        for unitActorID, buffData in pairs(units) do
+          local unit = buffData.unit
+          -- debugMsg(string.format("Current Buff:%s, unit:%s, currentUnits:%s", tostring(buffName), tostring(unit), tostring(currentUnits[unit.ActorID])))
           -- 如果单位死亡或不在范围内，移除Buff
-          if unit.IsDead or not currentUnits[unit] then
-            if buffData.token and not unit.IsDead then
+          if unit.IsDead then
+            debugMsg(string.format("Unit %s died, buff %s automatically removed at control point %s", 
+                unit.Type, buffName, cp.name))
+            table.insert(toRemove, unit)
+          elseif not currentUnits[unit.ActorID] then
+            if buffData.token then
               -- 只对活着的单位调用RevokeCondition
               unit.RevokeCondition(buffData.token)
               debugMsg(string.format("Removed buff %s from %s at control point %s (reason: out of range)", 
                 buffName, unit.Type, cp.name))
-            elseif unit.IsDead then
-              debugMsg(string.format("Unit %s died, buff %s automatically removed at control point %s", 
-                unit.Type, buffName, cp.name))
+              table.insert(toRemove, unit)
             end
-            table.insert(toRemove, unit)
           end
+          
         end
         
         -- 批量移除已标记的单位
         for _, unit in ipairs(toRemove) do
-          cp.buffedUnits[buffName][unit] = nil
+          cp.buffedUnits[buffName][unit.ActorID] = nil
         end
       end
     end
