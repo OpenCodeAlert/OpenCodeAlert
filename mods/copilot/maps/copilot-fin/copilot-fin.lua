@@ -64,7 +64,6 @@ local SPECIAL_BUFFS = {
 -- === 内部状态 ===
 local Players = {}
 local Multi0, Multi1 -- 玩家引用
-local Self, Enemy -- 自己和敌人引用
 local ControlPoints = {}  -- 控制点列表
 local ControlPointTimes = {}  -- 控制点创建时间记录
 local ControlPointCounter = 0  -- 控制点计数器
@@ -404,30 +403,30 @@ local function checkVictoryConditions()
   end
   
   -- 检查Multi1（敌方）是否还有建筑
-  local enemyBuildings = Utils.Where(Map.ActorsInWorld, function(actor)
+  local Multi1Buildings = Utils.Where(Map.ActorsInWorld, function(actor)
     return actor.Owner == Multi1 and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
   end)
   
-  if #enemyBuildings == 0 then
+  if #Multi1Buildings == 0 then
     gameCompleted = true
-    Multi0.MarkCompletedObjective(SovietObjective1)
-    if AlliedObjective1 then Multi1.MarkFailedObjective(AlliedObjective1) end
-    debugMsg("Multi0 wins! All enemy buildings destroyed.")
-    Media.DisplayMessage("Victory! All enemy buildings destroyed.", "Menacing")
+    Multi0.MarkCompletedObjective(SovietObjective)
+    if AlliedObjective then Multi1.MarkFailedObjective(AlliedObjective) end
+    debugMsg("Multi0 wins! All Multi1 buildings destroyed.")
+    Media.DisplayMessage("Victory! All Multi1 buildings destroyed.", "Menacing")
     return
   end
   
   -- 检查Multi0（玩家）是否还有建筑
-  local playerBuildings = Utils.Where(Map.ActorsInWorld, function(actor)
+  local Multi0Buildings = Utils.Where(Map.ActorsInWorld, function(actor)
     return actor.Owner == Multi0 and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
   end)
   
-  if #playerBuildings == 0 then
+  if #Multi0Buildings == 0 then
     gameCompleted = true
-    if AlliedObjective1 then Multi1.MarkCompletedObjective(AlliedObjective1) end
-    Multi0.MarkFailedObjective(SovietObjective1)
-    debugMsg("Multi1 wins! All player buildings destroyed.")
-    Media.DisplayMessage("Defeat! All your buildings are destroyed.", "Menacing")
+    if AlliedObjective then Multi1.MarkCompletedObjective(AlliedObjective) end
+    Multi0.MarkFailedObjective(SovietObjective)
+    debugMsg("Multi1 wins! All Multi0 buildings destroyed.")
+    Media.DisplayMessage("Defeat! All Multi0 buildings are destroyed.", "Menacing")
   end
 end
 
@@ -501,17 +500,11 @@ WorldLoaded = function()
       if not p.IsNonCombatant then
           table.insert(Players, p)
       end
-      if p.IsLocalPlayer then
-        Self = p
-      end
   end
   -- debugMsg(string.format("PlayersNum:%d", #Players))
   Multi0 = Players[1]
   Multi1 = Players[2]
 
-   if not Self then
-     debugMsg("Warning: Self not found")
-   end
    if not Multi0 then
      debugMsg("Warning: Multi0 not found")
    end
@@ -519,15 +512,7 @@ WorldLoaded = function()
      debugMsg("Warning: Multi1 not found")
    end
    
-   -- 设置敌人引用
-   if Self.Name == Multi0.Name then
-     Enemy = Multi1
-   elseif Self.Name == Multi1.Name then
-     Enemy = Multi0
-   else
-     debugMsg("Warning: Could not determine enemy player")
-   end
-  
+
   InitObjectives(Multi0)
   InitObjectives(Multi1)
   

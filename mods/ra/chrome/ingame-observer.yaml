@@ -1,6 +1,40 @@
 Container@OBSERVER_WIDGETS:
 	Logic: LoadIngameChatLogic
 	Children:
+		Container@CopilotScoreHUD:
+		  LogicTicker@COPILOT_SCORE_TICKER:
+			Logic: CopilotScoreChrome
+			X: 230
+			Y: 18
+			Width: 250
+			Height: 100
+			Children:
+				Container@CopilotScorePanel:
+					Width: PARENT_RIGHT
+					Height: PARENT_BOTTOM
+					Children:
+						Label@ScoreLabelFront:
+							X: 0
+							Text: Score:
+							Align: Left
+							Font: Bold
+						Label@ScoreLabel:
+							X: 60
+							Id: CopilotScoreLabel
+							Text: "0 - 0"
+							Align: Left
+							Font: Bold
+						Label@TimerLabelFront:
+							X: PARENT_RIGHT - 60
+							Text: Time:
+							Align: Right
+							Font: Bold
+						Label@TimerLabel:
+							X: PARENT_RIGHT
+							Id: CopilotTimerLabel
+							Text: "15:00"
+							Align: Right
+							Font: Bold
 		Container@CHAT_ROOT:
 		Container@MUTE_INDICATOR:
 			Logic: MuteIndicatorLogic
