@@ -1384,8 +1384,6 @@ namespace OpenRA.Mods.Common.Commands
 				["x"] = cp.X,
 				["y"] = cp.Y,
 				["hasBuffs"] = cp.HasBuffs,
-				["createdTime"] = cp.CreatedTime.Ticks,
-				["buffRefreshTime"] = cp.BuffRefreshTime.Ticks,
 				["buffs"] = new JArray(cp.Buffs.Select(buff => new JObject
 				{
 					["unitType"] = buff.UnitType,

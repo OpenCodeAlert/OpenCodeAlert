@@ -1104,7 +1104,52 @@ Actors:
 	Actor388: sam
 		Owner: Multi1
 		Location: 83,20
+	CP_Spawn_01: waypoint
+		Owner: Neutral
+		Location: 14,13
+	CP_Spawn_02: waypoint
+		Owner: Neutral
+		Location: 14,29
+	CP_Spawn_03: waypoint
+		Owner: Neutral
+		Location: 31,28
+	CP_Spawn_04: waypoint
+		Owner: Neutral
+		Location: 40,41
+	CP_Spawn_05: waypoint
+		Owner: Neutral
+		Location: 63,48
+	CP_Spawn_06: waypoint
+		Owner: Neutral
+		Location: 48,48
+	CP_Spawn_07: waypoint
+		Owner: Neutral
+		Location: 48,63
+	CP_Spawn_08: waypoint
+		Owner: Neutral
+		Location: 63,63
+	CP_Spawn_09: waypoint
+		Owner: Neutral
+		Location: 14,43
+	CP_Spawn_10: waypoint
+		Owner: Neutral
+		Location: 97,83
+	CP_Spawn_11: waypoint
+		Owner: Neutral
+		Location: 94,70
+	CP_Spawn_12: waypoint
+		Owner: Neutral
+		Location: 84,83
+	CP_Spawn_13: waypoint
+		Owner: Neutral
+		Location: 74,70
+	CP_Spawn_14: waypoint
+		Owner: Neutral
+		Location: 87,97
+	CP_Spawn_15: waypoint
+		Owner: Neutral
+		Location: 36,13
 
-Rules: copilot|rules/copilot_controlpoint.yaml, ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml,rules.yaml
+Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml,rules.yaml
 
 Translations: ra|languages/lua/en.ftl, ra|languages/campaign/en.ftl

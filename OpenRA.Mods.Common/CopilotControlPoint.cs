@@ -11,8 +11,6 @@ namespace OpenRA.Mods.Common
 		public Actor Actor;
 		public string Name;
 		public List<ControlPointBuff> Buffs;
-		public DateTime CreatedTime;
-		public DateTime BuffRefreshTime;
 		public bool HasBuffs;
 		public int X;
 		public int Y;
@@ -46,8 +44,6 @@ namespace OpenRA.Mods.Common
 				Actor = actor,
 				Name = name,
 				Buffs = new List<ControlPointBuff>(),
-				CreatedTime = DateTime.Now,
-				BuffRefreshTime = DateTime.Now.AddSeconds(30 + World.SharedRandom.Next(60)), // 30-90秒后刷新buff
 				HasBuffs = false,
 				X = x,
 				Y = y
@@ -66,7 +62,6 @@ namespace OpenRA.Mods.Common
 				var cp = ControlPoints[name];
 				cp.Buffs = buffs;
 				cp.HasBuffs = buffs.Count > 0;
-				cp.BuffRefreshTime = DateTime.Now.AddMinutes(2); // 2分钟后再次刷新
 				ControlPoints[name] = cp;
 			}
 		}
@@ -92,7 +87,7 @@ namespace OpenRA.Mods.Common
 				return false;
 
 			var cp = ControlPoints[name];
-			return !cp.HasBuffs && DateTime.Now >= cp.BuffRefreshTime;
+			return !cp.HasBuffs;
 		}
 
 	}

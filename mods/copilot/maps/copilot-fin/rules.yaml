@@ -8,3 +8,12 @@ World:
 	-CrateSpawner:
 	LuaScript:
 		Scripts: campaign.lua, utils.lua, copilot-fin.lua
+
+CAMERA:
+	RevealsShroud:
+		Range: 12c0
+		Type: CenterPosition
+
+GAP:
+	DamageMultiplier:
+		Modifier: 0

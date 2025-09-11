@@ -9,13 +9,12 @@
  */
 #endregion
 
-using System;
-using System.Linq;
 using Eluant;
 using OpenRA.Effects;
-using OpenRA.Scripting;
 using OpenRA.Mods.Common.Traits;
-using OpenRA.Mods.Common;
+using OpenRA.Scripting;
+using System;
+using System.Linq;
 
 namespace OpenRA.Mods.Common.Scripting
 {
@@ -652,9 +651,10 @@ namespace OpenRA.Mods.Common.Scripting
 				return;
 
 			var buffList = new System.Collections.Generic.List<ControlPointBuff>();
-			
+
 			using (buffs)
 			{
+				// 使用foreach遍历Lua表
 				foreach (var kvp in buffs)
 				{
 					if (kvp.Value is LuaTable buffTable)
@@ -664,7 +664,7 @@ namespace OpenRA.Mods.Common.Scripting
 							var unitType = buffTable[1].ToString();
 							var buffType = buffTable[2].ToString();
 							var buffName = buffTable[3].ToString();
-							
+
 							buffList.Add(new ControlPointBuff
 							{
 								UnitType = unitType,
@@ -700,13 +700,11 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				var cp = controlPoints[i];
 				var cpTable = Context.CreateTable();
-				
+
 				cpTable[1] = cp.Name;
 				cpTable[2] = cp.X;
 				cpTable[3] = cp.Y;
 				cpTable[4] = cp.HasBuffs;
-				cpTable[5] = cp.CreatedTime.Ticks;
-				cpTable[6] = cp.BuffRefreshTime.Ticks;
 
 				// Add buffs
 				var buffsTable = Context.CreateTable();
