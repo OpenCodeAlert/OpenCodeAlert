@@ -9,7 +9,7 @@ World:
 	CopilotControlPoint:
 	-CrateSpawner:
 	LuaScript:
-		Scripts: campaign.lua, utils.lua, copilot-fin.lua
+		Scripts: campaign.lua, utils.lua, copilot-fin-2.lua
 
 CAMERA:
 	RevealsShroud:

@@ -661,60 +661,6 @@ Actors:
 	Actor269: t13.husk
 		Owner: Neutral
 		Location: 5,54
-	Actor270: brl3
-		Owner: Neutral
-		Location: 105,101
-	Actor271: barl
-		Owner: Neutral
-		Location: 107,99
-	Actor272: brl3
-		Owner: Neutral
-		Location: 101,105
-	Actor273: barl
-		Owner: Neutral
-		Location: 99,107
-	Actor274: barl
-		Owner: Neutral
-		Location: 98,105
-	Actor275: barl
-		Owner: Neutral
-		Location: 105,98
-	Actor276: barl
-		Owner: Neutral
-		Location: 13,105
-	Actor277: barl
-		Owner: Neutral
-		Location: 12,107
-	Actor278: brl3
-		Owner: Neutral
-		Location: 10,105
-	Actor279: brl3
-		Owner: Neutral
-		Location: 6,101
-	Actor280: barl
-		Owner: Neutral
-		Location: 6,98
-	Actor281: barl
-		Owner: Neutral
-		Location: 4,99
-	Actor282: barl
-		Owner: Neutral
-		Location: 6,13
-	Actor283: barl
-		Owner: Neutral
-		Location: 4,12
-	Actor284: brl3
-		Owner: Neutral
-		Location: 6,10
-	Actor285: brl3
-		Owner: Neutral
-		Location: 10,6
-	Actor286: barl
-		Owner: Neutral
-		Location: 12,4
-	Actor287: barl
-		Owner: Neutral
-		Location: 13,6
 	Actor288: barl
 		Owner: Neutral
 		Location: 98,6
@@ -733,15 +679,6 @@ Actors:
 	Actor293: brl3
 		Owner: Neutral
 		Location: 105,10
-	Actor294: boxes07
-		Owner: Neutral
-		Location: 10,10
-	Actor295: boxes02
-		Owner: Neutral
-		Location: 8,9
-	Actor296: boxes03
-		Owner: Neutral
-		Location: 9,8
 	Actor297: boxes02
 		Owner: Neutral
 		Location: 101,9
@@ -751,24 +688,6 @@ Actors:
 	Actor299: boxes01
 		Owner: Neutral
 		Location: 102,8
-	Actor300: boxes02
-		Owner: Neutral
-		Location: 101,101
-	Actor301: boxes01
-		Owner: Neutral
-		Location: 103,102
-	Actor302: boxes03
-		Owner: Neutral
-		Location: 101,103
-	Actor303: boxes03
-		Owner: Neutral
-		Location: 9,101
-	Actor304: boxes08
-		Owner: Neutral
-		Location: 10,103
-	Actor305: boxes01
-		Owner: Neutral
-		Location: 8,102
 	Actor306: ice03
 		Owner: Neutral
 		Location: 56,58
@@ -784,15 +703,6 @@ Actors:
 	Actor314: ammobox1
 		Owner: Neutral
 		Location: 103,8
-	Actor315: ammobox2
-		Owner: Neutral
-		Location: 103,103
-	Actor316: ammobox1
-		Owner: Neutral
-		Location: 8,103
-	Actor317: ammobox2
-		Owner: Neutral
-		Location: 8,8
 	Actor318: t14
 		Owner: Neutral
 		Location: 56,75
