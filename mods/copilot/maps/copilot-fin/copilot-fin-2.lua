@@ -9,7 +9,10 @@ local UNIT_TYPES = {
 }
 
 local BUFF_CONFIGS = {
-
+  -- 简化的Buff配置，后续在BuffSystem中使用
+  {unitType = "e1", condition = "firepower_boost", name = "Infantry Firepower"},
+  {unitType = "3tnk", condition = "armor_boost", name = "Tank Armor"},  
+  {unitType = "any", condition = "speed_boost", name = "Movement Speed"}
 }
 
 local CONFIG = {
@@ -37,6 +40,131 @@ local CONFIG = {
   }
 }
 
+-- === 工具函数 ===
+local Utils = {
+  secs = function(n) 
+    return DateTime.Seconds(n) 
+  end,
+  
+  debugMsg = function(msg)
+    if CONFIG.game.debug then
+      Media.DisplayMessage("[DEBUG] " .. msg)
+    end
+  end,
+  
+  Random = function(min, max)
+    return min + (DateTime.GameTime % (max - min + 1))
+  end,
+
+  pickRandom = function(tbl)
+    if not tbl or #tbl == 0 then return nil end
+    return tbl[Utils.Random(1, #tbl)]
+  end,
+  
+  generateRandomBuffs = function()
+    -- 简单返回固定配置，后续可扩展为随机生成
+    return {
+      {unitType = "e1", condition = "firepower_boost"},
+      {unitType = "3tnk", condition = "armor_boost"}
+    }
+  end,
+  
+  getUnitsInRadius = function(position, radius, excludeNeutral)
+    local units = Map.ActorsInCircle(position, WDist.FromCells(radius))
+    local result = {}
+    
+    for _, unit in ipairs(units) do
+        if unit and not unit.IsDead then
+        if not excludeNeutral or unit.Owner.Name ~= "Neutral" then
+            table.insert(result, unit)
+        end
+        end
+    end
+    
+    return result
+  end,
+  
+  Where = function(collection, predicate)
+    local result = {}
+    for _, item in ipairs(collection) do
+      if predicate(item) then
+        table.insert(result, item)
+      end
+    end
+    return result
+  end
+}
+
+local EventHandler = {
+  onControlPointCreated = function(point)
+    -- 暂时空实现，BuffSystem 初始化后会正确处理
+    if BuffSystem and BuffSystem.onPointCreated then
+      BuffSystem:onPointCreated(point)
+    end
+  end,
+  
+  onControlPointDestroyed = function(pointId)
+    -- 暂时空实现，BuffSystem 初始化后会正确处理
+    if BuffSystem and BuffSystem.onPointDestroyed then
+      BuffSystem:onPointDestroyed(pointId)
+    end
+  end,
+  
+  onUnitDied = function(unit)
+    -- 清理该单位的所有Buff记录
+  end
+}
+
+local GameCore = {
+  initialized = false,
+  players = {},
+  objectives = {},
+  
+  init = function(self)
+    Utils.debugMsg("Initializing GameCore...")
+     
+    self:initPlayers()
+    self:initObjectives()
+    
+    self.initialized = true
+    Utils.debugMsg("GameCore initialized successfully")
+  end,
+  
+  initPlayers = function(self)
+    self.players[1] = Player.GetPlayer("Multi0")
+    self.players[2] = Player.GetPlayer("Multi1")
+    if not self.players[1] or not self.players[2] then
+        Utils.debugMsg("Warning: Could not find both players!")
+    end
+  end,
+  
+  initObjectives = function(self)
+    InitObjectives(self.players[1])
+    InitObjectives(self.players[2])
+    self.objectives.p1Primary = AddPrimaryObjective(self.players[1], "destroy-enemy-base-or-win-by-score")
+    self.objectives.p1Secondary = AddSecondaryObjective(self.players[1], "control-strategic-points")
+  
+    self.objectives.p2Primary = AddPrimaryObjective(self.players[2], "defend-enemy-base-or-win-by-score") 
+    self.objectives.p2Secondary = AddSecondaryObjective(self.players[2], "control-strategic-points")
+  end,
+  
+  setupTimers = function(self)
+    -- 设置各系统的定时更新
+  end,
+  
+  provideTestUnits = function(self)
+    if not self.players[1] then
+      Utils.debugMsg("Cannot provide test units - player not found")
+      return
+    end
+    
+    -- 在玩家基地附近生成测试单位
+    local testUnits = Reinforcements.Reinforce(self.players[1], {"e1", "e1", "3tnk"}, {CPos.New(25, 95), CPos.New(26, 95)})
+    Utils.debugMsg("Provided " .. #testUnits .. " test units for player")
+    Media.DisplayMessage("Test units deployed! Move them to control points to test the system.", "Notification")
+  end
+}
+
 -- 控制点管理器
 local ControlPointManager = {
   activePoints = {},
@@ -49,12 +177,24 @@ local ControlPointManager = {
         table.insert(self.availableSpawns, spawn)
       end
     end
-  self.nextSpawnTime = DateTime.GameTime + Utils.secs(Utils.random(30, 60))
+  self.nextSpawnTime = DateTime.GameTime + Utils.secs(Utils.Random(30, 60))
   end,
   
   update = function(self)
+    local currentTime = DateTime.GameTime
+    
     -- 检查是否需要生成新控制点
+    if currentTime >= self.nextSpawnTime and #self.activePoints < CONFIG.controlPoints.maxActive then
+      if self:createPoint() then
+        -- 设置下次生成时间
+        local interval = Utils.Random(CONFIG.controlPoints.spawnInterval[1], CONFIG.controlPoints.spawnInterval[2])
+        self.nextSpawnTime = currentTime + Utils.secs(interval)
+        Utils.debugMsg("Next control point spawn in " .. interval .. " seconds")
+      end
+    end
+    
     -- 清理过期的控制点
+    self:cleanupExpiredPoints()
   end,
   
   createPoint = function(self)
@@ -71,7 +211,7 @@ local ControlPointManager = {
         return false
     end
   
-    local spawnIndex = Utils.random(1, #self.availableSpawns)
+    local spawnIndex = Utils.Random(1, #self.availableSpawns)
     local spawn = self.availableSpawns[spawnIndex]
     table.remove(self.availableSpawns, spawnIndex)
     
@@ -92,9 +232,49 @@ local ControlPointManager = {
   end,
   
   destroyPoint = function(self, pointId)
-    -- 清理控制点
-    -- 释放生成位置
-    -- 通知其他系统
+    for i, point in ipairs(self.activePoints) do
+      if point.id == pointId then
+        -- 释放生成位置
+        table.insert(self.availableSpawns, point.spawn)
+        
+        -- 从活跃列表中移除
+        table.remove(self.activePoints, i)
+        
+        -- 通知其他系统
+        EventHandler.onControlPointDestroyed(pointId)
+        
+        Utils.debugMsg("Destroyed control point: " .. pointId)
+        return true
+      end
+    end
+    return false
+  end,
+  
+  cleanupExpiredPoints = function(self)
+    local currentTime = DateTime.GameTime
+    local toRemove = {}
+    
+    for i, point in ipairs(self.activePoints) do
+      if currentTime >= point.expiresAt then
+        table.insert(toRemove, i)
+        Utils.debugMsg("Control point " .. point.id .. " expired")
+      end
+    end
+    
+    -- 从后往前删除，避免索引问题
+    for i = #toRemove, 1, -1 do
+      local pointIndex = toRemove[i]
+      local point = self.activePoints[pointIndex]
+      
+      -- 释放生成位置
+      table.insert(self.availableSpawns, point.spawn)
+      
+      -- 通知其他系统
+      EventHandler.onControlPointDestroyed(point.id)
+      
+      -- 从活跃列表中移除
+      table.remove(self.activePoints, pointIndex)
+    end
   end,
   
   getActivePoints = function(self)
@@ -108,12 +288,14 @@ local BuffSystem = {
   lastCheckTime = 0,
   
   init = function(self)
-    -- 初始化系统
+    self.activeBuffs = {}
+    self.lastCheckTime = DateTime.GameTime
+    Utils.debugMsg("BuffSystem initialized (basic version)")
   end,
   
   update = function(self)
-    -- 检查是否到达更新间隔
-    -- 处理所有控制点的Buff
+    -- 暂时空实现，第三阶段会完整实现
+    -- Utils.debugMsg("BuffSystem update (placeholder)")
   end,
   
   processPointBuffs = function(self, point)
@@ -149,25 +331,69 @@ local ScoreSystem = {
   lastDisplayTime = 0,
   
   init = function(self)
-    -- 初始化计分系统
+    self.scores = {0, 0}
+    self.lastUpdate = DateTime.GameTime
+    self.lastDisplayTime = DateTime.GameTime
+    Utils.debugMsg("ScoreSystem initialized")
   end,
   
   update = function(self)
-    -- 统计控制点内单位
-    -- 计算分数变化
-    -- 更新显示
+    local currentTime = DateTime.GameTime
+    if currentTime - self.lastUpdate < Utils.secs(CONFIG.scoring.updateInterval) then
+      return
+    end
+    
+    local p1Units, p2Units = self:calculateUnitCounts()
+    self:updateScores(p1Units, p2Units)
+    
+    self.lastUpdate = currentTime
   end,
   
   calculateUnitCounts = function(self)
-    -- 遍历所有控制点
-    -- 统计各方单位数量
-    -- 返回统计结果
+    local p1Units = 0
+    local p2Units = 0
+    local players = GameCore.players
+    
+    for _, point in ipairs(ControlPointManager:getActivePoints()) do
+      local units = Utils.getUnitsInRadius(point.position, CONFIG.controlPoints.buffRadius, true)
+      
+      for _, unit in ipairs(units) do
+        if unit.Owner == players[1] then
+          p1Units = p1Units + 1
+        elseif unit.Owner == players[2] then
+          p2Units = p2Units + 1
+        end
+      end
+    end
+    
+    return p1Units, p2Units
   end,
   
   updateScores = function(self, p1Units, p2Units)
-    -- 根据优势比例计算得分
-    -- 更新分数
-    -- 触发显示更新
+    local scoreGained = false
+    
+    -- 如果玩家1有优势
+    if (p2Units > 0 and p1Units >= p2Units * CONFIG.scoring.advantageRatio) or 
+       (p2Units == 0 and p1Units > 0) then
+      self.scores[1] = self.scores[1] + CONFIG.scoring.pointsPerSecond
+      scoreGained = true
+      Utils.debugMsg(string.format("Player 1 gains %d point! (%d vs %d units)", 
+        CONFIG.scoring.pointsPerSecond, p1Units, p2Units))
+    -- 如果玩家2有优势  
+    elseif (p1Units > 0 and p2Units >= p1Units * CONFIG.scoring.advantageRatio) or 
+           (p1Units == 0 and p2Units > 0) then
+      self.scores[2] = self.scores[2] + CONFIG.scoring.pointsPerSecond
+      scoreGained = true
+      Utils.debugMsg(string.format("Player 2 gains %d point! (%d vs %d units)", 
+        CONFIG.scoring.pointsPerSecond, p2Units, p1Units))
+    end
+    
+    -- 定期显示分数更新
+    local currentTime = DateTime.GameTime
+    if scoreGained or (currentTime - self.lastDisplayTime) > Utils.secs(30) then
+      self:displayScoreUpdate(scoreGained, p1Units, p2Units)
+      self.lastDisplayTime = currentTime
+    end
   end,
   
   getScores = function(self)
@@ -175,7 +401,16 @@ local ScoreSystem = {
   end,
   
   displayScoreUpdate = function(self, gained, p1Units, p2Units)
-    -- 显示得分信息
+    local players = GameCore.players
+    local message = string.format("Score: %s: %d, %s: %d", 
+      players[1] and players[1].Name or "Player1", self.scores[1],
+      players[2] and players[2].Name or "Player2", self.scores[2])
+    
+    if gained then
+      message = message .. " (Point gained!)"
+    end
+    
+    Media.DisplayMessage(message, "Notification")
   end
 }
 
@@ -191,139 +426,136 @@ local VictoryConditions = {
   check = function(self)
     if self.gameCompleted then return end
     
+    -- 检查建筑摧毁条件（优先级更高）
+    if self:checkBuildingDestruction() then
+      return
+    end
+    
     -- 检查时间是否到期
-    -- 检查建筑摧毁条件
-    -- 触发相应的胜利/失败逻辑
+    self:checkTimeLimit()
   end,
   
   checkTimeLimit = function(self)
-    -- 计算剩余时间
-    -- 按分数判断胜负
+    local currentTime = DateTime.GameTime
+    local elapsed = currentTime - self.gameStartTime
+    local timeLimit = Utils.secs(CONFIG.game.duration)
+    
+    if elapsed >= timeLimit then
+      -- 时间到期，按分数判断胜负
+      local scores = ScoreSystem:getScores()
+      
+      if scores[1] > scores[2] then
+        self:declareVictory(1, "score", scores)
+      elseif scores[2] > scores[1] then
+        self:declareVictory(2, "score", scores)
+      else
+        self:declareVictory(0, "draw", scores) -- 平局
+      end
+      
+      return true
+    end
+    
+    return false
   end,
   
   checkBuildingDestruction = function(self)
-    -- 当某一方基地被摧毁时，立即结束游戏
+    local players = GameCore.players
+    if not players[1] or not players[2] then return false end
+    
+    -- 检查玩家1的建筑
+    local p1Buildings = Utils.Where(Map.ActorsInWorld, function(actor)
+      return actor.Owner == players[1] and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
+    end)
+    
+    -- 检查玩家2的建筑
+    local p2Buildings = Utils.Where(Map.ActorsInWorld, function(actor)
+      return actor.Owner == players[2] and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
+    end)
+    
+    if #p1Buildings == 0 then
+      self:declareVictory(2, "destruction", ScoreSystem:getScores())
+      return true
+    elseif #p2Buildings == 0 then
+      self:declareVictory(1, "destruction", ScoreSystem:getScores())
+      return true
+    end
+    
+    return false
   end,
   
   declareVictory = function(self, winner, reason, finalScores)
-    -- 标记游戏完成
-    -- 设置目标状态
-    -- 显示胜利信息
-  end
-}
-
-local GameCore = {
-  initialized = false,
-  players = {},
-  objectives = {},
-  
-  init = function(self)
-    -- 获取玩家引用
-    -- 初始化目标系统  
-    -- 初始化各个子系统
-    -- 设置定时器
-    self.initialized = true
-  end,
-  
-  initPlayers = function(self)
-    self.players[1] = Player.GetPlayer("Multi0")
-    self.players[2] = Player.GetPlayer("Multi1")
-    if not self.players[1] or not self.players[2] then
-        Utils.debugMsg("Warning: Could not find both players!")
+    self.gameCompleted = true
+    
+    local players = GameCore.players
+    local objectives = GameCore.objectives
+    
+    local message = ""
+    if winner == 0 then
+      -- 平局
+      message = string.format("Game Over - Draw! Final Score: %d-%d", finalScores[1], finalScores[2])
+      if objectives.p1Primary then players[1].MarkFailedObjective(objectives.p1Primary) end
+      if objectives.p2Primary then players[2].MarkFailedObjective(objectives.p2Primary) end
+    elseif winner == 1 then
+      -- 玩家1胜利
+      if reason == "destruction" then
+        message = "Victory! Enemy base destroyed!"
+      else
+        message = string.format("Victory by Score! Final: %d-%d", finalScores[1], finalScores[2])
+      end
+      if objectives.p1Primary then players[1].MarkCompletedObjective(objectives.p1Primary) end
+      if objectives.p2Primary then players[2].MarkFailedObjective(objectives.p2Primary) end
+    elseif winner == 2 then
+      -- 玩家2胜利
+      if reason == "destruction" then
+        message = "Defeat! Your base was destroyed!"
+      else
+        message = string.format("Defeat by Score! Final: %d-%d", finalScores[2], finalScores[1])
+      end
+      if objectives.p1Primary then players[1].MarkFailedObjective(objectives.p1Primary) end
+      if objectives.p2Primary then players[2].MarkCompletedObjective(objectives.p2Primary) end
     end
-  end,
-  
-  initObjectives = function(self)
-    InitObjectives(self.players[1])
-    InitObjectives(self.players[2])
-    self.objectives.p1Primary = AddPrimaryObjective(self.players[1], "destroy-enemy-base-or-win-by-score")
-    self.objectives.p1Secondary = AddSecondaryObjective(self.players[1], "control-strategic-points")
-  
-    self.objectives.p2Primary = AddPrimaryObjective(self.players[2], "defend-enemy-base-or-win-by-score") 
-    self.objectives.p2Secondary = AddSecondaryObjective(self.players[2], "control-strategic-points")
-  end,
-  
-  setupTimers = function(self)
-    -- 设置各系统的定时更新
-  end,
-  
-  provideTestUnits = function(self)
-    -- 为测试提供初始单位
+    
+    Media.DisplayMessage(message, "Menacing")
+    Utils.debugMsg("Game completed: " .. message)
   end
 }
 
 -- === 事件处理 ===
-local EventHandler = {
-  onControlPointCreated = function(point)
-    BuffSystem:onPointCreated(point)
-  end,
+-- local EventHandler = {
+--   onControlPointCreated = function(point)
+--     BuffSystem:onPointCreated(point)
+--   end,
   
-  onControlPointDestroyed = function(pointId)
-    BuffSystem:onPointDestroyed(pointId)
-  end,
+--   onControlPointDestroyed = function(pointId)
+--     BuffSystem:onPointDestroyed(pointId)
+--   end,
   
-  onUnitDied = function(unit)
-    -- 清理该单位的所有Buff记录
-  end
-}
-
--- === 工具函数 ===
-local Utils = {
-  secs = function(n) 
-    return DateTime.Seconds(n) 
-  end,
-  
-  debugMsg = function(msg)
-    if CONFIG.game.debug then
-      Media.DisplayMessage("[DEBUG] " .. msg)
-    end
-  end,
-  
-  Random = function(min, max)
-    return min + (DateTime.GameTime % (max - min + 1))
-  end,
-
-  pickRandom = function(tbl)
-    if not tbl or #tbl == 0 then return nil end
-    return tbl[Utils.Random(1, #tbl)]
-  end,
-  
-  generateRandomBuffs = function()
-    -- 生成随机Buff配置
-  end,
-  
-  getUnitsInRadius = function(position, radius, excludeNeutral)
-    local units = Map.ActorsInCircle(position, WDist.FromCells(radius))
-    local result = {}
-    
-    for _, unit in ipairs(units) do
-        if unit and not unit.IsDead then
-        if not excludeNeutral or unit.Owner.Name ~= "Neutral" then
-            table.insert(result, unit)
-        end
-        end
-    end
-    
-    return result
-  end
-}
+--   onUnitDied = function(unit)
+--     -- 清理该单位的所有Buff记录
+--   end
+-- }
 
 local function setupPeriodicTasks()
-  -- 每秒更新控制点管理
-  Trigger.AfterDelay(Utils.secs(1), function()
+  -- 控制点管理 - 每秒更新
+  local function controlPointTask()
     ControlPointManager:update()
-    Trigger.AfterDelay(Utils.secs(1), setupPeriodicTasks)
-  end)
+    Trigger.AfterDelay(Utils.secs(1), controlPointTask)
+  end
+  Trigger.AfterDelay(Utils.secs(1), controlPointTask)
   
-  -- 每2秒更新Buff系统  
-  Trigger.AfterDelay(Utils.secs(CONFIG.buffs.checkInterval), function()
+  -- Buff系统 - 每2秒更新  
+  local function buffTask()
     BuffSystem:update()
-  end)
+    Trigger.AfterDelay(Utils.secs(CONFIG.buffs.checkInterval), buffTask)
+  end
+  Trigger.AfterDelay(Utils.secs(CONFIG.buffs.checkInterval), buffTask)
   
-  -- 每秒更新计分系统
-  Trigger.AfterDelay(Utils.secs(CONFIG.scoring.updateInterval), function()
+  -- 计分系统 - 每秒更新
+  local function scoreTask()
     ScoreSystem:update()
-  end)
+    Trigger.AfterDelay(Utils.secs(CONFIG.scoring.updateInterval), scoreTask)
+  end
+  Trigger.AfterDelay(Utils.secs(CONFIG.scoring.updateInterval), scoreTask)
 end
 
 -- === 主入口点 ===
@@ -355,6 +587,12 @@ WorldLoaded = function()
   end)
   
   Utils.debugMsg("System initialization complete!")
+  
+  -- 显示游戏规则
+  Media.DisplayMessage(string.format("Control Point Conquest - %d minutes to victory!", CONFIG.game.duration / 60), "Notification")
+  Trigger.AfterDelay(Utils.secs(3), function()
+    Media.DisplayMessage("Destroy enemy base OR win by score! Get 2x more units in control points to gain points.", "Notification")
+  end)
 end
 
 -- main game loop tick
