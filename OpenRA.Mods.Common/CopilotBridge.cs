@@ -1,4 +1,4 @@
-using System;
+using System;	
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Channels;
@@ -89,13 +89,9 @@ namespace OpenRA.Mods.Common.Commands
 			if (actor == null)
 				return;
 
-			// 仅实现已知安全的活动名称
+			// Activity会OOS，不要用
 			switch (ActivityName)
 			{
-				case "FindAndDeliverResources":
-					var harv = actor;
-					actor.QueueActivity(new OpenRA.Mods.Common.Activities.FindAndDeliverResources(harv));
-					break;
 				default:
 					// 未知活动忽略
 					break;

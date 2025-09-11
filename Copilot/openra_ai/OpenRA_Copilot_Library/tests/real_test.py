@@ -8,6 +8,7 @@ import sys
 import os
 import time
 import json
+import random
 
 # 添加父目录到Python路径
 print()
@@ -360,6 +361,37 @@ def test_query_actorwithfrozen(game_api):
     except Exception as e:
         print(f"❌ 查询Actor和FrozenActor异常: {e}")
 
+#让全场矿车deploy
+def test_deploy_miner(game_api):
+    """测试让全场矿车deploy"""
+    print_separator("测试让全场矿车deploy")
+    
+    try:
+        # 查询矿车
+        miners = game_api.query_actor(TargetsQueryParam(type=["miner"], faction="自己"))
+        game_api.deploy_units(miners)
+
+    except GameAPIError as e:
+        print(f"❌ 查询矿车失败: {e.code} - {e.message}")
+    except Exception as e:
+        print(f"❌ 查询矿车异常: {e}")
+
+#随机一个e1朝着随机方向移动3格
+def test_move_e1(game_api):
+    """测试随机一个e1朝着随机方向移动3格"""
+    print_separator("测试随机一个e1朝着随机方向移动3格")
+    
+    try:
+        # 查询e1
+        e1s = game_api.query_actor(TargetsQueryParam(type=["e1"], faction="自己"))
+        e1 = random.choice(e1s)
+        game_api.move_units_by_direction([e1], random.choice("上右下左"), 3)
+
+    except GameAPIError as e:
+        print(f"❌ 查询e1失败: {e.code} - {e.message}")
+    except Exception as e:
+        print(f"❌ 查询e1异常: {e}")
+
 def main():
     """主函数"""
     print("🚀 开始真实GameAPI测试")
@@ -380,8 +412,8 @@ def main():
     time.sleep(0.1)
 
     for i in range(100):
-        test_query_actorwithfrozen(game_api)
-        time.sleep(2)
+        test_deploy_miner(game_api)
+        time.sleep(1)
 
     
     test_control_point_operations(game_api)
