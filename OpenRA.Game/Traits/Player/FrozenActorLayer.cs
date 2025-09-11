@@ -1,4 +1,4 @@
-#region Copyright & License Information
+﻿#region Copyright & License Information
 /*
  * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
@@ -367,12 +367,36 @@ namespace OpenRA.Traits
 			var tl = centerCell - new CVec(cellRange, cellRange);
 			var br = centerCell + new CVec(cellRange, cellRange);
 
+			var rect = Rectangle.FromLTRB(tl.X, tl.Y, br.X, br.Y);
+
+			// 1. 查询框里的 frozen actor ids
+			var idsInBox = partitionedFrozenActorIds.InBox(rect);
+
+			// 2. 转换成 FrozenActor
+			var frozenActors = idsInBox.Select(FromID);
+
+			// 3. 过滤掉无效的
+			var valid = frozenActors.Where(fa => fa.IsValid);
+
+			// 4. 如果只要可见的，加上可见性过滤
+			IEnumerable<FrozenActor> filtered;
+			if (onlyVisible)
+				filtered = valid.Where(fa => fa.Visible);
+			else
+				filtered = valid;
+
+			// 5. 距离过滤
+			var inRange = filtered.Where(fa =>
+				(fa.CenterPosition - origin).HorizontalLengthSquared <= r.LengthSquared);
+
+			// 6. 返回
+			return inRange;
 			// Target ranges are calculated in 2D, so ignore height differences
-			return partitionedFrozenActorIds.InBox(Rectangle.FromLTRB(tl.X, tl.Y, br.X, br.Y))
-				.Select(FromID)
-				.Where(fa => fa.IsValid &&
-					(!onlyVisible || fa.Visible) &&
-					(fa.CenterPosition - origin).HorizontalLengthSquared <= r.LengthSquared);
+			//return partitionedFrozenActorIds.InBox(Rectangle.FromLTRB(tl.X, tl.Y, br.X, br.Y))
+			//	.Select(FromID)
+			//	.Where(fa => fa.IsValid &&
+			//		(!onlyVisible || fa.Visible) &&
+			//		(fa.CenterPosition - origin).HorizontalLengthSquared <= r.LengthSquared);
 		}
 	}
 }

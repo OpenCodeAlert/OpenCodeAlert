@@ -81,6 +81,12 @@ class Actor:
         self.position = position
         self.hppercent = hppercent
 
+@dataclass
+class FrozenActor:
+    type: Optional[str] = None  # 单位类型，值为 {ALL_UNITS} 中的一个。
+    faction: Optional[str] = None  # 阵营，值为 {ALL_ACTORS} 中的一个。
+    position: Optional[Location] = None  # 单位的位置。
+
 # 地图信息查询返回结构体，IsVisible 是当前视野可见的部分为 True，IsExplored 是探索过的格子为 True。
 @dataclass
 class MapQueryResult:
@@ -129,4 +135,20 @@ class ScreenInfoResult:
             "MousePosition": self.MousePosition.to_dict() if isinstance(self.MousePosition, Location) else self.MousePosition,
         }
 
+@dataclass
+class ControlPoint:
+    name: str  # 控制点名称。
+    x: int  # 控制点x坐标。
+    y: int  # 控制点y坐标。
+    hasBuffs: bool  # 控制点是否有Buff。
+    buffs: List[str]  # 控制点Buff列表。
 
+@dataclass
+class ControlPointQueryResult:
+    ControlPoints: List[ControlPoint]  # 控制点列表。
+
+@dataclass
+class MatchInfoQueryResult:
+    SelfScore: int  # 自己分数。
+    EnemyScore: int  # 敌人分数。
+    RemainingTime: int  # 剩余时间。
