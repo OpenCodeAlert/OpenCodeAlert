@@ -570,7 +570,7 @@ namespace OpenRA.Mods.Common.Commands
 			{
 				foreach (var h in harvs)
 				{
-					CopilotBus.Enqueue(new CancelActivityIntent { ActorId = (int)h.ActorID });
+					CopilotBus.Enqueue(new IssueOrderIntent { OrderId = "Stop", SubjectActorId = (int)h.ActorID });
 					CopilotBus.Enqueue(new IssueOrderIntent { SubjectActorId = (int)h.ActorID, OrderId = "Harvest" });
 				}
 				return "Deploy action executed.";
