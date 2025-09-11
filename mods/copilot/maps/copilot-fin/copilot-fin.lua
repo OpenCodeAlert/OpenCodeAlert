@@ -241,7 +241,7 @@ local function createControlPoint()
   })
   
   -- 记录创建时间
-  ControlPointTimes[name] = GameTime
+  ControlPointTimes[name] = DateTime.GameTime
   
   -- 从可用列表中移除，添加到已使用列表
   for i, spawn in ipairs(UNUSED_SPAWN_POINTS) do
@@ -250,7 +250,7 @@ local function createControlPoint()
       break
     end
   end
-  UsedSpawnPoints[selectedSpawn] = true
+  UsedSpawnPoints[selectedSpawn.ActorID] = true
     
     
   -- 创建Lua表传递给C#
@@ -271,7 +271,7 @@ end
 -- 清理过期的控制点
 local function cleanupExpiredControlPoints()
 
-  local currentTime = GameTime
+  local currentTime = DateTime.GameTime
   local toRemove = {}
   
 --   debugMsg(string.format("Checking %d control points for cleanup", #ControlPoints))
@@ -290,35 +290,13 @@ local function cleanupExpiredControlPoints()
       isExpired = true
       reason = "lifetime expired"
     end
+
+    debugMsg(string.format("Control point %s remaining time: %d", cp.name,secs(CONTROL_POINT_LIFETIME) - (currentTime - ControlPointTimes[cp.name])))
     
     if isExpired then
       table.insert(toRemove, i)
-      if cp.actor and not cp.actor.IsDead then
-        Trigger.RemoveControlPoint(cp.name)
-      end
       
-      -- 清理CAMERA
-      if cp.camera1 and not cp.camera1.IsDead then
-        cp.camera1.Destroy()
-        -- debugMsg(string.format("Destroyed camera1 for control point %s", cp.name))
-      end
-      
-      if cp.camera2 and not cp.camera2.IsDead then
-        cp.camera2.Destroy()
-        -- debugMsg(string.format("Destroyed camera2 for control point %s", cp.name))
-      end
-      
-      -- 释放生成点
-      if cp.spawnPoint then
-        UsedSpawnPoints[cp.spawnPoint] = nil
-        table.insert(UNUSED_SPAWN_POINTS, cp.spawnPoint)
-        -- debugMsg(string.format("Released spawn point %s", cp.spawnPoint.Name))
-      end
-      
-      -- 清理时间记录
-      ControlPointTimes[cp.name] = nil
-      
-      -- 清理相关的Buff记录
+      -- 先清理Buff，再移除控制点
       for buffName, units in pairs(cp.buffedUnits) do
         for unitActorID, buffData in pairs(units) do
           local unit = buffData.unit
@@ -331,7 +309,36 @@ local function cleanupExpiredControlPoints()
       end
       cp.buffedUnits = {}  -- 清空该控制点的Buff记录
       
+      -- 移除控制点（无论actor是否死亡都要调用）
+      Trigger.RemoveControlPoint(cp.name)
       debugMsg(string.format("Removed control point %s: %s", cp.name, reason))
+      
+      -- 销毁控制点Actor
+      if cp.actor and not cp.actor.IsDead then
+        cp.actor.Destroy()
+        debugMsg(string.format("Destroyed control point actor %s", cp.name))
+      end
+      
+      -- 清理CAMERA
+      if cp.camera1 and not cp.camera1.IsDead then
+        cp.camera1.Destroy()
+        debugMsg(string.format("Destroyed camera1 for control point %s", cp.name))
+      end
+      
+      if cp.camera2 and not cp.camera2.IsDead then
+        cp.camera2.Destroy()
+        debugMsg(string.format("Destroyed camera2 for control point %s", cp.name))
+      end
+      
+      -- 释放生成点
+      if cp.spawnPoint then
+        UsedSpawnPoints[cp.spawnPoint.ActorID] = nil
+        table.insert(UNUSED_SPAWN_POINTS, cp.spawnPoint)
+        -- debugMsg(string.format("Released spawn point %s", cp.spawnPoint.ActorID))
+      end
+      
+      -- 清理时间记录
+      ControlPointTimes[cp.name] = nil
     else
     --   debugMsg(string.format("Control point %s is still active", cp.name))
     end
@@ -362,6 +369,17 @@ local function scheduleControlPointSpawn()
   local nextSpawnDelay = CONTROL_POINT_SPAWN_MIN + Map.RandomCell().X % (CONTROL_POINT_SPAWN_MAX - CONTROL_POINT_SPAWN_MIN + 1)
   debugMsg(string.format("Next control point spawn in %d seconds", nextSpawnDelay))
   Trigger.AfterDelay(secs(nextSpawnDelay), scheduleControlPointSpawn)
+end
+
+-- 延迟创建第一个控制点
+local function scheduleFirstControlPoint()
+  debugMsg("Scheduling first control point in 10 seconds...")
+  Trigger.AfterDelay(secs(10), function()
+    debugMsg("Creating first control point...")
+    -- createControlPoint()
+    -- 创建第一个控制点后，启动正常的生成调度
+    scheduleControlPointSpawn()
+  end)
 end
 
 -- 定时检查控制点Buff
@@ -460,7 +478,7 @@ WorldLoaded = function()
 
   -- 启动控制点系统
   debugMsg("Starting control point spawn scheduler...")
-  scheduleControlPointSpawn()  -- 启动控制点生成
+  scheduleFirstControlPoint()  -- 延迟10秒创建第一个控制点
   
   debugMsg("Starting control point check scheduler...")
   scheduleControlPointCheck()  -- 启动控制点检查
@@ -487,7 +505,8 @@ local function processControlPointBuffs()
       local currentUnits = {}
       for _, unit in ipairs(nearbyUnits) do
         if unit and not unit.IsDead and unit.Owner ~= Player.GetPlayer("Neutral") then
-          currentUnits[unit.ActorID] = unit
+          local unitID = unit.ActorID
+          currentUnits[unitID] = unit
           for _, buff in ipairs(cp.buffs) do
             local unitType, buffType, buffName = buff[1], buff[2], buff[3]
             -- 初始化buffName表
@@ -496,10 +515,10 @@ local function processControlPointBuffs()
             end
             if unit.Type == unitType then
                 -- 如果单位还没有这个Buff，添加它
-                if not cp.buffedUnits[buffName][unit.ActorID] then
+                if not cp.buffedUnits[buffName][unitID] then
                   local token = unit.GrantCondition(buffName)
                   if token then
-                      cp.buffedUnits[buffName][unit.ActorID] = {
+                      cp.buffedUnits[buffName][unitID] = {
                       unit = unit,
                       token = token
                       }
@@ -520,27 +539,28 @@ local function processControlPointBuffs()
         local toRemove = {}
         for unitActorID, buffData in pairs(units) do
           local unit = buffData.unit
+
           -- debugMsg(string.format("Current Buff:%s, unit:%s, currentUnits:%s", tostring(buffName), tostring(unit), tostring(currentUnits[unit.ActorID])))
           -- 如果单位死亡或不在范围内，移除Buff
           if unit.IsDead then
             debugMsg(string.format("Unit %s died, buff %s automatically removed at control point %s", 
                 unit.Type, buffName, cp.name))
-            table.insert(toRemove, unit)
-          elseif not currentUnits[unit.ActorID] then
+            table.insert(toRemove, unitActorID)
+          elseif not currentUnits[unitActorID] then
             if buffData.token then
               -- 只对活着的单位调用RevokeCondition
               unit.RevokeCondition(buffData.token)
               debugMsg(string.format("Removed buff %s from %s at control point %s (reason: out of range)", 
                 buffName, unit.Type, cp.name))
-              table.insert(toRemove, unit)
+              table.insert(toRemove, unitActorID)
             end
           end
           
         end
         
         -- 批量移除已标记的单位
-        for _, unit in ipairs(toRemove) do
-          cp.buffedUnits[buffName][unit.ActorID] = nil
+        for _, unitActorID in ipairs(toRemove) do
+          cp.buffedUnits[buffName][unitActorID] = nil
         end
       end
     end
