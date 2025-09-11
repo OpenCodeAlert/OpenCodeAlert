@@ -412,9 +412,13 @@ end
 WorldLoaded = function()
   Trigger.SetAgentMode(false)
   -- 获取玩家引用
-  Multi0 = Player.GetPlayer("Multi0")  -- 玩家
-  Multi1 = Player.GetPlayer("Multi1")  -- 敌方
-  Players = { Multi0, Multi1 }
+  for _, p in Player.GetPlayer() do
+      if not p.IsObserver and not p.IsNeutral then
+          table.insert(Players, p)
+      end
+  end
+  Multi0 = Players[0]
+  Multi1 = Players[1]
   
   -- 初始化目标系统
   InitObjectives(Multi0)
