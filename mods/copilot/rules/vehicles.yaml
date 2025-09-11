@@ -52,6 +52,9 @@ V2RL:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
 
+	FirepowerMultiplier:
+		Modifier: 70
+
 	ExternalCondition@CP_V2_RAPIDFIRE:
 		Condition: cp_v2_rapidfire
 	ExternalCondition@CP_V2_RANGE_DECAY:
