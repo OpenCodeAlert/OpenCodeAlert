@@ -64,9 +64,18 @@ local SPECIAL_BUFFS = {
 
 -- === 内部状态 ===
 local Players = {}
+local Multi0, Multi1 -- 玩家引用
 local ControlPoints = {}  -- 控制点列表
 local ControlPointTimes = {}  -- 控制点创建时间记录
 local ControlPointCounter = 0  -- 控制点计数器
+
+-- 游戏目标相关
+local gameCompleted = false
+local SovietObjective1, SovietObjective2, AlliedObjective1, AlliedObjective2
+
+-- Buff处理计时器
+local buffCheckTicks = 0
+local BUFF_CHECK_INTERVAL = 15  -- 每15个tick检查一次（约0.6秒）
 local ALL_SPAWN_POINTS = {
   CP_Spawn_01, CP_Spawn_02, CP_Spawn_03, CP_Spawn_04, CP_Spawn_05,
   CP_Spawn_06, CP_Spawn_07, CP_Spawn_08, CP_Spawn_09, CP_Spawn_10,
@@ -365,13 +374,76 @@ local function scheduleControlPointCheck()
 end
 
 
+-- 游戏胜利检查
+local function checkVictoryConditions()
+  if gameCompleted then
+    return
+  end
+  
+  -- 检查Multi1（敌方）是否还有建筑
+  local enemyBuildings = Utils.Where(Map.ActorsInWorld, function(actor)
+    return actor.Owner == Multi1 and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
+  end)
+  
+  if #enemyBuildings == 0 then
+    gameCompleted = true
+    Multi0.MarkCompletedObjective(SovietObjective1)
+    if AlliedObjective1 then Multi1.MarkFailedObjective(AlliedObjective1) end
+    debugMsg("Multi0 wins! All enemy buildings destroyed.")
+    Media.DisplayMessage("Victory! All enemy buildings destroyed.", "Menacing")
+    return
+  end
+  
+  -- 检查Multi0（玩家）是否还有建筑
+  local playerBuildings = Utils.Where(Map.ActorsInWorld, function(actor)
+    return actor.Owner == Multi0 and actor.HasProperty("StartBuildingRepairs") and not actor.IsDead
+  end)
+  
+  if #playerBuildings == 0 then
+    gameCompleted = true
+    if AlliedObjective1 then Multi1.MarkCompletedObjective(AlliedObjective1) end
+    Multi0.MarkFailedObjective(SovietObjective1)
+    debugMsg("Multi1 wins! All player buildings destroyed.")
+    Media.DisplayMessage("Defeat! All your buildings are destroyed.", "Menacing")
+  end
+end
+
 -- === 入口 ===
 WorldLoaded = function()
-  -- 两个非中立玩家
-  Players = { Player.GetPlayer("Multi0"), Player.GetPlayer("Multi1") }
+  Trigger.SetAgentMode(false)
+  -- 获取玩家引用
+  Multi0 = Player.GetPlayer("Multi0")  -- 玩家
+  Multi1 = Player.GetPlayer("Multi1")  -- 敌方
+  Players = { Multi0, Multi1 }
+  
+  -- 初始化目标系统
+  InitObjectives(Multi0)
+  InitObjectives(Multi1)
+  
+  -- 设置目标
+  SovietObjective1 = AddPrimaryObjective(Multi0, "destroy-all-enemy-buildings")
+  SovietObjective2 = AddSecondaryObjective(Multi0, "control-strategic-points")
+  AlliedObjective1 = AddPrimaryObjective(Multi1, "defend-your-base")
+  AlliedObjective2 = AddSecondaryObjective(Multi1, "eliminate-enemy-forces")
+  
+  -- 设置摄像机位置到玩家基地附近
+  -- Camera.Position = CPos.New(30, 95).CenterPosition
+  
+  -- 为测试提供一些初始单位
+  Trigger.AfterDelay(DateTime.Seconds(2), function()
+    local testUnits = Reinforcements.Reinforce(Multi0, {"e1", "e1", "e3", "e3", "3tnk"}, {CPos.New(25, 95), CPos.New(26, 95)})
+    debugMsg(string.format("Spawned %d test units for player", #testUnits))
+    Media.DisplayMessage("Test units deployed! Use them to test the control point system.", "Notification")
+  end)
+  
+  -- 立即创建第一个控制点用于测试
+  Trigger.AfterDelay(DateTime.Seconds(5), function()
+    debugMsg("Creating initial test control point...")
+    createControlPoint()
+  end)
   
   debugMsg("ControlPoint system initializing...")
-  debugMsg(string.format("Players: %s, %s", Players[1].Name, Players[2].Name))
+  debugMsg(string.format("Players: %s vs %s", Multi0.Name, Multi1.Name))
   debugMsg(string.format("Unit types: %d", #UNIT_TYPES))
   debugMsg(string.format("Generic buffs: %d", #GENERIC_BUFFS))
   
@@ -397,9 +469,14 @@ WorldLoaded = function()
   debugMsg("ControlPoint system fully initialized")
 end
 
--- Tick函数：处理控制点Buff的应用和移除
-Tick = function()
-  -- 处理每个控制点的Buff
+-- 处理控制点Buff
+local function processControlPointBuffs()
+  if #ControlPoints == 0 then
+    return
+  end
+  
+  -- debugMsg(string.format("Processing buffs for %d control points", #ControlPoints))
+  
   for _, cp in ipairs(ControlPoints) do
     if cp.actor and not cp.actor.IsDead and cp.buffs then
     -- debugMsg(string.format("Checking control point %s", cp.name))
@@ -410,9 +487,8 @@ Tick = function()
       -- 收集当前范围内的单位
       local currentUnits = {}
       for _, unit in ipairs(nearbyUnits) do
-        unitID = tostring(unit)
         if unit and not unit.IsDead and unit.Owner ~= Player.GetPlayer("Neutral") then
-          currentUnits[unitID] = true
+          currentUnits[unit] = true
           for _, buff in ipairs(cp.buffs) do
             local unitType, buffType, buffName = buff[1], buff[2], buff[3]
             -- 初始化buffName表
@@ -444,18 +520,41 @@ Tick = function()
 
       -- 清理不在范围内的单位的Buff
       for buffName, units in pairs(cp.buffedUnits) do
+        local toRemove = {}
         for unit, buffData in pairs(units) do
           -- 如果单位死亡或不在范围内，移除Buff
-          if not currentUnits[buffData.unit] then
-            if buffData.token then
+          if unit.IsDead or not currentUnits[unit] then
+            if buffData.token and not unit.IsDead then
+              -- 只对活着的单位调用RevokeCondition
               unit.RevokeCondition(buffData.token)
-              debugMsg(string.format("Removed buff %s from %s at control point %s (reason: %s)", 
-                buffName, unit.Type, cp.name, unit.IsDead and "dead" or "out of range"))
+              debugMsg(string.format("Removed buff %s from %s at control point %s (reason: out of range)", 
+                buffName, unit.Type, cp.name))
+            elseif unit.IsDead then
+              debugMsg(string.format("Unit %s died, buff %s automatically removed at control point %s", 
+                unit.Type, buffName, cp.name))
             end
-            cp.buffedUnits[buffName][unit] = nil
+            table.insert(toRemove, unit)
           end
+        end
+        
+        -- 批量移除已标记的单位
+        for _, unit in ipairs(toRemove) do
+          cp.buffedUnits[buffName][unit] = nil
         end
       end
     end
+  end
+end
+
+-- Tick函数：处理控制点Buff的应用和移除，以及胜利条件检查
+Tick = function()
+  -- 检查胜利条件（每个tick检查，因为这个很轻量）
+  checkVictoryConditions()
+  
+  -- 控制Buff处理频率，避免性能问题
+  buffCheckTicks = buffCheckTicks + 1
+  if buffCheckTicks >= BUFF_CHECK_INTERVAL then
+    buffCheckTicks = 0
+    processControlPointBuffs()
   end
 end
