@@ -493,7 +493,7 @@ end
 
 -- === 入口 ===
 WorldLoaded = function()
-  Trigger.SetAgentMode(false)
+  Trigger.SetAgentMode(true)
   -- 获取玩家引用
   for _, p in ipairs(Player.GetAllPlayer()) do
       -- debugMsg(string.format("Player:%s", tostring(p.IsNonCombatant)))
