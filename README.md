@@ -187,7 +187,7 @@ Mission Fin 可公开情报如下：
         {
           "unitType": "e1",
           "buffType": "generic",
-          "buffName": "cp_atk_up_50"
+          "buffName": "cp_dmg_up_50"
         }
       ]
     }
@@ -221,128 +221,129 @@ Mission Fin 可公开情报如下：
 
 # Buff表  
 
+注意：以下 Buff 名称与地图脚本中的配置保持一致，示例中的数值均直接取自 YAML 规则中的 Modifier。
+
 ## 通用Buff（所有单位可用）
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_atk_up_50  | 攻击力提升50% | 150 |
-| cp_atk_up_150 | 攻击力提升150% | 250 |
-| cp_atk_up_250 | 攻击力提升250% | 350 |
-| cp_def_down_15 | 防御降低至85% | 200 |
-| cp_def_down_30 | 防御降低至70% | 200 |
-| cp_def_down_50 | 防御降低至50% | 200 |
-| cp_armor_25   | 装甲降低至25% | 75 |
-| cp_armor_50   | 装甲降低至50% | 150 |
-| cp_armor_75   | 装甲降低至75% | 300 |
-| cp_move_150   | 移动速度提升50% | 150 |
-| cp_move_200   | 移动速度提升100% | 200 |
-| cp_speed_aqua | 移动速度提升200% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_dmg_up_50   | 火力提升 | 攻击力提升50% |
+| cp_dmg_up_150  | 火力大幅提升 | 攻击力提升150% |
+| cp_dmg_down_75 | 火力下降 | 攻击力降低25% |
+| cp_dmg_down_30 | 火力骤降 | 攻击力降低70% |
+| cp_armor_30    | 坚固 | 受到伤害降低70% (伤害系数修改为30%) |
+| cp_armor_75    | 抵抗提升 | 受到伤害降低25%  (伤害系数修改为75%)|
+| cp_armor_150   | 脆弱 | 受到伤害增加50% (伤害系数修改为15%) |
+| cp_armor_300   | 极度脆弱 | 受到伤害增加200%  (伤害系数修改为300%)|
+| cp_speed_50    | 迟缓 | 移动速度降低50% |
+| cp_speed_200   | 急速 | 移动速度提升100% |
 
 ---
 
 ## E1（步兵）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_inf_slow   | 移动减速 | 20 |
-| cp_inf_berserk | 狂暴状态（攻击速度提升300/400/200%，防御力降低至50%） | 300/400/200 |
-| cp_inf_rapidfire | 火力压制（射速提升140%，防御力降低至50%） | 150/20 |
-| cp_inf_accuracy | 瞄准强化（射程150%，命中率150%） | 150/20 |
-| up_inf_power | 攻击力提升200% | 200 |
-| cp_inf_fragile | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_inf_slow       | 迟缓 | 移动速度降低80% |
+| cp_inf_berserk    | 狂暴 | 攻击力提升200%，移动速度提升100%，受到伤害增加200% |
+| cp_inf_rapidfire  | 连发 | 装填时间减少70%（射速大幅提升），攻击力降低20% |
+| cp_inf_accuracy   | 精准 | 射程提升50%，攻击力提升20% |
+| cp_inf_overheat   | 过热 | 装填时间增加100%（射速降低），攻击力降低50% |
+| cp_inf_fragile    | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## RK（火箭兵）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_rkt_slowfire | 火箭连发减速 | 20/50 |
-| cp_rkt_rapidfire | 火箭连发（射速提升） | 20/50 |
-| cp_rkt_anti_large | 高爆武器（对建筑伤害200%） | 300/500 |
-| cp_rkt_anti_tank | 高爆武器（对坦克伤害200%） | 400/120 |
-| cp_rkt_splash   | 溅射伤害（范围180%） | 180/50 |
-| cp_rkt_accuracy | 瞄准强化（射程150%，命中率150%） | 150/20 |
-| cp_rkt_multifunction | 多用途武器（对步兵200%，对建筑200%） | 300/30/50 |
-| cp_rkt_fragile  | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_rkt_slow        | 迟缓 | 移动速度降低80% |
+| cp_rkt_rapidfire   | 连发 | 装填时间减少80%（射速大幅提升），攻击力降低40% |
+| cp_rkt_overcharge  | 过充 | 攻击力提升400%，装填时间增加200%（射速大幅降低） |
+| cp_rkt_anti_armor  | 对装强化 | 攻击力提升300%，射程提升20% |
+| cp_rkt_splash      | 溅射增幅 | 攻击力提升80%，射程降低20% |
+| cp_rkt_accuracy    | 精准 | 射程提升50%，攻击力提升20% |
+| cp_rkt_malfunction | 故障 | 攻击力降低70%，装填时间增加200%，射程降低50% |
+| cp_rkt_fragile     | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## V2RL（V2火箭）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_v2_rapidfire | V2连发（射速提升） | 30/90 |
-| cp_v2_range_up  | 射程增加（射程150%） | 70/150 |
-| cp_v2_overdrive | V2过载（速度140%，伤害180%） | 140/180 |
-| cp_v2_splash    | 溅射伤害（伤害200%，射程90%） | 200/200 |
-| cp_v2_guidance_failure | 制导失效（精度降低20%，伤害提升200%） | 25/40/200 |
-| cp_v2_fragile   | 防御降低至50% | 200 |
-| cp_v2_cant_move | 移动速度降低到10%| 10 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_v2_rapidfire        | 连发 | 装填时间减少70%，攻击力降低50% |
+| cp_v2_range_decay      | 射程衰减 | 射程降低30%，攻击力提升50% |
+| cp_v2_overdrive        | 过载 | 移动速度提升100%，攻击力提升80% |
+| cp_v2_splash           | 溅射增幅 | 攻击力提升100%，射程降低10% |
+| cp_v2_guidance_failure | 制导失效 | 攻击力降低75%，射程降低60%，装填时间增加100% |
+| cp_v2_cant_move        | 定身 | 移动速度降低90% |
+| cp_v2_fragile          | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## FTRK（防空车）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_aa_rapidfire | 射速提升（防空火力增强） | 25/70 |
-| cp_aa_range     | 射程增加（射程200%） | 100/150 |
-| cp_aa_overdrive | 射速降低50%，攻击力提升200% | 140/180 |
-| cp_aa_multifunction | 多用途武器（对步兵250%，对建筑110%） | 240/110 |
-| cp_aa_accuracy  | 瞄准强化（射程150%，命中率150%） | 150/20 |
-| cp_aa_fragile   | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_aa_rapidfire  | 连发 | 装填时间减少75%，攻击力提升70% |
+| cp_aa_overdrive  | 过载 | 移动速度提升50%，攻击力提升80% |
+| cp_aa_anti_air   | 防空强化 | 攻击力提升200%，射程提升30% |
+| cp_aa_anti_ground| 对地强化 | 攻击力提升150%，射程提升10% |
+| cp_aa_jammed     | 受干扰 | 攻击力降低80%，装填时间增加300%，射程降低70% |
+| cp_aa_fragile    | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## 3TNK（三坦）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_tank_armor_up | 护甲强化（装甲提升50%） | 50 |
-| cp_tank_slow     | 移动减速 | 20 |
-| cp_tank_overdrive | 过载（射速降低50%，攻击力提升200%） | 180/120 |
-| cp_tank_accuracy  | 瞄准强化（射程150%，命中率150%） | 250/120 |
-| cp_tank_engine_failure | 引擎损坏（速度降低50%） | 30/20 |
-| cp_tank_fragile   | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_tank_armor_up       | 护甲强化 | 受到伤害降低50% |
+| cp_tank_slow           | 迟缓 | 移动速度降低70% |
+| cp_tank_overdrive      | 过载 | 移动速度提升60%，攻击力提升20% |
+| cp_tank_ap_rounds      | 穿甲弹 | 攻击力提升150%，射程提升20% |
+| cp_tank_engine_failure | 引擎故障 | 移动速度降低80%，攻击力降低40% |
+| cp_tank_fragile        | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## 4TNK（天启坦克）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_mammoth_atm_up | 火箭发射管（空地导弹+40%） | 40 |
-| cp_mammoth_slow   | 巨型坦克移动减速 | 25 |
-| cp_mammoth_armor  | 装甲提升 | 180/180 |
-| cp_mammoth_dual_cannon | 双炮齐射（攻击力提升200%） | 250/80 |
-| cp_mammoth_system_overload | 系统过载（射速降低50%，攻击力提升200%） | 150/40/50 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_mammoth_armor_up        | 护甲强化 | 受到伤害降低60% |
+| cp_mammoth_slow            | 迟缓 | 移动速度降低75% |
+| cp_mammoth_dual_cannon     | 双炮齐射 | 攻击力提升80%，装填时间减少20% |
+| cp_mammoth_apex            | 巅峰系统 | 攻击力提升200%，移动速度降低20%，射程提升10% |
+| cp_mammoth_system_overload | 系统过载 | 攻击力降低60%，移动速度降低85%，装填时间增加150% |
+| cp_mammoth_fragile         | 极度易伤 | 受到伤害增加500% |
 
 ---
 
 ## MIG（米格战机）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_mig_speed_up | 速度强化 | 130 |
-| cp_mig_anti_armor | 高爆武器（对建筑200%，对坦克200%） | 250/120 |
-| cp_mig_overdrive | 过载（射速降低50%，攻击力提升200%） | 150/140 |
-| cp_mig_swerve    | 高机动性（射速提升300%，防御降低至50%） | 300/50 |
-| cp_mig_stealth   | 隐形（不可见，持续40秒） | 30/40/50 |
-| cp_mig_fragile   | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_mig_speed_up   | 加速 | 移动速度提升30% |
+| cp_mig_anti_armor | 对装/建筑强化 | 攻击力提升150%，射程提升20% |
+| cp_mig_overdrive  | 过载 | 移动速度提升50%，攻击力提升40% |
+| cp_mig_maverick   | 王牌 | 攻击力提升200%，装填时间减少40% |
+| cp_mig_stall      | 失速 | 移动速度降低70%，攻击力降低60%，射程降低50% |
+| cp_mig_fragile    | 易伤 | 受到伤害增加100% |
 
 ---
 
 ## YAK（雅克战机）特色Buff
 
-| Condition名称 | 效果 | Modifier值 |
-|---------------|------|------------|
-| cp_yak_rapidfire | 火力压制（射速提升） | 20/90 |
-| cp_yak_anti_infantry | 对步兵伤害200% | 200 |
-| cp_yak_overdrive | 过载（射速降低50%，攻击力提升200%） | 140/130 |
-| cp_yak_chakram   | 空中机动（射速180%，防御降低至50%） | 180/30 |
-| cp_yak_swerve    | 高机动性（射速500%，防御降低至50%） | 500/100/50 |
-| cp_yak_fragile   | 防御降低至50% | 200 |
+| Condition名称 | 效果 | 说明 |
+|---------------|------|------|
+| cp_yak_rapidfire    | 连发 | 装填时间减少80%，攻击力降低20% |
+| cp_yak_anti_infantry| 反步强化 | 攻击力提升100%，移动速度提升20% |
+| cp_yak_overdrive    | 过载 | 移动速度提升40%，攻击力提升30% |
+| cp_yak_chaingun     | 链枪 | 攻击力提升80%，装填时间减少70% |
+| cp_yak_jammed       | 受干扰 | 攻击力降低90%，移动速度降低40%，装填时间增加400% |
+| cp_yak_fragile      | 易伤 | 受到伤害增加100% |
 
 ---
 
