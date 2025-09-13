@@ -187,7 +187,7 @@ Mission Fin 可公开情报如下：
         {
           "unitType": "e1",
           "buffType": "generic",
-          "buffName": "cp_dmg_up_50"
+          "buffName": "cp_dmg_up_150"
         }
       ]
     }
@@ -238,9 +238,9 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_inf_slow       | 迟缓 | 移动速度降低80% |
-| cp_inf_berserk    | 狂暴 | 攻击力提升200%，移动速度提升100%，受到伤害增加200% |
-| cp_inf_accuracy   | 精准 | 射程提升50%，攻击力提升20% |
+| cp_inf_slow       | 迟缓 | 移动速度降低80%，攻击速度降低80% |
+| cp_inf_berserk    | 狂暴 | 攻击力提升500%，移动速度提升100%，受到伤害增加50% |
+| cp_inf_accuracy   | 精准 | 射程提升100%，攻击力提升200% |
 | cp_inf_overheat   | 过热 | 装填时间增加100%（射速降低），攻击力降低50% |
 | cp_inf_fragile    | 易伤 | 受到伤害增加300% |
 
@@ -250,12 +250,12 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_rkt_slow        | 迟缓 | 移动速度降低80% |
-| cp_rkt_rapidfire   | 连发 | 装填时间减少80%（射速大幅提升），攻击力降低40% |
+| cp_rkt_slow        | 迟缓 | 移动速度降低80%，攻击速度降低80% |
+| cp_rkt_rapidfire   | 连发 | 装填时间减少80%（五倍射速），攻击力降低20% |
 | cp_rkt_overcharge  | 过充 | 攻击力提升400%，装填时间增加200%（射速大幅降低） |
 | cp_rkt_anti_armor  | 对装强化 | 攻击力提升300%，射程提升20% |
 | cp_rkt_splash      | 溅射增幅 | 攻击力提升80%，射程降低20% |
-| cp_rkt_accuracy    | 精准 | 射程提升50%，攻击力提升20% |
+| cp_rkt_accuracy    | 精准 | 射程提升100%，攻击力提升100% |
 | cp_rkt_malfunction | 故障 | 攻击力降低70%，装填时间增加200%，射程降低50% |
 | cp_rkt_fragile     | 易伤 | 受到伤害增加300% |
 
@@ -265,10 +265,9 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_v2_rapidfire        | 连发 | 装填时间减少70%，攻击力降低50% |
-| cp_v2_range_decay      | 射程衰减 | 射程降低30%，攻击力提升50% |
+| cp_v2_rapidfire        | 连发 | 装填时间减少80%（五倍射速），攻击力降低20% |
+| cp_v2_range_decay      | 射程衰减 | 射程降低60%，攻击力提升150% |
 | cp_v2_overdrive        | 过载 | 移动速度提升100%，攻击力提升80% |
-| cp_v2_splash           | 溅射增幅 | （已移除） |
 | cp_v2_guidance_failure | 制导失效 | 攻击力降低75%，射程降低60%，装填时间增加100% |
 | cp_v2_cant_move        | 定身 | 移动速度降低90% |
 | cp_v2_fragile          | 易伤 | 受到伤害增加300% |
@@ -279,10 +278,9 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_aa_rapidfire  | 连发 | 装填时间减少75%，攻击力提升70% |
-| cp_aa_overdrive  | 过载 | 移动速度提升50%，攻击力提升80% |
-| cp_aa_anti_air   | 防空强化 | （已移除） |
-| cp_aa_anti_ground| 对地强化 | 攻击力提升150%，射程提升10% |
+| cp_aa_rapidfire  | 连发 | 装填时间减少75%（四倍射速），攻击力增加50% |
+| cp_aa_overdrive  | 过载 | 移动速度提升50%，攻击力提升180% |
+| cp_aa_anti_ground| 对地强化 | 攻击力提升150%，射程提升50% |
 | cp_aa_jammed     | 受干扰 | 攻击力降低80%，装填时间增加300%，射程降低70% |
 | cp_aa_fragile    | 易伤 | 受到伤害增加300% |
 
@@ -292,12 +290,10 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_tank_armor_up       | 护甲强化 | 受到伤害降低50% |
-| cp_tank_slow           | 迟缓 | 移动速度降低70% |
-| cp_tank_overdrive      | 过载 | （已移除） |
+| cp_tank_armor_up       | 护甲强化 | 受到伤害降低90% |
 | cp_tank_super_weak     | 超级衰弱 | 攻击力降低80%，受到伤害增加200% |
-| cp_tank_ap_rounds      | 穿甲弹 | 攻击力提升150%，射程提升20% |
-| cp_tank_engine_failure | 引擎故障 | 移动速度降低80%，攻击力降低40% |
+| cp_tank_ap_rounds      | 穿甲弹 | 攻击力提升250%，射程提升20% |
+| cp_tank_engine_failure | 引擎故障 | 移动速度降低80%，攻击力降低40%，受到伤害增加100%  |
 | cp_tank_fragile        | 易伤 | 受到伤害增加300% |
 
 ---
@@ -306,26 +302,10 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_mammoth_armor_up        | 护甲强化 | （已移除） |
-| cp_mammoth_slow            | 迟缓 | （已移除） |
-| cp_mammoth_dual_cannon     | 双炮齐射 | （已移除） |
 | cp_mammoth_apex            | 巅峰系统 | 攻击力提升200%，移动速度降低20%，射程提升10% |
 | cp_mammoth_system_overload | 系统过载 | 攻击力降低60%，移动速度降低85%，装填时间增加150% |
 | cp_mammoth_fragile         | 极度易伤 | 受到伤害增加500% |
-| cp_mammoth_super_weak      | 超级衰弱 | 攻击力降低80%，受到伤害增加200% |
-
----
-
-## MIG（米格战机）特色Buff
-
-| Condition名称 | 效果 | 说明 |
-|---------------|------|------|
-| cp_mig_speed_up   | 加速 | （已移除） |
-| cp_mig_anti_armor | 对装/建筑强化 | 攻击力提升150%，射程提升20% |
-| cp_mig_overdrive  | 过载 | 移动速度提升50%，攻击力提升40% |
-| cp_mig_maverick   | 王牌 | 攻击力提升200%，装填时间减少40% |
-| cp_mig_stall      | 失速 | 移动速度降低70%，攻击力降低60%，射程降低50% |
-| cp_mig_fragile    | 易伤 | 受到伤害增加300% |
+| cp_mammoth_super_weak      | 超级衰弱 | 攻击力降低80%，受到伤害增加900% |
 
 ---
 
@@ -333,11 +313,9 @@ Mission Fin 可公开情报如下：
 
 | Condition名称 | 效果 | 说明 |
 |---------------|------|------|
-| cp_yak_rapidfire    | 连发 | 装填时间减少80%，攻击力降低20% |
 | cp_yak_anti_infantry| 反步强化 | 攻击力提升100%，移动速度提升20% |
-| cp_yak_overdrive    | 过载 | （已移除） |
 | cp_yak_chaingun     | 链枪 | 攻击力提升80%，装填时间减少70% |
-| cp_yak_jammed       | 受干扰 | 攻击力降低90%，移动速度降低40%，装填时间增加400% |
+| cp_yak_jammed       | 受干扰 | 攻击力降低90%，移动速度降低90%，装填时间增加400% |
 | cp_yak_fragile      | 易伤 | 受到伤害增加300% |
 
 ---

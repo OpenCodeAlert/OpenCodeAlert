@@ -14,7 +14,7 @@ local DEBUG_ENABLED          = false    -- 是否启用debug输出
 
 -- 兵种类型
 local UNIT_TYPES = {
-  "e1", "e3", "v2rl", "ftrk", "3tnk", "4tnk", "mig", "yak"
+  "e1", "e3", "v2rl", "ftrk", "3tnk", "4tnk", "yak"
 }
 
 -- 通用Buff池
@@ -43,7 +43,7 @@ local SPECIAL_BUFFS = {
     "cp_aa_anti_ground", "cp_aa_jammed", "cp_aa_fragile"
   },
   ["3tnk"] = {
-    "cp_tank_armor_up", "cp_tank_slow",
+    "cp_tank_armor_up", 
     "cp_tank_ap_rounds", "cp_tank_engine_failure", "cp_tank_fragile",
     "cp_tank_super_weak"
   },
@@ -51,12 +51,8 @@ local SPECIAL_BUFFS = {
     "cp_mammoth_apex", "cp_mammoth_system_overload", "cp_mammoth_fragile",
     "cp_mammoth_super_weak"
   },
-  mig = {
-    "cp_mig_anti_armor", "cp_mig_overdrive",
-    "cp_mig_maverick", "cp_mig_stall", "cp_mig_fragile"
-  },
   yak = {
-    "cp_yak_rapidfire", "cp_yak_anti_infantry",
+    "cp_yak_anti_infantry",
     "cp_yak_chaingun", "cp_yak_jammed", "cp_yak_fragile"
   }
 }

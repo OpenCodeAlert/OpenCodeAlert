@@ -47,42 +47,42 @@ BUFF_EFFECTS: Dict[str, str] = {
     "cp_armor_300": "极度脆弱：受到伤害系数 300%（+200%伤害）",
 
     # E1（步兵）
-    "cp_inf_slow": "迟缓：移动速度 -80%",
+    "cp_inf_slow": "迟缓：移动速度 -80%，攻击速度 -80%",
     "cp_inf_berserk": "狂暴：攻击 +200%，移速 +100%，受伤 +200%",
-    "cp_inf_accuracy": "精准：射程 +50%，攻击 +20%",
+    "cp_inf_accuracy": "精准：射程提升100%，攻击力提升200%",
     "cp_inf_overheat": "过热：装填 +100%，攻击 -50%",
     "cp_inf_fragile": "易伤：受到伤害 +300%",
 
     # RK（火箭兵）
-    "cp_rkt_slow": "迟缓：移动速度 -80%，攻击 -60%",
+    "cp_rkt_slow": "迟缓：移动速度 -80%，攻击速度 -80%",
     "cp_rkt_rapidfire": "连发：装填 -80%，攻击 -40%",
     "cp_rkt_overcharge": "过充：攻击 +400%，装填 +200%",
     "cp_rkt_anti_armor": "对装强化：攻击 +300%，射程 +20%",
     "cp_rkt_splash": "溅射增幅：攻击 +80%，射程 -20%",
-    "cp_rkt_accuracy": "精准：射程 +50%，攻击 +20%",
+    "cp_rkt_accuracy": "精准：射程提升100%，攻击力提升100%",
     "cp_rkt_malfunction": "故障：攻击 -70%，装填 +200%，射程 -50%",
     "cp_rkt_fragile": "易伤：受到伤害 +300%",
 
     # V2RL（V2 火箭）
-    "cp_v2_rapidfire": "连发：装填 -70%，攻击 -50%",
-    "cp_v2_range_decay": "射程衰减：射程 -30%，攻击 +50%",
+    "cp_v2_rapidfire": "连发：装填 -80%，攻击 -20%",
+    "cp_v2_range_decay": "射程衰减：射程 -60%，攻击 +150%",
     "cp_v2_overdrive": "过载：移速 +100%，攻击 +80%",
     "cp_v2_guidance_failure": "制导失效：攻击 -75%，射程 -60%，装填 +100%",
     "cp_v2_cant_move": "定身：移动速度 -90%",
     "cp_v2_fragile": "易伤：受到伤害 +300%",
 
     # FTRK（防空车）
-    "cp_aa_rapidfire": "连发：装填 -75%，攻击 +70%",
-    "cp_aa_overdrive": "过载：移速 +50%，攻击 +80%",
-    "cp_aa_anti_ground": "对地强化：攻击 +150%，射程 +10%",
+    "cp_aa_rapidfire": "连发：装填 -75%，攻击 +50%",
+    "cp_aa_overdrive": "过载：移速 +50%，攻击 +180%",
+    "cp_aa_anti_ground": "对地强化：攻击 +150%，射程 +50%",
     "cp_aa_jammed": "受干扰：攻击 -80%，装填 +300%，射程 -70%",
     "cp_aa_fragile": "易伤：受到伤害 +300%",
 
     # 3TNK（三坦）
-    "cp_tank_armor_up": "护甲强化：受到伤害 -50%",
+    "cp_tank_armor_up": "护甲强化：受到伤害 -90%",
     "cp_tank_slow": "迟缓：移动速度 -70%",
-    "cp_tank_ap_rounds": "穿甲弹：攻击 +150%，射程 +20%",
-    "cp_tank_engine_failure": "引擎故障：移速 -80%，攻击 -40%",
+    "cp_tank_ap_rounds": "穿甲弹：攻击 +250%，射程 +20%",
+    "cp_tank_engine_failure": "引擎故障：移速 -80%，攻击 -40%，受伤 +100%",
     "cp_tank_fragile": "易伤：受到伤害 +300%",
     "cp_tank_super_weak": "超级衰弱：攻击 -80%，受到伤害 +200%",
 
@@ -90,9 +90,10 @@ BUFF_EFFECTS: Dict[str, str] = {
     "cp_mammoth_apex": "巅峰系统：攻击 +200%，移速 -20%，射程 +10%",
     "cp_mammoth_system_overload": "系统过载：攻击 -60%，移速 -85%，装填 +150%",
     "cp_mammoth_fragile": "极度易伤：受到伤害 +500%",
-    "cp_mammoth_super_weak": "超级衰弱：攻击 -80%，受到伤害 +200%",
+    "cp_mammoth_super_weak": "超级衰弱：攻击 -80%，受到伤害 +900%",
 
     # MIG
+    # MIG 不在 README Buff 表展示，保持与规则一致（保留以兼容可能返回）
     "cp_mig_anti_armor": "对装/建筑强化：攻击 +150%，射程 +20%",
     "cp_mig_overdrive": "过载：移速 +50%，攻击 +40%",
     "cp_mig_maverick": "王牌：攻击 +200%，装填 -40%",
@@ -103,7 +104,7 @@ BUFF_EFFECTS: Dict[str, str] = {
     "cp_yak_rapidfire": "连发：装填 -80%，攻击 -20%",
     "cp_yak_anti_infantry": "反步强化：攻击 +100%，移速 +20%",
     "cp_yak_chaingun": "链枪：攻击 +80%，装填 -70%",
-    "cp_yak_jammed": "受干扰：攻击 -90%，移速 -40%，装填 +400%",
+    "cp_yak_jammed": "受干扰：攻击 -90%，移速 -90%，装填 +400%",
     "cp_yak_fragile": "易伤：受到伤害 +300%",
 }
 

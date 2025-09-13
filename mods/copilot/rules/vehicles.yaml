@@ -72,16 +72,16 @@ V2RL:
 
 	ReloadDelayMultiplier@CP_V2_RAPIDFIRE:
 		RequiresCondition: cp_v2_rapidfire
-		Modifier: 30
+		Modifier: 20
 	FirepowerMultiplier@CP_V2_RAPIDFIRE:
 		RequiresCondition: cp_v2_rapidfire
-		Modifier: 50
+		Modifier: 80
 	RangeMultiplier@CP_V2_RANGE_DECAY:
 		RequiresCondition: cp_v2_range_decay
-		Modifier: 70
+		Modifier: 40
 	FirepowerMultiplier@CP_V2_RANGE_DECAY:
 		RequiresCondition: cp_v2_range_decay
-		Modifier: 150
+		Modifier: 250
 	SpeedMultiplier@CP_V2_OVERDRIVE:
 		RequiresCondition: cp_v2_overdrive
 		Modifier: 200
@@ -271,13 +271,13 @@ V2RL:
 
 	DamageMultiplier@CP_TANK_ARMOR_UP:
 		RequiresCondition: cp_tank_armor_up
-		Modifier: 50
+		Modifier: 10
 	SpeedMultiplier@CP_TANK_SLOW:
 		RequiresCondition: cp_tank_slow
 		Modifier: 30
 	FirepowerMultiplier@CP_TANK_AP_ROUNDS:
 		RequiresCondition: cp_tank_ap_rounds
-		Modifier: 250
+		Modifier: 350
 	RangeMultiplier@CP_TANK_AP_ROUNDS:
 		RequiresCondition: cp_tank_ap_rounds
 		Modifier: 120
@@ -287,6 +287,9 @@ V2RL:
 	FirepowerMultiplier@CP_TANK_ENGINE_FAILURE:
 		RequiresCondition: cp_tank_engine_failure
 		Modifier: 60
+	DamageMultiplier@CP_TANK_ENGINE_FAILURE:
+		RequiresCondition: cp_tank_engine_failure
+		Modifier: 200
 	DamageMultiplier@CP_TANK_FRAGILE:
 		RequiresCondition: cp_tank_fragile
 		Modifier: 400
@@ -399,13 +402,13 @@ V2RL:
 		RequiresCondition: cp_mammoth_fragile
 		Modifier: 600
 
-	# 超强Debuff实现：攻击-80%，受伤+200%
+	# 超强Debuff实现：攻击-80%，受伤+900%
 	FirepowerMultiplier@CP_MAMMOTH_SUPER_WEAK_FP:
 		RequiresCondition: cp_mammoth_super_weak
 		Modifier: 20
 	DamageMultiplier@CP_MAMMOTH_SUPER_WEAK_DMG:
 		RequiresCondition: cp_mammoth_super_weak
-		Modifier: 300
+		Modifier: 1000
 
 ARTY:
 	Inherits: ^TrackedVehicle
@@ -916,13 +919,13 @@ FTRK:
 		Modifier: 25
 	FirepowerMultiplier@CP_AA_RAPIDFIRE:
 		RequiresCondition: cp_aa_rapidfire
-		Modifier: 70
+		Modifier: 150
 	SpeedMultiplier@CP_AA_OVERDRIVE:
 		RequiresCondition: cp_aa_overdrive
 		Modifier: 150
 	FirepowerMultiplier@CP_AA_OVERDRIVE:
 		RequiresCondition: cp_aa_overdrive
-		Modifier: 180
+		Modifier: 280
 	FirepowerMultiplier@CP_AA_ANTI_AIR:
 		RequiresCondition: cp_aa_anti_air
 		Modifier: 300
@@ -934,7 +937,7 @@ FTRK:
 		Modifier: 250
 	RangeMultiplier@CP_AA_ANTI_GROUND:
 		RequiresCondition: cp_aa_anti_ground
-		Modifier: 110
+		Modifier: 150
 	ReloadDelayMultiplier@CP_AA_JAMMED:
 		RequiresCondition: cp_aa_jammed
 		Modifier: 400

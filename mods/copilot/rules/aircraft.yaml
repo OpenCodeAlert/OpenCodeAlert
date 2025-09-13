@@ -301,7 +301,7 @@ YAK:
 		Modifier: 10
 	SpeedMultiplier@CP_YAK_JAMMED:
 		RequiresCondition: cp_yak_jammed
-		Modifier: 60
+		Modifier: 10
 	DamageMultiplier@CP_YAK_FRAGILE:
 		RequiresCondition: cp_yak_fragile
 		Modifier: 400

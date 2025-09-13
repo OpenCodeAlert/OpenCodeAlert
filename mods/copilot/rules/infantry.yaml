@@ -124,21 +124,24 @@ E1:
 	SpeedMultiplier@CP_INF_SLOW:
 		RequiresCondition: cp_inf_slow
 		Modifier: 20
+	ReloadDelayMultiplier@CP_INF_SLOW:
+		RequiresCondition: cp_inf_slow
+		Modifier: 500
 	FirepowerMultiplier@CP_INF_BERSERK:
 		RequiresCondition: cp_inf_berserk
-		Modifier: 300
+		Modifier: 600
 	DamageMultiplier@CP_INF_BERSERK_FRAGILE:
 		RequiresCondition: cp_inf_berserk
-		Modifier: 300
+		Modifier: 150
 	SpeedMultiplier@CP_INF_BERSERK_FRAGILE2:
 		RequiresCondition: cp_inf_berserk
 		Modifier: 200
 	RangeMultiplier@CP_INF_ACCURACY:
 		RequiresCondition: cp_inf_accuracy
-		Modifier: 150
+		Modifier: 200
 	FirepowerMultiplier@CP_INF_ACCURACY:
 		RequiresCondition: cp_inf_accuracy
-		Modifier: 120
+		Modifier: 300
 	ReloadDelayMultiplier@CP_INF_OVERHEAT:
 		RequiresCondition: cp_inf_overheat
 		Modifier: 200
@@ -280,15 +283,15 @@ E3:
 	SpeedMultiplier@CP_RKT_SLOW:
 		RequiresCondition: cp_rkt_slow
 		Modifier: 20
-	FirepowerMultiplier@CP_RKT_SLOW:
+	ReloadDelayMultiplier@CP_RKT_SLOW:
 		RequiresCondition: cp_rkt_slow
-		Modifier: 40
+		Modifier: 500
 	ReloadDelayMultiplier@CP_RKT_RAPIDFIRE:
 		RequiresCondition: cp_rkt_rapidfire
 		Modifier: 20
 	FirepowerMultiplier@CP_RKT_RAPIDFIRE:
 		RequiresCondition: cp_rkt_rapidfire
-		Modifier: 60
+		Modifier: 80
 	ReloadDelayMultiplier@CP_RKT_OVERCHARGE:
 		RequiresCondition: cp_rkt_overcharge
 		Modifier: 300
@@ -309,10 +312,10 @@ E3:
 		Modifier: 80
 	RangeMultiplier@CP_RKT_ACCURACY:
 		RequiresCondition: cp_rkt_accuracy
-		Modifier: 150
+		Modifier: 200
 	FirepowerMultiplier@CP_RKT_ACCURACY:
 		RequiresCondition: cp_rkt_accuracy
-		Modifier: 120
+		Modifier: 200
 	ReloadDelayMultiplier@CP_RKT_MALFUNCTION:
 		RequiresCondition: cp_rkt_malfunction
 		Modifier: 300
