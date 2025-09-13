@@ -3,7 +3,7 @@
 -- === 参数区 ===
 local CONTROL_POINT_LIFETIME = 2 * 60  -- 控制点持续时间（2分钟）
 local CONTROL_POINT_SPAWN_MIN = 30     -- 控制点生成间隔最小值（30秒）
-local CONTROL_POINT_SPAWN_MAX = 90     -- 控制点生成间隔最大值（90秒）
+local CONTROL_POINT_SPAWN_MAX = 60     -- 控制点生成间隔最大值（90秒）
 local BUFF_REFRESH_MIN = 30            -- Buff刷新间隔最小值（30秒）
 local BUFF_REFRESH_MAX = 90            -- Buff刷新间隔最大值（90秒）
 local BUFF_RADIUS_CELLS = 12           -- Buff生效半径（12格）
@@ -19,15 +19,14 @@ local UNIT_TYPES = {
 
 -- 通用Buff池
 local GENERIC_BUFFS = {
-  "cp_dmg_up_50", "cp_dmg_up_150", "cp_dmg_down_75", "cp_dmg_down_30",
-  "cp_armor_30", "cp_armor_75", "cp_armor_150", "cp_armor_300",
-  "cp_speed_50", "cp_speed_200"
+  "cp_dmg_up_150", "cp_dmg_down_30",
+  "cp_armor_30",  "cp_armor_300"
 }
 
 -- 特殊Buff池（按兵种分类）
 local SPECIAL_BUFFS = {
   e1 = {
-    "cp_inf_slow", "cp_inf_berserk", "cp_inf_rapidfire", 
+    "cp_inf_berserk",
     "cp_inf_accuracy", "cp_inf_overheat", "cp_inf_fragile"
   },
   e3 = {
@@ -37,26 +36,27 @@ local SPECIAL_BUFFS = {
   },
   v2rl = {
     "cp_v2_rapidfire", "cp_v2_range_decay", "cp_v2_overdrive",
-    "cp_v2_splash", "cp_v2_guidance_failure", "cp_v2_cant_move", "cp_v2_fragile"
+    "cp_v2_guidance_failure", "cp_v2_cant_move", "cp_v2_fragile"
   },
   ftrk = {
-    "cp_aa_rapidfire", "cp_aa_overdrive", "cp_aa_anti_air",
+    "cp_aa_rapidfire", "cp_aa_overdrive",
     "cp_aa_anti_ground", "cp_aa_jammed", "cp_aa_fragile"
   },
   ["3tnk"] = {
-    "cp_tank_armor_up", "cp_tank_slow", "cp_tank_overdrive",
-    "cp_tank_ap_rounds", "cp_tank_engine_failure", "cp_tank_fragile"
+    "cp_tank_armor_up", "cp_tank_slow",
+    "cp_tank_ap_rounds", "cp_tank_engine_failure", "cp_tank_fragile",
+    "cp_tank_super_weak"
   },
   ["4tnk"] = {
-    "cp_mammoth_armor_up", "cp_mammoth_slow", "cp_mammoth_dual_cannon",
-    "cp_mammoth_apex", "cp_mammoth_system_overload", "cp_mammoth_fragile"
+    "cp_mammoth_apex", "cp_mammoth_system_overload", "cp_mammoth_fragile",
+    "cp_mammoth_super_weak"
   },
   mig = {
-    "cp_mig_speed_up", "cp_mig_anti_armor", "cp_mig_overdrive",
+    "cp_mig_anti_armor", "cp_mig_overdrive",
     "cp_mig_maverick", "cp_mig_stall", "cp_mig_fragile"
   },
   yak = {
-    "cp_yak_rapidfire", "cp_yak_anti_infantry", "cp_yak_overdrive",
+    "cp_yak_rapidfire", "cp_yak_anti_infantry",
     "cp_yak_chaingun", "cp_yak_jammed", "cp_yak_fragile"
   }
 }
@@ -128,7 +128,7 @@ local function generateRandomBuffs()
     end
     
     -- 随机选择Buff类型（通用或特殊）
-    local buffType = Map.RandomCell().X % 2 == 0 and "generic" or "special"
+    local buffType = Map.RandomCell().X % 3 == 0 and "generic" or "special"
     local buffName = nil
     
     if buffType == "generic" then

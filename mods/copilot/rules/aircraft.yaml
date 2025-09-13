@@ -153,9 +153,6 @@ MIG:
 	ExternalCondition@CP_MIG_FRAGILE:
 		Condition: cp_mig_fragile
 
-	SpeedMultiplier@CP_MIG_SPEED_UP:
-		RequiresCondition: cp_mig_speed_up
-		Modifier: 130
 	FirepowerMultiplier@CP_MIG_ANTI_ARMOR:
 		RequiresCondition: cp_mig_anti_armor
 		Modifier: 250
@@ -185,7 +182,7 @@ MIG:
 		Modifier: 50
 	DamageMultiplier@CP_MIG_FRAGILE:
 		RequiresCondition: cp_mig_fragile
-		Modifier: 200
+		Modifier: 400
 
 YAK:
 	Inherits: ^Plane
@@ -290,12 +287,6 @@ YAK:
 	SpeedMultiplier@CP_YAK_ANTI_INFANTRY:
 		RequiresCondition: cp_yak_anti_infantry
 		Modifier: 120
-	SpeedMultiplier@CP_YAK_OVERDRIVE:
-		RequiresCondition: cp_yak_overdrive
-		Modifier: 140
-	FirepowerMultiplier@CP_YAK_OVERDRIVE:
-		RequiresCondition: cp_yak_overdrive
-		Modifier: 130
 	FirepowerMultiplier@CP_YAK_CHAINGUN:
 		RequiresCondition: cp_yak_chaingun
 		Modifier: 180
@@ -313,7 +304,7 @@ YAK:
 		Modifier: 60
 	DamageMultiplier@CP_YAK_FRAGILE:
 		RequiresCondition: cp_yak_fragile
-		Modifier: 200
+		Modifier: 400
 
 TRAN:
 	Inherits: ^Helicopter

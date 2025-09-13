@@ -412,7 +412,7 @@ def main():
     time.sleep(0.1)
 
     for i in range(100):
-        test_deploy_miner(game_api)
+        test_control_point_operations(game_api)
         time.sleep(1)
 
     

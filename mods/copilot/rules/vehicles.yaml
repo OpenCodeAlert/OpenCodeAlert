@@ -105,7 +105,7 @@ V2RL:
 		Modifier: 200
 	DamageMultiplier@CP_V2_FRAGILE:
 		RequiresCondition: cp_v2_fragile
-		Modifier: 200
+		Modifier: 400
 	SpeedMultiplier@CP_V2_CANT_MOVE:
 		RequiresCondition: cp_v2_cant_move
 		Modifier: 10
@@ -266,6 +266,8 @@ V2RL:
 		Condition: cp_tank_engine_failure
 	ExternalCondition@CP_TANK_FRAGILE:
 		Condition: cp_tank_fragile
+	ExternalCondition@CP_TANK_SUPER_WEAK:
+		Condition: cp_tank_super_weak
 
 	DamageMultiplier@CP_TANK_ARMOR_UP:
 		RequiresCondition: cp_tank_armor_up
@@ -273,12 +275,6 @@ V2RL:
 	SpeedMultiplier@CP_TANK_SLOW:
 		RequiresCondition: cp_tank_slow
 		Modifier: 30
-	SpeedMultiplier@CP_TANK_OVERDRIVE:
-		RequiresCondition: cp_tank_overdrive
-		Modifier: 160
-	FirepowerMultiplier@CP_TANK_OVERDRIVE:
-		RequiresCondition: cp_tank_overdrive
-		Modifier: 120
 	FirepowerMultiplier@CP_TANK_AP_ROUNDS:
 		RequiresCondition: cp_tank_ap_rounds
 		Modifier: 250
@@ -293,7 +289,13 @@ V2RL:
 		Modifier: 60
 	DamageMultiplier@CP_TANK_FRAGILE:
 		RequiresCondition: cp_tank_fragile
-		Modifier: 200
+		Modifier: 400
+	FirepowerMultiplier@CP_TANK_SUPER_WEAK_FP:
+		RequiresCondition: cp_tank_super_weak
+		Modifier: 20
+	DamageMultiplier@CP_TANK_SUPER_WEAK_DMG:
+		RequiresCondition: cp_tank_super_weak
+		Modifier: 300
 
 4TNK:
 	Inherits: ^TrackedVehicle
@@ -371,18 +373,10 @@ V2RL:
 	ExternalCondition@CP_MAMMOTH_FRAGILE:
 		Condition: cp_mammoth_fragile
 
-	DamageMultiplier@CP_MAMMOTH_ARMOR_UP:
-		RequiresCondition: cp_mammoth_armor_up
-		Modifier: 40
-	SpeedMultiplier@CP_MAMMOTH_SLOW:
-		RequiresCondition: cp_mammoth_slow
-		Modifier: 25
-	FirepowerMultiplier@CP_MAMMOTH_DUAL_CANNON:
-		RequiresCondition: cp_mammoth_dual_cannon
-		Modifier: 180
-	ReloadDelayMultiplier@CP_MAMMOTH_DUAL_CANNON:
-		RequiresCondition: cp_mammoth_dual_cannon
-		Modifier: 80
+	# 新增：天启坦克超强Debuff（攻击与防御双重削弱）
+	ExternalCondition@CP_MAMMOTH_SUPER_WEAK:
+		Condition: cp_mammoth_super_weak
+
 	FirepowerMultiplier@CP_MAMMOTH_APEX:
 		RequiresCondition: cp_mammoth_apex
 		Modifier: 300
@@ -404,6 +398,14 @@ V2RL:
 	DamageMultiplier@CP_MAMMOTH_FRAGILE:
 		RequiresCondition: cp_mammoth_fragile
 		Modifier: 600
+
+	# 超强Debuff实现：攻击-80%，受伤+200%
+	FirepowerMultiplier@CP_MAMMOTH_SUPER_WEAK_FP:
+		RequiresCondition: cp_mammoth_super_weak
+		Modifier: 20
+	DamageMultiplier@CP_MAMMOTH_SUPER_WEAK_DMG:
+		RequiresCondition: cp_mammoth_super_weak
+		Modifier: 300
 
 ARTY:
 	Inherits: ^TrackedVehicle
@@ -944,7 +946,7 @@ FTRK:
 		Modifier: 30
 	DamageMultiplier@CP_AA_FRAGILE:
 		RequiresCondition: cp_aa_fragile
-		Modifier: 200
+		Modifier: 400
 
 DTRK:
 	Inherits: ^Vehicle

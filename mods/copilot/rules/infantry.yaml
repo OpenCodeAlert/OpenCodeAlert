@@ -111,8 +111,6 @@ E1:
 		Condition: cp_inf_slow
 	ExternalCondition@CP_INF_BERSERK:
 		Condition: cp_inf_berserk
-	ExternalCondition@CP_INF_RAPIDFIRE:
-		Condition: cp_inf_rapidfire
 	ExternalCondition@CP_INF_ACCURACY:
 		Condition: cp_inf_accuracy
 	ExternalCondition@CP_INF_OVERHEAT:
@@ -135,12 +133,6 @@ E1:
 	SpeedMultiplier@CP_INF_BERSERK_FRAGILE2:
 		RequiresCondition: cp_inf_berserk
 		Modifier: 200
-	ReloadDelayMultiplier@CP_INF_RAPIDFIRE:
-		RequiresCondition: cp_inf_rapidfire
-		Modifier: 30
-	FirepowerMultiplier@CP_INF_RAPIDFIRE:
-		RequiresCondition: cp_inf_rapidfire
-		Modifier: 80
 	RangeMultiplier@CP_INF_ACCURACY:
 		RequiresCondition: cp_inf_accuracy
 		Modifier: 150
@@ -155,7 +147,7 @@ E1:
 		Modifier: 50
 	DamageMultiplier@CP_INF_FRAGILE:
 		RequiresCondition: cp_inf_fragile
-		Modifier: 200
+		Modifier: 400
 
 E1R1:
 	Inherits: E1
@@ -288,6 +280,9 @@ E3:
 	SpeedMultiplier@CP_RKT_SLOW:
 		RequiresCondition: cp_rkt_slow
 		Modifier: 20
+	FirepowerMultiplier@CP_RKT_SLOW:
+		RequiresCondition: cp_rkt_slow
+		Modifier: 40
 	ReloadDelayMultiplier@CP_RKT_RAPIDFIRE:
 		RequiresCondition: cp_rkt_rapidfire
 		Modifier: 20
@@ -329,7 +324,7 @@ E3:
 		Modifier: 50
 	DamageMultiplier@CP_RKT_FRAGILE:
 		RequiresCondition: cp_rkt_fragile
-		Modifier: 200
+		Modifier: 400
 
 E3R1:
 	Inherits: E3

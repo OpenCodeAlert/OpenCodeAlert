@@ -416,13 +416,13 @@ class GameAPI:
         except Exception as e:
             raise GameAPIError("MOVE_UNITS_ERROR", "移动单位时发生错误: {0}".format(str(e)))
 
-    def move_units_by_path(self, actors: List[Actor], path: List[Location]) -> None:
+    def move_units_by_path(self, actors: List[Actor], path: List[Location], attack_move: bool = False) -> None:
         '''沿路径移动单位
 
         Args:
             actors (List[Actor]): 要移动的Actor列表
             path (List[Location]): 移动路径
-
+            attack_move (bool): 是否为攻击性移动
         Raises:
             GameAPIError: 当移动命令执行失败时
         '''
@@ -431,7 +431,8 @@ class GameAPI:
         try:
             response = self._send_request('move_actor', {
                 "targets": {"actorId": [actor.actor_id for actor in actors]},
-                "path": [point.to_dict() for point in path]
+                "path": [point.to_dict() for point in path],
+                "isAttackMove": 1 if attack_move else 0
             })
             self._handle_response(response, "移动单位失败")
         except GameAPIError:
@@ -742,6 +743,7 @@ class GameAPI:
             result = self._handle_response(response, "攻击命令执行失败")
             return response.get("status", 0) > 0
         except GameAPIError as e:
+            print(response)
             if e.code == "COMMAND_EXECUTION_ERROR":
                 return False
             raise

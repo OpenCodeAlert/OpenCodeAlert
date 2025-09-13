@@ -12,7 +12,7 @@ MapSize: 112,112
 
 Bounds: 1,1,110,110
 
-Visibility: Lobby, MissionSelector
+Visibility: Lobby
 
 Categories: Conquest
 
@@ -949,51 +949,12 @@ Actors:
 	Actor388: sam
 		Owner: Multi1
 		Location: 83,20
-	CP_Spawn_01: waypoint
-		Owner: Neutral
-		Location: 14,13
 	CP_Spawn_02: waypoint
 		Owner: Neutral
 		Location: 14,29
-	CP_Spawn_03: waypoint
-		Owner: Neutral
-		Location: 31,28
-	CP_Spawn_04: waypoint
-		Owner: Neutral
-		Location: 40,41
-	CP_Spawn_05: waypoint
-		Owner: Neutral
-		Location: 63,48
-	CP_Spawn_06: waypoint
-		Owner: Neutral
-		Location: 48,48
-	CP_Spawn_07: waypoint
-		Owner: Neutral
-		Location: 48,63
-	CP_Spawn_08: waypoint
-		Owner: Neutral
-		Location: 63,63
-	CP_Spawn_09: waypoint
-		Owner: Neutral
-		Location: 14,43
-	CP_Spawn_10: waypoint
-		Owner: Neutral
-		Location: 97,83
-	CP_Spawn_11: waypoint
-		Owner: Neutral
-		Location: 94,70
-	CP_Spawn_12: waypoint
-		Owner: Neutral
-		Location: 84,83
 	CP_Spawn_13: waypoint
 		Owner: Neutral
 		Location: 74,70
-	CP_Spawn_14: waypoint
-		Owner: Neutral
-		Location: 87,97
-	CP_Spawn_15: waypoint
-		Owner: Neutral
-		Location: 36,13
 	Actor407: e1
 		Owner: Multi0
 		Facing: 384
@@ -1640,6 +1601,45 @@ Actors:
 	Actor553: sam
 		Owner: Multi1
 		Location: 81,10
+	CP_Spawn_01: waypoint
+		Owner: Neutral
+		Location: 7,7
+	CP_Spawn_09: waypoint
+		Owner: Neutral
+		Location: 16,16
+	CP_Spawn_07: waypoint
+		Owner: Neutral
+		Location: 49,62
+	CP_Spawn_08: waypoint
+		Owner: Neutral
+		Location: 62,62
+	CP_Spawn_06: waypoint
+		Owner: Neutral
+		Location: 49,49
+	CP_Spawn_05: waypoint
+		Owner: Neutral
+		Location: 62,49
+	CP_Spawn_14: waypoint
+		Owner: Neutral
+		Location: 106,105
+	CP_Spawn_12: waypoint
+		Owner: Neutral
+		Location: 86,81
+	CP_Spawn_04: waypoint
+		Owner: Neutral
+		Location: 40,41
+	CP_Spawn_03: waypoint
+		Owner: Neutral
+		Location: 29,29
+	CP_Spawn_10: waypoint
+		Owner: Neutral
+		Location: 101,87
+	CP_Spawn_11: waypoint
+		Owner: Neutral
+		Location: 91,95
+	CP_Spawn_15: waypoint
+		Owner: Neutral
+		Location: 32,15
 
 Rules: ra|rules/campaign-rules.yaml, ra|rules/campaign-tooltips.yaml, ra|rules/campaign-palettes.yaml,rules.yaml
 
