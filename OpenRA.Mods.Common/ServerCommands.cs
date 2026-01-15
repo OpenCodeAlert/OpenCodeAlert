@@ -1073,6 +1073,8 @@ namespace OpenRA.Mods.Common.Commands
 				{
 					var hashealth = actor.Info.HasTraitInfo<HealthInfo>();
 					var health = actor.TraitOrDefault<Health>();
+					var activity = actor.CurrentActivity;
+					var lastOrder = actor.TraitOrDefault<TrackLastResolvedOrder>();
 					return new JObject
 					{
 						["id"] = actor.ActorID,
@@ -1082,6 +1084,10 @@ namespace OpenRA.Mods.Common.Commands
 						["hp"] = hashealth ? health.HP : -1,
 						["maxHp"] = hashealth ? health.MaxHP : -1,
 						["isDead"] = hashealth && health.IsDead,
+						// 与调试红字 RenderDebugState 一致：Activity.DebugLabelComponents().JoinWith(".")
+						["activity"] = activity != null ? activity.DebugLabelComponents().JoinWith(".") : "",
+						// OpenRA 默认不提供“当前 order”的直接读取，这里返回最近一次 ResolveOrder 记录到 trait 的值
+						["order"] = lastOrder?.LastOrderLabel ?? "",
 						["position"] = new JObject
 						{
 							["x"] = actor.Location.X,
@@ -1215,8 +1221,8 @@ namespace OpenRA.Mods.Common.Commands
 		public static JObject MapQueryCommand(JObject json, World world)
 		{
 			var map = world.Map;
-			var width = map.MapSize.X;
-			var height = map.MapSize.Y;
+			var width = map.MapSize.X - 2;
+			var height = map.MapSize.Y - 2;
 
 			// 初始化二维数组
 			var heightArray = new JArray();
@@ -1226,7 +1232,7 @@ namespace OpenRA.Mods.Common.Commands
 			var resourcesTypeArray = new JArray();
 			var resourcesArray = new JArray();
 
-			for (var x = 0; x < width; x++)
+			for (var x = 1; x <= width; x++)
 			{
 				var heightRow = new JArray();
 				var isVisibleRow = new JArray();
@@ -1235,7 +1241,7 @@ namespace OpenRA.Mods.Common.Commands
 				var resourcesTypeRow = new JArray();
 				var resourcesRow = new JArray();
 
-				for (var y = 0; y < height; y++)
+				for (var y = 1; y <= height; y++)
 				{
 					var pos = new CPos(x, y);
 					heightRow.Add(map.Height[pos]);

@@ -666,7 +666,7 @@ class GameAPI:
             raise GameAPIError("UPDATE_ACTOR_ERROR", "更新Actor信息时发生错误: {0}".format(str(e)))
 
     def deploy_units(self, actors: List[Actor]) -> None:
-        '''部署/展开 Actor
+        '''部署/展开 Actor （如展开基地车）
 
         Args:
             actors (List[Actor]): 要部署/展开的Actor列表
