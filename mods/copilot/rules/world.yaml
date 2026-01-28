@@ -118,7 +118,7 @@
 		Name: Germany
 		InternalName: germany
 		Side: Allies
-		Selectable: False
+		Selectable: True
 		Description: Germany: Technology\nSpecial Ability: Advanced Chronoshift\nSpecial Unit: Chrono Tank
 	Faction@4:
 		Name: Soviet

@@ -52,9 +52,6 @@ V2RL:
 		Types: Veterancy
 		Prerequisites: vehicles.upgraded
 
-	FirepowerMultiplier:
-		Modifier: 70
-
 	ExternalCondition@CP_V2_RAPIDFIRE:
 		Condition: cp_v2_rapidfire
 	ExternalCondition@CP_V2_RANGE_DECAY:
@@ -127,7 +124,7 @@ V2RL:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 26000
+		HP: 78000
 	Armor:
 		Type: Heavy
 	Mobile:
@@ -172,7 +169,7 @@ V2RL:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 46000
+		HP: 138000
 	Armor:
 		Type: Heavy
 	Mobile:
@@ -426,7 +423,7 @@ ARTY:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 10000
+		HP: 30000
 	Armor:
 		Type: Light
 	Mobile:
@@ -528,7 +525,7 @@ MCV:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 210
-		Prerequisites: fix, ~techlevel.medium, ~never-build
+		Prerequisites: fix, ~techlevel.medium
 		BuildDurationModifier: 50
 		Description: actor-mcv.description
 	Valued:
@@ -578,7 +575,7 @@ JEEP:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 15000
+		HP: 45000
 	Armor:
 		Type: Light
 	Mobile:
@@ -619,7 +616,7 @@ APC:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 120
-		Prerequisites: ~vehicles.soviet, ~techlevel.low, ~never-build
+		Prerequisites: ~vehicles.soviet, ~techlevel.low
 		Description: actor-apc.description
 	Valued:
 		Cost: 850
@@ -628,7 +625,7 @@ APC:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 35000
+		HP: 105000
 	Armor:
 		Type: Heavy
 	Mobile:
@@ -739,7 +736,7 @@ MGG:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 330
-		Prerequisites: atek, ~vehicles.england, ~techlevel.high
+		Prerequisites: atek, ~vehicles.england, ~techlevel.high, ~never-build
 		Description: actor-mgg.description
 	Valued:
 		Cost: 1000
@@ -779,7 +776,7 @@ MRJ:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 320
-		Prerequisites: atek, ~vehicles.allies, ~techlevel.high
+		Prerequisites: atek, ~vehicles.allies, ~techlevel.high, ~never-build
 		Description: actor-mrj.description
 	Health:
 		HP: 22000
@@ -956,7 +953,7 @@ DTRK:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 330
-		Prerequisites: stek, ~vehicles.ukraine, ~techlevel.high
+		Prerequisites: stek, ~vehicles.ukraine, ~techlevel.high, ~never-build
 		Description: actor-dtrk.description
 	Valued:
 		Cost: 2500
@@ -1007,7 +1004,7 @@ CTNK:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 40000
+		HP: 120000
 	Armor:
 		Type: Light
 	Mobile:
@@ -1083,7 +1080,7 @@ STNK:
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 330
-		Prerequisites: atek, ~vehicles.france, ~techlevel.high
+		Prerequisites: atek, ~vehicles.france, ~techlevel.high, ~never-build
 		Description: actor-stnk.description
 	Valued:
 		Cost: 1000

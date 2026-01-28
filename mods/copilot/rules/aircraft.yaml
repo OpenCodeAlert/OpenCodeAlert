@@ -313,7 +313,7 @@ TRAN:
 		Queue: Aircraft
 		BuildAtProductionType: Helicopter
 		BuildPaletteOrder: 10
-		Prerequisites: ~hpad, ~techlevel.medium
+		Prerequisites: ~hpad, ~techlevel.medium, ~never-build
 		Description: actor-tran.description
 	Valued:
 		Cost: 900
@@ -376,7 +376,7 @@ HELI:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 12000
+		HP: 36000
 	RevealsShroud:
 		MinRange: 10c0
 		Range: 12c0
@@ -576,7 +576,7 @@ MH60:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 10000
+		HP: 30000
 	RevealsShroud:
 		MinRange: 8c0
 		Range: 10c0

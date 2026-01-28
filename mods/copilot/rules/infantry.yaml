@@ -118,9 +118,6 @@ E1:
 	ExternalCondition@CP_INF_FRAGILE:
 		Condition: cp_inf_fragile
 
-	FirepowerMultiplier:
-		Modifier: 150
-
 	SpeedMultiplier@CP_INF_SLOW:
 		RequiresCondition: cp_inf_slow
 		Modifier: 20
@@ -350,7 +347,7 @@ E4:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 70
-		Prerequisites: ~\1
+		Prerequisites: ~never-build
 		Description: actor-e4.description
 	Valued:
 		Cost: 300
@@ -394,7 +391,7 @@ E6:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 60
-		Prerequisites: ~never-build
+		Prerequisites: ~barracks, ~techlevel.infonly
 		Description: actor-e6.description
 	Valued:
 		Cost: 400
@@ -441,7 +438,7 @@ SPY:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 90
-		Prerequisites: ~!infantry.england, dome, ~tent, ~techlevel.medium
+		Prerequisites: ~!infantry.england, dome, ~tent, ~techlevel.medium, ~never-build
 		Description: actor-spy.description
 	Valued:
 		Cost: 500
@@ -497,7 +494,7 @@ SPY:
 SPY.England:
 	Inherits: SPY
 	Buildable:
-		Prerequisites: ~infantry.england, dome, ~tent, ~techlevel.medium
+		Prerequisites: ~infantry.england, dome, ~tent, ~techlevel.medium, ~never-build
 	Valued:
 		Cost: 250
 	GivesExperience:
@@ -574,7 +571,7 @@ MEDI:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 40
-		Prerequisites: ~tent, ~techlevel.infonly
+		Prerequisites: ~tent, ~techlevel.infonly, ~never-build
 		Description: actor-medi.description
 	Valued:
 		Cost: 200
@@ -617,7 +614,7 @@ MECH:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 100
-		Prerequisites: ~tent, fix, ~techlevel.medium
+		Prerequisites: ~tent, fix, ~techlevel.medium, ~never-build
 		Description: actor-mech.description
 	Valued:
 		Cost: 500
@@ -887,7 +884,7 @@ Ant:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 1954
-		Prerequisites: ~barracks, ~bio
+		Prerequisites: ~barracks, ~bio, ~never-build
 		Description: actor-ant.description
 	Selectable:
 		Bounds: 1024, 1024, 0, -213

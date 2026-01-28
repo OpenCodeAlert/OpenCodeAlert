@@ -85,7 +85,7 @@ GAP:
 	Buildable:
 		Queue: Defense
 		BuildPaletteOrder: 110
-		Prerequisites: atek, ~structures.allies, ~techlevel.high
+		Prerequisites: atek, ~structures.allies, ~techlevel.high, ~never-build
 		Description: actor-gap.description
 	Selectable:
 		Bounds: 1024, 1024
@@ -278,7 +278,7 @@ SYRD:
 	Buildable:
 		Queue: Building
 		BuildPaletteOrder: 40
-		Prerequisites: anypower, ~structures.allies, ~techlevel.low
+		Prerequisites: anypower, ~structures.allies, ~techlevel.low, ~never-build
 		Description: actor-syrd.description
 	Valued:
 		Cost: 1000
@@ -471,7 +471,7 @@ PDOX:
 	Buildable:
 		Queue: Defense
 		BuildPaletteOrder: 120
-		Prerequisites: atek, ~structures.allies, ~techlevel.unrestricted
+		Prerequisites: atek, ~structures.allies, ~techlevel.unrestricted, ~never-build
 		BuildLimit: 1
 		Description: actor-pdox.description
 	Valued:
@@ -621,7 +621,7 @@ AGUN:
 		Bounds: 1024, 1024
 		DecorationBounds: 1024, 1365, 0, -170
 	Health:
-		HP: 40000
+		HP: 120000
 	Armor:
 		Type: Heavy
 	RevealsShroud:
@@ -722,7 +722,7 @@ PBOX:
 	CustomSellValue:
 		Value: 400
 	Health:
-		HP: 40000
+		HP: 120000
 	Armor:
 		Type: Heavy
 	RevealsShroud:
@@ -777,7 +777,7 @@ HBOX:
 	Buildable:
 		Queue: Defense
 		BuildPaletteOrder: 50
-		Prerequisites: tent, ~structures.allies, ~techlevel.medium
+		Prerequisites: tent, ~structures.allies, ~techlevel.medium, ~never-build
 		Description: actor-hbox.description
 	Valued:
 		Cost: 750
@@ -843,7 +843,7 @@ GUN:
 		Name: actor-gun.name
 	Building:
 	Health:
-		HP: 40000
+		HP: 120000
 	Armor:
 		Type: Heavy
 	RevealsShroud:
@@ -1002,7 +1002,7 @@ ATEK:
 		Dimensions: 2,3
 		LocalCenterOffset: 0,-512,0
 	Health:
-		HP: 60000
+		HP: 180000
 	Armor:
 		Type: Wood
 	RevealsShroud:
@@ -1419,7 +1419,7 @@ HPAD:
 		Dimensions: 2,3
 		LocalCenterOffset: 0,-512,0
 	Health:
-		HP: 80000
+		HP: 240000
 	Armor:
 		Type: Wood
 	RevealsShroud:
@@ -1953,7 +1953,7 @@ TENT:
 		Dimensions: 2,3
 		LocalCenterOffset: 0,-512,0
 	Health:
-		HP: 60000
+		HP: 180000
 	Armor:
 		Type: Wood
 	RevealsShroud:

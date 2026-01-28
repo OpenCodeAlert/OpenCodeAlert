@@ -405,33 +405,34 @@ namespace OpenRA.Mods.Common.Traits
 				return false;
 
 			if (!developerMode.AllTech)
-			{
-				if (Info.PayUpFront && actor.TraitInfo<ValuedInfo>().Cost > playerResources.GetCashAndResources())
-					return false;
-
-				if (Info.QueueLimit > 0 && Queue.Count >= Info.QueueLimit)
 				{
-					notificationAudio = Info.LimitedAudio;
-					notificationText = Info.LimitedTextNotification;
-					return false;
-				}
-
-				var queueCount = Queue.Count(i => i.Item == actor.Name);
-				if (Info.ItemLimit > 0 && queueCount >= Info.ItemLimit)
-				{
-					notificationAudio = Info.LimitedAudio;
-					notificationText = Info.LimitedTextNotification;
-					return false;
-				}
-
-				if (bi.BuildLimit > 0)
-				{
-					var owned = Actor.Owner.World.ActorsHavingTrait<Buildable>()
-						.Count(a => a.Info.Name == actor.Name && a.Owner == Actor.Owner);
-					if (queueCount + owned >= bi.BuildLimit)
+					// 预付模式下的可负担性判断改为使用 GetProductionCost，确保与统一减半逻辑一致
+					if (Info.PayUpFront && GetProductionCost(actor) > playerResources.GetCashAndResources())
 						return false;
+
+					if (Info.QueueLimit > 0 && Queue.Count >= Info.QueueLimit)
+					{
+						notificationAudio = Info.LimitedAudio;
+						notificationText = Info.LimitedTextNotification;
+						return false;
+					}
+
+					var queueCount = Queue.Count(i => i.Item == actor.Name);
+					if (Info.ItemLimit > 0 && queueCount >= Info.ItemLimit)
+					{
+						notificationAudio = Info.LimitedAudio;
+						notificationText = Info.LimitedTextNotification;
+						return false;
+					}
+
+					if (bi.BuildLimit > 0)
+					{
+						var owned = Actor.Owner.World.ActorsHavingTrait<Buildable>()
+							.Count(a => a.Info.Name == actor.Name && a.Owner == Actor.Owner);
+						if (queueCount + owned >= bi.BuildLimit)
+							return false;
+					}
 				}
-			}
 
 			notificationAudio = Info.QueuedAudio;
 			notificationText = Info.QueuedTextNotification;
@@ -545,8 +546,9 @@ namespace OpenRA.Mods.Common.Traits
 				.Select(t => t.GetProductionTimeModifier(techTree, Info.Type))
 				.Append(bi.BuildDurationModifier)
 				.Append(Info.BuildDurationModifier);
-			if (!Actor.Owner.IsBot)
-				time /= 2;
+
+			// 人类与AI统一：生产时间减半
+			time /= 2;
 			return Util.ApplyPercentageModifiers(time, modifiers);
 		}
 
@@ -559,10 +561,8 @@ namespace OpenRA.Mods.Common.Traits
 			var modifiers = unit.TraitInfos<IProductionCostModifierInfo>()
 				.Select(t => t.GetProductionCostModifier(techTree, Info.Type));
 
-			if (!Actor.Owner.IsBot)
-				return Util.ApplyPercentageModifiers(valued.Cost / 2, modifiers);
-
-			return Util.ApplyPercentageModifiers(valued.Cost, modifiers);
+			// 人类与AI统一：生产成本减半
+			return Util.ApplyPercentageModifiers(valued.Cost / 2, modifiers);
 		}
 
 		protected virtual void PauseProduction(string itemName, bool paused)
@@ -809,3 +809,4 @@ namespace OpenRA.Mods.Common.Traits
 		public void Pause(bool paused) { Paused = paused; }
 	}
 }
+
