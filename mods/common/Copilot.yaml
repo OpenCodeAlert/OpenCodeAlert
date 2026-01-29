@@ -430,7 +430,46 @@ units:
         cp
         control
         gap
-
+    atek:
+        盟军科技中心
+        科技中心
+        allied tech center
+        allied tech
+    hpad:
+        直升机坪
+        停机坪
+        helipad
+        pad
+    agun:
+        防空炮
+        aa gun
+        anti-air gun
+    pbox:
+        碉堡
+        pillbox
+        bunker
+    gun:
+        炮塔
+        机枪塔
+        turret
+        gun turret
+    2tnk:
+        中型坦克
+        中坦
+        盟军坦克
+        medium tank
+        med tank
+        mt
+    arty:
+        榴弹炮
+        自行火炮
+        火炮
+        artillery
+        arty
+    ctnk:
+        超时空坦克
+        chrono tank
+        chrono
 
 nickname:
     士兵:
@@ -452,6 +491,8 @@ nickname:
         ttnk
         qtnk
         mcv
+        arty
+        ctnk
     坦克:
         1tnk
         2tnk
@@ -459,6 +500,7 @@ nickname:
         4tnk
         ttnk
         qtnk
+        ctnk
     战斗单位:
         e1
         e2
@@ -478,8 +520,12 @@ nickname:
         ttnk
         qtnk
         v2rl
+        arty
+        ctnk
         yak
         mig
+        heli
+        mh60
     建筑:
         powr
         tent
@@ -500,7 +546,16 @@ nickname:
         mslo
         fact
         oilb
+        atek
+        hpad
+        agun
+        pbox
+        gun
     防御塔:
         ftur
         tsla
+        sam
+        agun
+        pbox
+        gun
     
