@@ -21,6 +21,9 @@ namespace OpenRA
 
         [JsonProperty("language")]
         public string Language { get; set; } = "zh";
+
+        [JsonProperty("playerId")]
+        public string PlayerId { get; set; }
     }
 
     public class MCPResponse
