@@ -30,6 +30,15 @@ namespace OpenRA.Mods.Common.Commands
 				return actor.OccupiesSpace != null;
 		}
 
+		public static Player ResolvePlayer(JObject json, World world)
+		{
+			var playerId = json?.TryGetFieldValue("__playerId")?.ToString();
+			if (string.IsNullOrEmpty(playerId))
+				return world.LocalPlayer;
+			var player = world.Players.FirstOrDefault(p => p.InternalName == playerId);
+			return player ?? world.LocalPlayer;
+		}
+
 		public static List<Actor> GetTargets(JToken targets, World world, Player player)
 		{
 			var result = new List<Actor>();
@@ -178,7 +187,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static List<Actor> GetTargetsFromJson(JObject json, World world, bool bAllowEmpty = false)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var targets = json.TryGetFieldValue("targets");
 			if (targets == null)
 			{
@@ -246,7 +255,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string SelectUnitCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var isCombine = json.TryGetFieldValue("isCombine")?.ToObject<int>();
 			var actors = GetTargetsFromJson(json, world);
 			var newSelection = SelectionUtils.SelectActorsByOwnerAndSelectionClass(actors, new List<Player> { player }, null).ToList();
@@ -256,7 +265,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string FormGroupCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var groupId = json.TryGetFieldValue("groupId")?.ToObject<int>();
 			if (groupId == null)
 			{
@@ -273,7 +282,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string MoveActorCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var actors = GetTargetsFromJson(json, world);
 			CPos? location;
 			location = null;
@@ -383,7 +392,7 @@ namespace OpenRA.Mods.Common.Commands
 		public static JObject StartProductionCommand(JObject json, World world)
 		{
 			var orders = json.TryGetFieldValue("units")?.ToObject<List<JToken>>();
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var ret_str = "";
 			var waitId = -1;
 			var autoPlace = json.TryGetFieldValue("autoPlaceBuilding")?.ToObject<bool>() ?? false;
@@ -468,7 +477,8 @@ namespace OpenRA.Mods.Common.Commands
 			var direction = json.TryGetFieldValue("direction")?.ToObject<string>();
 			var distance = json.TryGetFieldValue("distance")?.ToObject<int>();
 			var locationToken = json.TryGetFieldValue("location");
-			var location = GetTargetLocation(locationToken, world, world.LocalPlayer);
+			var player = ResolvePlayer(json, world);
+			var location = GetTargetLocation(locationToken, world, player);
 			if ((direction == null || distance == null) && location == null)
 			{
 				return "No direction Or No Distance Or No Location !!!!!!";
@@ -521,7 +531,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string AttackCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var attacker = GetTargets(json["attackers"], world, player);
 			var target = GetTargetsFromJson(json, world);
 
@@ -626,7 +636,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string OccupyCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var actors = GetTargets(json["occupiers"], world, player);
 			var targets = GetTargets(json["targets"], world, player);
 
@@ -674,7 +684,7 @@ namespace OpenRA.Mods.Common.Commands
 		public static string RepairCommand(JObject json, World world)
 		{
 			var actors = GetTargetsFromJson(json, world);
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			foreach (var a in actors)
 			{
 				if (a.Info.HasTraitInfo<RepairableBuildingInfo>())
@@ -742,7 +752,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string SetRallyPointCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var actors = GetTargetsFromJson(json, world);
 			var retstr = "";
 			var locationToken = json.TryGetFieldValue("location");
@@ -786,7 +796,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string ManageProductionCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 
 			// 获取队列类型
 			var queueType = json.TryGetFieldValue("queueType")?.ToString();
@@ -875,7 +885,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static string PlaceBuildingCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 
 			// 获取队列类型
 			var queueType = json.TryGetFieldValue("queueType")?.ToString();
@@ -1052,7 +1062,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static JObject ActorQueryCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var targets = json.TryGetFieldValue("targets");
 			List<Actor> targetActors;
 			if (targets == null)
@@ -1138,7 +1148,7 @@ namespace OpenRA.Mods.Common.Commands
 		public static JObject QueryCanProduceCommand(JObject json, World world)
 		{
 			var orders = json.TryGetFieldValue("units")?.ToObject<List<JToken>>();
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var ret_str = "";
 			var canProduce = false;
 
@@ -1202,6 +1212,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static JObject FogQueryCommand(JObject json, World world)
 		{
+			var player = ResolvePlayer(json, world);
 			var jpos = json.TryGetFieldValue("pos");
 			if (jpos == null)
 			{
@@ -1212,14 +1223,15 @@ namespace OpenRA.Mods.Common.Commands
 
 			var result = new JObject
 			{
-				["IsVisible"] = world.FogObscures(pos),
-				["IsExplored"] = world.ShroudObscures(pos)
+				["IsVisible"] = player.Shroud.IsVisible(pos),
+				["IsExplored"] = player.Shroud.IsExplored(pos)
 			};
 			return result;
 		}
 
 		public static JObject MapQueryCommand(JObject json, World world)
 		{
+			var player = ResolvePlayer(json, world);
 			var map = world.Map;
 			var width = map.MapSize.X - 2;
 			var height = map.MapSize.Y - 2;
@@ -1245,8 +1257,8 @@ namespace OpenRA.Mods.Common.Commands
 				{
 					var pos = new CPos(x, y);
 					heightRow.Add(map.Height[pos]);
-					isVisibleRow.Add(!world.FogObscures(pos));
-					isExploredRow.Add(!world.ShroudObscures(pos));
+					isVisibleRow.Add(player.Shroud.IsVisible(pos));
+					isExploredRow.Add(player.Shroud.IsExplored(pos));
 					terrainRow.Add(map.Tiles[pos].Type);
 					resourcesTypeRow.Add(map.Resources[pos].Type);
 					resourcesRow.Add(map.Resources[pos].Index);
@@ -1260,6 +1272,34 @@ namespace OpenRA.Mods.Common.Commands
 				resourcesArray.Add(resourcesRow);
 			}
 
+			// Resource spawner actors (MINE/GMINE)
+			var resourceActors = new JArray(
+				world.ActorsHavingTrait<SeedsResource>()
+					.Where(a => a.IsInWorld && !a.IsDead)
+					.Select(a => new JObject
+					{
+						["type"] = a.Info.Name,
+						["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
+						["resourceType"] = a.Info.TraitInfo<SeedsResourceInfo>().ResourceType,
+						["x"] = a.Location.X,
+						["y"] = a.Location.Y
+					}).ToArray()
+			);
+
+			// Oil wells / cash trickler buildings
+			var oilWells = new JArray(
+				world.ActorsHavingTrait<CashTrickler>()
+					.Where(a => a.IsInWorld && !a.IsDead)
+					.Select(a => new JObject
+					{
+						["type"] = a.Info.Name,
+						["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
+						["owner"] = a.Owner?.InternalName ?? "Neutral",
+						["x"] = a.Location.X,
+						["y"] = a.Location.Y
+					}).ToArray()
+			);
+
 			var result = new JObject
 			{
 				["MapWidth"] = width,
@@ -1269,7 +1309,9 @@ namespace OpenRA.Mods.Common.Commands
 				["IsExplored"] = isExploredArray,
 				["Terrain"] = terrainArray,
 				["ResourcesType"] = resourcesTypeArray,
-				["Resources"] = resourcesArray
+				["Resources"] = resourcesArray,
+				["resourceActors"] = resourceActors,
+				["oilWells"] = oilWells
 			};
 
 			return result;
@@ -1322,7 +1364,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static JObject PlayerBaseInfoQueryCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var playerRes = player.PlayerActor.Trait<PlayerResources>();
 			var powerManager = player.PlayerActor.Trait<PowerManager>();
 			if (playerRes == null || powerManager == null)
@@ -1378,7 +1420,7 @@ namespace OpenRA.Mods.Common.Commands
 
 		public static JObject QueryProductionQueueCommand(JObject json, World world)
 		{
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 
 			// 获取队列类型
 			var queueType = json.TryGetFieldValue("queueType")?.ToString();
@@ -1465,7 +1507,7 @@ namespace OpenRA.Mods.Common.Commands
 			var scoreService = world.WorldActor.TraitOrDefault<CopilotScoreService>();
 			if (scoreService == null)
 				throw new ArgumentException("ScoreService or ControlPoint manager not found");
-			var player = world.LocalPlayer;
+			var player = ResolvePlayer(json, world);
 			var enemyPlayer = world.Players.FirstOrDefault(p => p != player && !p.NonCombatant);
 			var remainingTime = scoreService.RemainingTime;
 			if (remainingTime < 0) remainingTime = 0;
@@ -1480,6 +1522,28 @@ namespace OpenRA.Mods.Common.Commands
 			return result;
 		}
 
+
+		public static JObject QueryPlayersCommand(JObject json, World world)
+		{
+			var players = world.Players
+				.Where(p => !p.NonCombatant)
+				.Select(p => new JObject
+				{
+					["internalName"] = p.InternalName,
+					["clientIndex"] = p.ClientIndex,
+					["faction"] = p.Faction.InternalName,
+					["isBot"] = p.IsBot,
+					["team"] = p.PlayerReference.Team,
+					["color"] = p.Color.ToString(),
+					["isLocalPlayer"] = p == world.LocalPlayer
+				}).ToArray();
+
+			var result = new JObject
+			{
+				["players"] = new JArray(players)
+			};
+			return result;
+		}
 
 		public void WorldLoaded(World w, WorldRenderer wr)
 		{
@@ -1514,6 +1578,7 @@ namespace OpenRA.Mods.Common.Commands
 				w.CopilotServer.QueryHandlers["player_baseinfo_query"] = PlayerBaseInfoQueryCommand;
 				w.CopilotServer.QueryHandlers["screen_info_query"] = ScreenInfoQueryCommand;
 				w.CopilotServer.QueryHandlers["ping"] = PingCommand;
+				w.CopilotServer.QueryHandlers["query_players"] = QueryPlayersCommand;
 
 				CopilotsConfig.LoadConfig();
 				CopilotsUtils.WaitInit();

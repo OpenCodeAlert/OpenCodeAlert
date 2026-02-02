@@ -272,6 +272,25 @@ namespace OpenRA
 			Console.WriteLine($"[{timestamp}] [ERROR] CopilotCommandServer: {message}");
 		}
 
+		Player ResolvePlayer(MCPRequest request)
+		{
+			if (string.IsNullOrEmpty(request.PlayerId))
+				return world.LocalPlayer;
+
+			// Try as ClientIndex (integer)
+			if (int.TryParse(request.PlayerId, out var clientIndex))
+			{
+				var byIndex = world.Players.FirstOrDefault(p => p.ClientIndex == clientIndex && !p.NonCombatant);
+				if (byIndex != null) return byIndex;
+			}
+
+			// Try as InternalName (e.g. "Multi0", "Multi1")
+			var byName = world.Players.FirstOrDefault(p => p.InternalName == request.PlayerId);
+			if (byName != null) return byName;
+
+			return world.LocalPlayer;
+		}
+
 		async Task HandleClient(Socket clientSocket)
 		{
 			using (clientSocket)
@@ -345,6 +364,12 @@ namespace OpenRA
 						SendErrorResponse(clientSocket, paramsError, null, DebugMode);
 						return;
 					}
+
+					// 解析玩家身份并注入到 Params
+					var resolvedPlayer = ResolvePlayer(request);
+					if (request.Params == null)
+						request.Params = new JObject();
+					request.Params["__playerId"] = resolvedPlayer.InternalName;
 
 					// 处理命令
 					if (CommandHandlers.TryGetValue(request.Command, out var commandHandler))
