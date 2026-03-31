@@ -1,8 +1,7 @@
-using OpenRA.Graphics;
-using OpenRA.Traits;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Graphics;
+using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common
 {
@@ -78,7 +77,7 @@ namespace OpenRA.Mods.Common
 
 		public ControlPoint? GetControlPoint(string name)
 		{
-			return ControlPoints.ContainsKey(name) ? ControlPoints[name] : (ControlPoint?)null;
+			return ControlPoints.ContainsKey(name) ? ControlPoints[name] : null;
 		}
 
 		public bool ShouldRefreshBuffs(string name)
@@ -89,6 +88,5 @@ namespace OpenRA.Mods.Common
 			var cp = ControlPoints[name];
 			return !cp.HasBuffs;
 		}
-
 	}
 }
