@@ -185,19 +185,19 @@ namespace OpenRA
 					try
 					{
 						var clientSocket = await serverSocket.AcceptAsync();
-						LogInfo("接受新的客户端连接");
+						LogDebug("接受新的客户端连接");
 						
 						// 使用Task.Run来并发处理客户端，避免阻塞Accept循环
 						_ = Task.Run(() => HandleClientSafely(clientSocket));
 					}
-					catch (SocketException ex) when (!isRunning)
+					catch (SocketException) when (!isRunning)
 					{
-						LogInfo("服务器正在停止，退出Accept循环");
+						LogDebug("服务器正在停止，退出Accept循环");
 						break;
 					}
 					catch (ObjectDisposedException) when (!isRunning)
 					{
-						LogInfo("Socket已被释放，退出Accept循环");
+						LogDebug("Socket已被释放，退出Accept循环");
 						break;
 					}
 					catch (SocketException ex)
@@ -264,6 +264,15 @@ namespace OpenRA
 		{
 			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 			Console.WriteLine($"[{timestamp}] [INFO] CopilotCommandServer: {message}");
+		}
+
+		private void LogDebug(string message)
+		{
+			if (!DebugMode)
+				return;
+
+			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			Console.WriteLine($"[{timestamp}] [DEBUG] CopilotCommandServer: {message}");
 		}
 
 		private void LogError(string message)
