@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace OpenRA
 {
@@ -22,9 +23,9 @@ namespace OpenRA
 		public bool DebugMode { get; set; } = false;
 
 		// 重连相关配置
-		private const int MaxRetryAttempts = 5;
-		private const int RetryDelayMs = 1000; // 初始重试延迟
-		private int currentRetryCount = 0;
+		const int MaxRetryAttempts = 5;
+		const int RetryDelayMs = 1000; // 初始重试延迟
+		int currentRetryCount = 0;
 
 		// 统计记录器接口
 		public interface IGameStatsRecorder
@@ -106,7 +107,7 @@ namespace OpenRA
 			}
 
 			var messageTemplate = ErrorMessages[errorCode][language];
-			return string.Format(messageTemplate, args);
+			return string.Format(CultureInfo.InvariantCulture, messageTemplate, args);
 		}
 
 		public CopilotCommandServer(int port, World world)
@@ -126,7 +127,7 @@ namespace OpenRA
 			_ = Task.Run(() => StartServerLoop());
 		}
 
-		private async Task StartServerLoop()
+		async Task StartServerLoop()
 		{
 			while (isRunning)
 			{
@@ -138,7 +139,7 @@ namespace OpenRA
 				catch (Exception ex)
 				{
 					LogError($"服务器启动失败: {ex.Message}");
-					
+
 					if (!isRunning)
 						break;
 
@@ -156,7 +157,7 @@ namespace OpenRA
 			}
 		}
 
-		private async Task StartServerInternal()
+		async Task StartServerInternal()
 		{
 			// 清理之前的socket
 			try
@@ -172,7 +173,7 @@ namespace OpenRA
 			// 创建新的socket
 			serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-			
+
 			try
 			{
 				serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
@@ -186,7 +187,7 @@ namespace OpenRA
 					{
 						var clientSocket = await serverSocket.AcceptAsync();
 						LogDebug("接受新的客户端连接");
-						
+
 						// 使用Task.Run来并发处理客户端，避免阻塞Accept循环
 						_ = Task.Run(() => HandleClientSafely(clientSocket));
 					}
@@ -238,7 +239,7 @@ namespace OpenRA
 		}
 
 		// 安全的客户端处理方法，包含完整的异常处理
-		private async Task HandleClientSafely(Socket clientSocket)
+		async Task HandleClientSafely(Socket clientSocket)
 		{
 			try
 			{
@@ -260,25 +261,50 @@ namespace OpenRA
 		}
 
 		// 日志记录方法
-		private void LogInfo(string message)
+		static string FormatTimestamp()
 		{
-			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+		}
+
+		static void LogInfo(string message)
+		{
+			var timestamp = FormatTimestamp();
 			Console.WriteLine($"[{timestamp}] [INFO] CopilotCommandServer: {message}");
 		}
 
-		private void LogDebug(string message)
+		void LogDebug(string message)
 		{
 			if (!DebugMode)
 				return;
 
-			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			var timestamp = FormatTimestamp();
 			Console.WriteLine($"[{timestamp}] [DEBUG] CopilotCommandServer: {message}");
 		}
 
-		private void LogError(string message)
+		static void LogError(string message)
 		{
-			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			var timestamp = FormatTimestamp();
 			Console.WriteLine($"[{timestamp}] [ERROR] CopilotCommandServer: {message}");
+		}
+
+		static JObject BuildExceptionDetail(Exception ex, bool isDebug)
+		{
+			var data = ex.Data?.Cast<System.Collections.DictionaryEntry>()
+				.ToDictionary(
+					entry => entry.Key?.ToString() ?? "(null)",
+					entry => entry.Value?.ToString() ?? "(null)")
+				?? new Dictionary<string, string>();
+
+			return new JObject
+			{
+				["type"] = ex.GetType().FullName,
+				["message"] = ex.Message,
+				["stack"] = ex.StackTrace ?? string.Empty,
+				["toString"] = ex.ToString(),
+				["inner"] = ex.InnerException?.ToString(),
+				["data"] = new JObject(data),
+				["isDebug"] = isDebug,
+			};
 		}
 
 		Player ResolvePlayer(MCPRequest request)
@@ -376,8 +402,7 @@ namespace OpenRA
 
 					// 解析玩家身份并注入到 Params
 					var resolvedPlayer = ResolvePlayer(request);
-					if (request.Params == null)
-						request.Params = new JObject();
+					request.Params ??= new JObject();
 					request.Params["__playerId"] = resolvedPlayer.InternalName;
 
 					// 处理命令
@@ -393,20 +418,7 @@ namespace OpenRA
 						}
 						catch (Exception ex)
 						{
-							var detail = new JObject
-							{
-								["type"] = ex.GetType().FullName,
-								["message"] = ex.Message,
-								["stack"] = ex.StackTrace ?? "",
-								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
-								["inner"] = ex.InnerException?.ToString(),
-								["data"] = new JObject(
-			ex.Data?.Cast<System.Collections.DictionaryEntry>()
-				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
-			?? new Dictionary<string, string>()
-		),
-								["isDebug"] = DebugMode
-							};
+							var detail = BuildExceptionDetail(ex, DebugMode);
 
 							SendErrorResponse(clientSocket, new MCPError
 							{
@@ -428,20 +440,8 @@ namespace OpenRA
 						}
 						catch (Exception ex)
 						{
-							var detail = new JObject
-							{
-								["type"] = ex.GetType().FullName,
-								["message"] = ex.Message,
-								["stack"] = ex.StackTrace ?? "",
-								["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
-								["inner"] = ex.InnerException?.ToString(),
-								["data"] = new JObject(
-			ex.Data?.Cast<System.Collections.DictionaryEntry>()
-				.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
-			?? new Dictionary<string, string>()
-		),
-								["isDebug"] = DebugMode
-							};
+							var detail = BuildExceptionDetail(ex, DebugMode);
+
 							SendErrorResponse(clientSocket, new MCPError
 							{
 								Code = MCPErrorCodes.CommandExecutionError,
@@ -462,23 +462,10 @@ namespace OpenRA
 				catch (Exception ex)
 				{
 					LogError($"HandleClient中发生未处理的异常: {ex.Message}");
-					
+
 					try
 					{
-						var detail = new JObject
-								{
-									["type"] = ex.GetType().FullName,
-									["message"] = ex.Message,
-									["stack"] = ex.StackTrace ?? "",
-									["toString"] = ex.ToString(),                   // 含类型+堆栈，优先看这个
-									["inner"] = ex.InnerException?.ToString(),
-									["data"] = new JObject(
-				ex.Data?.Cast<System.Collections.DictionaryEntry>()
-					.ToDictionary(d => d.Key?.ToString() ?? "(null)", d => d.Value?.ToString() ?? "(null)")
-				?? new Dictionary<string, string>()
-			),
-									["isDebug"] = DebugMode
-								};
+						var detail = BuildExceptionDetail(ex, DebugMode);
 						SendErrorResponse(clientSocket, new MCPError
 						{
 							Code = MCPErrorCodes.InternalError,
@@ -508,7 +495,7 @@ namespace OpenRA
 
 				var responseJson = JsonConvert.SerializeObject(response);
 				var buffer = Encoding.UTF8.GetBytes(responseJson);
-				
+
 				if (clientSocket.Connected)
 				{
 					_ = clientSocket.Send(buffer);
@@ -545,7 +532,7 @@ namespace OpenRA
 
 				var responseJson = JsonConvert.SerializeObject(response);
 				var buffer = Encoding.UTF8.GetBytes(responseJson);
-				
+
 				if (clientSocket.Connected)
 				{
 					_ = clientSocket.Send(buffer);

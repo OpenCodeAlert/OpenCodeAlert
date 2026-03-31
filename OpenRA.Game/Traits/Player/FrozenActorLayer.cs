@@ -391,12 +391,13 @@ namespace OpenRA.Traits
 
 			// 6. 返回
 			return inRange;
-			// Target ranges are calculated in 2D, so ignore height differences
-			//return partitionedFrozenActorIds.InBox(Rectangle.FromLTRB(tl.X, tl.Y, br.X, br.Y))
-			//	.Select(FromID)
-			//	.Where(fa => fa.IsValid &&
-			//		(!onlyVisible || fa.Visible) &&
-			//		(fa.CenterPosition - origin).HorizontalLengthSquared <= r.LengthSquared);
+
+			// Target ranges are calculated in 2D, so ignore height differences.
+			// return partitionedFrozenActorIds.InBox(Rectangle.FromLTRB(tl.X, tl.Y, br.X, br.Y))
+			// 	.Select(FromID)
+			// 	.Where(fa => fa.IsValid &&
+			// 		(!onlyVisible || fa.Visible) &&
+			// 		(fa.CenterPosition - origin).HorizontalLengthSquared <= r.LengthSquared);
 		}
 	}
 }

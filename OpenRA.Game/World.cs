@@ -250,8 +250,10 @@ namespace OpenRA
 
 			if (Type == WorldType.Regular)
 			{
-				CopilotServer = new CopilotCommandServer(gameSettings.CopilotPort, this);
-				CopilotServer.DebugMode = gameSettings.CopilotDebug;
+				CopilotServer = new CopilotCommandServer(gameSettings.CopilotPort, this)
+				{
+					DebugMode = gameSettings.CopilotDebug
+				};
 				CopilotServer.Start();
 			}
 		}
@@ -609,7 +611,6 @@ namespace OpenRA
 
 		public void Dispose()
 		{
-
 			foreach (var t in WorldActor.TraitsImplementing<IEndGame>())
 				t.EndGame(this);
 
