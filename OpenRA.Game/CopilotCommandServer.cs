@@ -326,156 +326,201 @@ namespace OpenRA
 			return world.LocalPlayer;
 		}
 
+		static bool TryExtractCompleteMessage(string payload, out string message)
+		{
+			message = null;
+			if (string.IsNullOrWhiteSpace(payload))
+				return false;
+
+			var newlineIndex = payload.IndexOf('\n');
+			var candidate = newlineIndex >= 0 ? payload.Substring(0, newlineIndex).TrimEnd('\r') : payload.Trim();
+			if (string.IsNullOrWhiteSpace(candidate))
+				return false;
+
+			try
+			{
+				_ = JsonConvert.DeserializeObject(candidate);
+				message = candidate;
+				return true;
+			}
+			catch (JsonException)
+			{
+				return false;
+			}
+		}
+
+		static async Task<string> ReceiveMessageAsync(Socket clientSocket)
+		{
+			var buffer = new byte[16384];
+			var builder = new StringBuilder();
+
+			while (true)
+			{
+				var received = await clientSocket.ReceiveAsync(buffer, SocketFlags.None);
+				if (received == 0)
+				{
+					if (builder.Length == 0)
+						return null;
+
+					return builder.ToString().Trim();
+				}
+
+				builder.Append(Encoding.UTF8.GetString(buffer, 0, received));
+				if (TryExtractCompleteMessage(builder.ToString(), out var message))
+					return message;
+			}
+		}
+
 		async Task HandleClient(Socket clientSocket)
 		{
 			using (clientSocket)
 			{
-				try
+				while (true)
 				{
-					if (clientSocket == null)
-					{
-						throw new ArgumentException("clientSocket Uninit");
-					}
-
-					var buffer = new byte[16384];
-					var received = await clientSocket.ReceiveAsync(buffer, SocketFlags.None);
-					var jsonString = Encoding.UTF8.GetString(buffer, 0, received);
-
-					// 只在调试模式下打印接收到的数据
-					if (DebugMode)
-					{
-						Console.WriteLine("=== 接收到的数据 ===");
-						Console.WriteLine(CustomJsonFormat(jsonString));
-						Console.WriteLine("==================");
-					}
-
-					MCPRequest request;
 					try
 					{
-						request = JsonConvert.DeserializeObject<MCPRequest>(jsonString);
-					}
-					catch (JsonException)
-					{
-						SendErrorResponse(clientSocket, new MCPError
+						if (clientSocket == null)
+							throw new ArgumentException("clientSocket Uninit");
+
+						var jsonString = await ReceiveMessageAsync(clientSocket);
+						if (string.IsNullOrWhiteSpace(jsonString))
+							return;
+
+						// 只在调试模式下打印接收到的数据
+						if (DebugMode)
 						{
-							Code = MCPErrorCodes.InvalidRequest,
-							Message = GetErrorMessage("INVALID_REQUEST", "zh")
-						}, null, DebugMode);
-						return;
-					}
+							Console.WriteLine("=== 接收到的数据 ===");
+							Console.WriteLine(CustomJsonFormat(jsonString));
+							Console.WriteLine("==================");
+						}
 
-					// 使用请求中的语言或默认为中文
-					var language = request.Language ?? "zh";
-					if (language is not "en" and not "zh")
-					{
-						language = "zh"; // 如果不是支持的语言，默认使用中文
-					}
-
-					// 验证请求
-					var (isValid, validationError) = MCPValidator.ValidateRequest(request);
-					if (!isValid)
-					{
-						validationError.Message = GetErrorMessage(validationError.Code, language);
-						SendErrorResponse(clientSocket, validationError, null, DebugMode);
-						return;
-					}
-
-					// 验证API版本
-					if (request.ApiVersion != CurrentApiVersion)
-					{
-						SendErrorResponse(clientSocket, new MCPError
-						{
-							Code = MCPErrorCodes.InvalidVersion,
-							Message = GetErrorMessage("INVALID_VERSION", language, CurrentApiVersion)
-						}, null, DebugMode);
-						return;
-					}
-
-					// 验证命令参数
-					var (isParamsValid, paramsError) = MCPValidator.ValidateCommandParams(request.Command, request.Params);
-					if (!isParamsValid)
-					{
-						paramsError.Message = GetErrorMessage(paramsError.Code, language);
-						SendErrorResponse(clientSocket, paramsError, null, DebugMode);
-						return;
-					}
-
-					// 解析玩家身份并注入到 Params
-					var resolvedPlayer = ResolvePlayer(request);
-					request.Params ??= new JObject();
-					request.Params["__playerId"] = resolvedPlayer.InternalName;
-
-					// 处理命令
-					if (CommandHandlers.TryGetValue(request.Command, out var commandHandler))
-					{
+						MCPRequest request;
 						try
 						{
-							// 记录API调用统计
-							StatsRecorder?.RecordApiCall(request.Command, false);
-
-							var result = commandHandler?.Invoke(request.Params, world);
-							SendSuccessResponse(clientSocket, result, request.RequestId, null, DebugMode);
+							request = JsonConvert.DeserializeObject<MCPRequest>(jsonString);
 						}
-						catch (Exception ex)
+						catch (JsonException)
 						{
-							var detail = BuildExceptionDetail(ex, DebugMode);
-
 							SendErrorResponse(clientSocket, new MCPError
 							{
-								Code = MCPErrorCodes.CommandExecutionError,
-								Message = GetErrorMessage("COMMAND_EXECUTION_ERROR", language),
-								Details = detail
+								Code = MCPErrorCodes.InvalidRequest,
+								Message = GetErrorMessage("INVALID_REQUEST", "zh")
+							}, null, DebugMode);
+							continue;
+						}
+
+						// 使用请求中的语言或默认为中文
+						var language = request.Language ?? "zh";
+						if (language is not "en" and not "zh")
+							language = "zh"; // 如果不是支持的语言，默认使用中文
+
+						// 验证请求
+						var (isValid, validationError) = MCPValidator.ValidateRequest(request);
+						if (!isValid)
+						{
+							validationError.Message = GetErrorMessage(validationError.Code, language);
+							SendErrorResponse(clientSocket, validationError, null, DebugMode);
+							continue;
+						}
+
+						// 验证API版本
+						if (request.ApiVersion != CurrentApiVersion)
+						{
+							SendErrorResponse(clientSocket, new MCPError
+							{
+								Code = MCPErrorCodes.InvalidVersion,
+								Message = GetErrorMessage("INVALID_VERSION", language, CurrentApiVersion)
+							}, null, DebugMode);
+							continue;
+						}
+
+						// 验证命令参数
+						var (isParamsValid, paramsError) = MCPValidator.ValidateCommandParams(request.Command, request.Params);
+						if (!isParamsValid)
+						{
+							paramsError.Message = GetErrorMessage(paramsError.Code, language);
+							SendErrorResponse(clientSocket, paramsError, null, DebugMode);
+							continue;
+						}
+
+						// 解析玩家身份并注入到 Params
+						var resolvedPlayer = ResolvePlayer(request);
+						request.Params ??= new JObject();
+						request.Params["__playerId"] = resolvedPlayer.InternalName;
+
+						// 处理命令
+						if (CommandHandlers.TryGetValue(request.Command, out var commandHandler))
+						{
+							try
+							{
+								// 记录API调用统计
+								StatsRecorder?.RecordApiCall(request.Command, false);
+
+								var result = commandHandler?.Invoke(request.Params, world);
+								SendSuccessResponse(clientSocket, result, request.RequestId, null, DebugMode);
+							}
+							catch (Exception ex)
+							{
+								var detail = BuildExceptionDetail(ex, DebugMode);
+
+								SendErrorResponse(clientSocket, new MCPError
+								{
+									Code = MCPErrorCodes.CommandExecutionError,
+									Message = GetErrorMessage("COMMAND_EXECUTION_ERROR", language),
+									Details = detail
+								}, request.RequestId, DebugMode);
+							}
+						}
+						else if (QueryHandlers.TryGetValue(request.Command, out var queryHandler))
+						{
+							try
+							{
+								// 记录API调用统计
+								StatsRecorder?.RecordApiCall(request.Command, true);
+
+								var resultJson = queryHandler?.Invoke(request.Params, world);
+								SendSuccessResponse(clientSocket, null, request.RequestId, resultJson, DebugMode);
+							}
+							catch (Exception ex)
+							{
+								var detail = BuildExceptionDetail(ex, DebugMode);
+
+								SendErrorResponse(clientSocket, new MCPError
+								{
+									Code = MCPErrorCodes.CommandExecutionError,
+									Message = GetErrorMessage("QUERY_EXECUTION_ERROR", language),
+									Details = detail
+								}, request.RequestId, DebugMode);
+							}
+						}
+						else
+						{
+							SendErrorResponse(clientSocket, new MCPError
+							{
+								Code = MCPErrorCodes.InvalidCommand,
+								Message = GetErrorMessage("INVALID_COMMAND", language)
 							}, request.RequestId, DebugMode);
 						}
 					}
-					else if (QueryHandlers.TryGetValue(request.Command, out var queryHandler))
+					catch (Exception ex)
 					{
+						LogError($"HandleClient中发生未处理的异常: {ex.Message}");
+
 						try
 						{
-							// 记录API调用统计
-							StatsRecorder?.RecordApiCall(request.Command, true);
-
-							var resultJson = queryHandler?.Invoke(request.Params, world);
-							SendSuccessResponse(clientSocket, null, request.RequestId, resultJson, DebugMode);
-						}
-						catch (Exception ex)
-						{
 							var detail = BuildExceptionDetail(ex, DebugMode);
-
 							SendErrorResponse(clientSocket, new MCPError
 							{
-								Code = MCPErrorCodes.CommandExecutionError,
-								Message = GetErrorMessage("QUERY_EXECUTION_ERROR", language),
+								Code = MCPErrorCodes.InternalError,
+								Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
 								Details = detail
-							}, request.RequestId, DebugMode);
+							}, null, DebugMode);
 						}
-					}
-					else
-					{
-						SendErrorResponse(clientSocket, new MCPError
+						catch (Exception sendEx)
 						{
-							Code = MCPErrorCodes.InvalidCommand,
-							Message = GetErrorMessage("INVALID_COMMAND", language)
-						}, request.RequestId, DebugMode);
-					}
-				}
-				catch (Exception ex)
-				{
-					LogError($"HandleClient中发生未处理的异常: {ex.Message}");
-
-					try
-					{
-						var detail = BuildExceptionDetail(ex, DebugMode);
-						SendErrorResponse(clientSocket, new MCPError
-						{
-							Code = MCPErrorCodes.InternalError,
-							Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
-							Details = detail
-						}, null, DebugMode);
-					}
-					catch (Exception sendEx)
-					{
-						LogError($"发送错误响应时失败: {sendEx.Message}");
+							LogError($"发送错误响应时失败: {sendEx.Message}");
+							return;
+						}
 					}
 				}
 			}
@@ -493,7 +538,7 @@ namespace OpenRA
 					Data = data
 				};
 
-				var responseJson = JsonConvert.SerializeObject(response);
+				var responseJson = JsonConvert.SerializeObject(response) + "\n";
 				var buffer = Encoding.UTF8.GetBytes(responseJson);
 
 				if (clientSocket.Connected)
@@ -505,7 +550,7 @@ namespace OpenRA
 				if (debugMode)
 				{
 					Console.WriteLine("=== 发送成功响应 ===");
-					Console.WriteLine(CustomJsonFormat(responseJson));
+					Console.WriteLine(CustomJsonFormat(responseJson.TrimEnd()));
 					Console.WriteLine("==================");
 				}
 			}
@@ -530,7 +575,7 @@ namespace OpenRA
 					Error = error
 				};
 
-				var responseJson = JsonConvert.SerializeObject(response);
+				var responseJson = JsonConvert.SerializeObject(response) + "\n";
 				var buffer = Encoding.UTF8.GetBytes(responseJson);
 
 				if (clientSocket.Connected)
@@ -542,7 +587,7 @@ namespace OpenRA
 				if (debugMode)
 				{
 					Console.WriteLine("=== 发送错误响应 ===");
-					Console.WriteLine(CustomJsonFormat(responseJson));
+					Console.WriteLine(CustomJsonFormat(responseJson.TrimEnd()));
 					Console.WriteLine("==================");
 				}
 			}
