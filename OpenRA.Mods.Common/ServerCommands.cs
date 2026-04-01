@@ -813,10 +813,16 @@ namespace OpenRA.Mods.Common.Commands
 			if (validBuildings.Count == 0)
 				throw new ArgumentException($"玩家没有类型为 {queueType} 的生产队列建筑");
 
+			var ownerActorId = json.TryGetFieldValue("ownerActorId")?.ToObject<int?>();
+			var itemName = json.TryGetFieldValue("itemName")?.ToObject<string>();
+			var count = json.TryGetFieldValue("count")?.ToObject<int?>() ?? 1;
+
 			// 查找有生产项目的队列
-			var activeBuilding = validBuildings.FirstOrDefault(b => b.Queue.AllQueued().Any());
+			var activeBuilding = ownerActorId.HasValue
+				? validBuildings.FirstOrDefault(b => (int)b.Actor.ActorID == ownerActorId.Value)
+				: validBuildings.FirstOrDefault(b => b.Queue.AllQueued().Any());
 			if (activeBuilding == null)
-				return "没有正在进行的生产任务";
+				return ownerActorId.HasValue ? $"未找到 ownerActorId={ownerActorId.Value} 的生产队列建筑" : "没有正在进行的生产任务";
 
 			var targetQueue = activeBuilding.Queue;
 			var building = activeBuilding.Actor;
@@ -826,10 +832,14 @@ namespace OpenRA.Mods.Common.Commands
 			if (queuedItems.Count == 0)
 				return "生产队列为空";
 
-			// 获取队列中第一个项目
-			var firstItem = queuedItems.First();
+			// 默认使用队列中的第一个项目；如果指定 itemName，则对该 item 操作
+			var firstItem = !string.IsNullOrEmpty(itemName)
+				? queuedItems.FirstOrDefault(i => i.Item == itemName)
+				: queuedItems.First();
 			if (firstItem == null)
-				return "生产队列为空";
+				return !string.IsNullOrEmpty(itemName)
+					? $"生产队列中没有项目: {CopilotsConfig.GetChineseByConfigName(itemName)}"
+					: "生产队列为空";
 
 			// 获取操作类型
 			var action = json.TryGetFieldValue("action")?.ToString();
@@ -873,9 +883,9 @@ namespace OpenRA.Mods.Common.Commands
 						Factory = "CancelProduction",
 						SubjectActorId = (int)building.ActorID,
 						FactoryItem = firstItem.Item,
-						FactoryCount = 1
+						FactoryCount = count
 					});
-					return $"已取消生产: {CopilotsConfig.GetChineseByConfigName(firstItem.Item)}";
+					return $"已取消生产: {CopilotsConfig.GetChineseByConfigName(firstItem.Item)} x{count}";
 
 				default:
 					throw new ArgumentException("无效的action参数，必须是 'pause', 'cancel', 或 'resume'");
@@ -902,14 +912,18 @@ namespace OpenRA.Mods.Common.Commands
 			if (validBuildings.Count == 0)
 				throw new ArgumentException($"玩家没有类型为 {queueType} 的生产队列建筑");
 
-			// 查找有就绪项目的队列
-			var buildingActor = validBuildings.FirstOrDefault().Actor;
-			ProductionQueue queue = validBuildings.FirstOrDefault().Queue;
-			var readyBuilding = queue.AllQueued().Any(item => item.Done);
-			if (!readyBuilding)
-				return "没有就绪的建筑可以放置";
+			var ownerActorId = json.TryGetFieldValue("ownerActorId")?.ToObject<int?>();
+			var targetBuilding = ownerActorId.HasValue
+				? validBuildings.FirstOrDefault(b => (int)b.Actor.ActorID == ownerActorId.Value)
+				: validBuildings.FirstOrDefault(b => b.Queue.AllQueued().Any(item => item.Done));
+			if (targetBuilding == null)
+				return ownerActorId.HasValue ? $"ownerActorId={ownerActorId.Value} 队列中没有就绪建筑" : "没有就绪的建筑可以放置";
 
-			var readyItem = queue.AllQueued().First(item => item.Done);
+			var buildingActor = targetBuilding.Actor;
+			ProductionQueue queue = targetBuilding.Queue;
+			var readyItem = queue.AllQueued().FirstOrDefault(item => item.Done);
+			if (readyItem == null)
+				return ownerActorId.HasValue ? $"ownerActorId={ownerActorId.Value} 队列中没有就绪建筑" : "没有就绪的建筑可以放置";
 
 			// 获取放置位置
 			var locationToken = json.TryGetFieldValue("location");
