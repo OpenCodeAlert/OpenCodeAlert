@@ -33,10 +33,32 @@ namespace OpenRA.Mods.Common.Commands
 		public static Player ResolvePlayer(JObject json, World world)
 		{
 			var playerId = json?.TryGetFieldValue("__playerId")?.ToString();
-			if (string.IsNullOrEmpty(playerId))
+			if (!string.IsNullOrEmpty(playerId))
+			{
+				var byName = world.Players.FirstOrDefault(p => p.InternalName == playerId && IsPlayerContextValid(p));
+				if (byName != null)
+					return byName;
+			}
+
+			if (IsPlayerContextValid(world.LocalPlayer))
 				return world.LocalPlayer;
-			var player = world.Players.FirstOrDefault(p => p.InternalName == playerId);
-			return player ?? world.LocalPlayer;
+
+			if (IsPlayerContextValid(world.RenderPlayer))
+				return world.RenderPlayer;
+
+			var fallback = world.Players.FirstOrDefault(p => !p.NonCombatant && IsPlayerContextValid(p));
+			if (fallback != null)
+				return fallback;
+
+			throw new InvalidOperationException("No valid in-world player context available.");
+		}
+
+		static bool IsPlayerContextValid(Player player)
+		{
+			return player != null
+				&& player.PlayerActor != null
+				&& !player.PlayerActor.Disposed
+				&& player.PlayerActor.IsInWorld;
 		}
 
 		public static List<Actor> GetTargets(JToken targets, World world, Player player)

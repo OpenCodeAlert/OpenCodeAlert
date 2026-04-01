@@ -309,21 +309,39 @@ namespace OpenRA
 
 		Player ResolvePlayer(MCPRequest request)
 		{
-			if (string.IsNullOrEmpty(request.PlayerId))
-				return world.LocalPlayer;
-
-			// Try as ClientIndex (integer)
-			if (int.TryParse(request.PlayerId, out var clientIndex))
+			if (!string.IsNullOrEmpty(request.PlayerId))
 			{
-				var byIndex = world.Players.FirstOrDefault(p => p.ClientIndex == clientIndex && !p.NonCombatant);
-				if (byIndex != null) return byIndex;
+				// Try as ClientIndex (integer)
+				if (int.TryParse(request.PlayerId, out var clientIndex))
+				{
+					var byIndex = world.Players.FirstOrDefault(p => p.ClientIndex == clientIndex && !p.NonCombatant && IsPlayerContextValid(p));
+					if (byIndex != null) return byIndex;
+				}
+
+				// Try as InternalName (e.g. "Multi0", "Multi1")
+				var byName = world.Players.FirstOrDefault(p => p.InternalName == request.PlayerId && IsPlayerContextValid(p));
+				if (byName != null) return byName;
 			}
 
-			// Try as InternalName (e.g. "Multi0", "Multi1")
-			var byName = world.Players.FirstOrDefault(p => p.InternalName == request.PlayerId);
-			if (byName != null) return byName;
+			if (IsPlayerContextValid(world.LocalPlayer))
+				return world.LocalPlayer;
 
-			return world.LocalPlayer;
+			if (IsPlayerContextValid(world.RenderPlayer))
+				return world.RenderPlayer;
+
+			var fallback = world.Players.FirstOrDefault(p => !p.NonCombatant && IsPlayerContextValid(p));
+			if (fallback != null)
+				return fallback;
+
+			throw new InvalidOperationException("No valid in-world player context available.");
+		}
+
+		static bool IsPlayerContextValid(Player player)
+		{
+			return player != null
+				&& player.PlayerActor != null
+				&& !player.PlayerActor.Disposed
+				&& player.PlayerActor.IsInWorld;
 		}
 
 		static bool TryExtractCompleteMessage(string payload, out string message)
