@@ -262,7 +262,7 @@ class GameAPI:
         except Exception as e:
             raise GameAPIError("PRODUCE_QUERY_ERROR", "查询生产能力时发生错误: {0}".format(str(e)))
 
-    def produce(self, unit_type: str, quantity: int, auto_place_building: bool = False) -> Optional[int]:
+    def produce(self, unit_type: str, quantity: int, auto_place_building: bool = True) -> Optional[int]:
         '''生产指定数量的Actor
 
         Args:
