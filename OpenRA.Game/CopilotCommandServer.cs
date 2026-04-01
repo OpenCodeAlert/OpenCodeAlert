@@ -21,6 +21,7 @@ namespace OpenRA
 
 		// 添加调试模式开关
 		public bool DebugMode { get; set; } = false;
+		public bool TraceTraffic { get; set; } = false;
 
 		// 重连相关配置
 		const int MaxRetryAttempts = 5;
@@ -404,8 +405,8 @@ namespace OpenRA
 						if (string.IsNullOrWhiteSpace(jsonString))
 							return;
 
-						// 只在调试模式下打印接收到的数据
-						if (DebugMode)
+						// 只在显式开启 traffic trace 时打印收包内容
+						if (TraceTraffic)
 						{
 							Console.WriteLine("=== 接收到的数据 ===");
 							Console.WriteLine(CustomJsonFormat(jsonString));
@@ -423,7 +424,7 @@ namespace OpenRA
 							{
 								Code = MCPErrorCodes.InvalidRequest,
 								Message = GetErrorMessage("INVALID_REQUEST", "zh")
-							}, null, DebugMode);
+							}, null, TraceTraffic);
 							continue;
 						}
 
@@ -437,7 +438,7 @@ namespace OpenRA
 						if (!isValid)
 						{
 							validationError.Message = GetErrorMessage(validationError.Code, language);
-							SendErrorResponse(clientSocket, validationError, null, DebugMode);
+							SendErrorResponse(clientSocket, validationError, null, TraceTraffic);
 							continue;
 						}
 
@@ -448,7 +449,7 @@ namespace OpenRA
 							{
 								Code = MCPErrorCodes.InvalidVersion,
 								Message = GetErrorMessage("INVALID_VERSION", language, CurrentApiVersion)
-							}, null, DebugMode);
+							}, null, TraceTraffic);
 							continue;
 						}
 
@@ -457,7 +458,7 @@ namespace OpenRA
 						if (!isParamsValid)
 						{
 							paramsError.Message = GetErrorMessage(paramsError.Code, language);
-							SendErrorResponse(clientSocket, paramsError, null, DebugMode);
+							SendErrorResponse(clientSocket, paramsError, null, TraceTraffic);
 							continue;
 						}
 
@@ -475,7 +476,7 @@ namespace OpenRA
 								StatsRecorder?.RecordApiCall(request.Command, false);
 
 								var result = commandHandler?.Invoke(request.Params, world);
-								SendSuccessResponse(clientSocket, result, request.RequestId, null, DebugMode);
+								SendSuccessResponse(clientSocket, result, request.RequestId, null, TraceTraffic);
 							}
 							catch (Exception ex)
 							{
@@ -486,7 +487,7 @@ namespace OpenRA
 									Code = MCPErrorCodes.CommandExecutionError,
 									Message = GetErrorMessage("COMMAND_EXECUTION_ERROR", language),
 									Details = detail
-								}, request.RequestId, DebugMode);
+								}, request.RequestId, TraceTraffic);
 							}
 						}
 						else if (QueryHandlers.TryGetValue(request.Command, out var queryHandler))
@@ -497,7 +498,7 @@ namespace OpenRA
 								StatsRecorder?.RecordApiCall(request.Command, true);
 
 								var resultJson = queryHandler?.Invoke(request.Params, world);
-								SendSuccessResponse(clientSocket, null, request.RequestId, resultJson, DebugMode);
+								SendSuccessResponse(clientSocket, null, request.RequestId, resultJson, TraceTraffic);
 							}
 							catch (Exception ex)
 							{
@@ -508,7 +509,7 @@ namespace OpenRA
 									Code = MCPErrorCodes.CommandExecutionError,
 									Message = GetErrorMessage("QUERY_EXECUTION_ERROR", language),
 									Details = detail
-								}, request.RequestId, DebugMode);
+								}, request.RequestId, TraceTraffic);
 							}
 						}
 						else
@@ -517,7 +518,7 @@ namespace OpenRA
 							{
 								Code = MCPErrorCodes.InvalidCommand,
 								Message = GetErrorMessage("INVALID_COMMAND", language)
-							}, request.RequestId, DebugMode);
+							}, request.RequestId, TraceTraffic);
 						}
 					}
 					catch (Exception ex)
@@ -532,7 +533,7 @@ namespace OpenRA
 								Code = MCPErrorCodes.InternalError,
 								Message = GetErrorMessage("INTERNAL_ERROR", "zh"),
 								Details = detail
-							}, null, DebugMode);
+							}, null, TraceTraffic);
 						}
 						catch (Exception sendEx)
 						{
@@ -564,7 +565,7 @@ namespace OpenRA
 					_ = clientSocket.Send(buffer);
 				}
 
-				// 只在调试模式下打印发送的数据
+				// 只在显式开启 traffic trace 时打印发包内容
 				if (debugMode)
 				{
 					Console.WriteLine("=== 发送成功响应 ===");
@@ -601,7 +602,7 @@ namespace OpenRA
 					_ = clientSocket.Send(buffer);
 				}
 
-				// 只在调试模式下打印发送的数据
+				// 只在显式开启 traffic trace 时打印发包内容
 				if (debugMode)
 				{
 					Console.WriteLine("=== 发送错误响应 ===");

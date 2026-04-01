@@ -252,7 +252,8 @@ namespace OpenRA
 			{
 				CopilotServer = new CopilotCommandServer(gameSettings.CopilotPort, this)
 				{
-					DebugMode = gameSettings.CopilotDebug
+					DebugMode = gameSettings.CopilotDebug,
+					TraceTraffic = gameSettings.CopilotTraceTraffic
 				};
 				CopilotServer.Start();
 			}

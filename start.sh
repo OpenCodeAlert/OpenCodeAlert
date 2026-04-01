@@ -4,7 +4,7 @@
 mod="Game.Mod=copilot"
 loadsave="Game.LoadSave=None"
 port="Game.CopilotPort=7445"
-debug="Game.CopilotDebug=True"
+debug="Game.CopilotDebug=False"
 
 # 标记参数是否已提供
 has_mod=false

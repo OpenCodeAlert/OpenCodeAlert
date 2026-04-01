@@ -310,6 +310,9 @@ namespace OpenRA
 
 		[Desc("Enable debug mode for Copilot command server to log all received and sent JSON data.")]
 		public bool CopilotDebug = false;
+
+		[Desc("Enable verbose request/response traffic dumps for the Copilot command server.")]
+		public bool CopilotTraceTraffic = false;
 	}
 
 	public class Settings
