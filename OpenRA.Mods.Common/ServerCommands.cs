@@ -906,7 +906,7 @@ namespace OpenRA.Mods.Common.Commands
 			var buildingActor = validBuildings.FirstOrDefault().Actor;
 			ProductionQueue queue = validBuildings.FirstOrDefault().Queue;
 			var readyBuilding = queue.AllQueued().Any(item => item.Done);
-			if (readyBuilding == null)
+			if (!readyBuilding)
 				return "没有就绪的建筑可以放置";
 
 			var readyItem = queue.AllQueued().First(item => item.Done);
@@ -922,7 +922,8 @@ namespace OpenRA.Mods.Common.Commands
 
 			if (location == null)
 			{
-				CopilotsUtils.TryBuildIntent(world, readyItem.Item, player.PlayerActor, queue);
+				if (!CopilotsUtils.TryBuildIntent(world, readyItem.Item, player.PlayerActor, queue))
+					throw new InvalidOperationException($"无法自动放置建筑: {CopilotsConfig.GetChineseByConfigName(readyItem.Item)}");
 				return $"已尝试自动放置建筑: {CopilotsConfig.GetChineseByConfigName(readyItem.Item)}";
 			}
 

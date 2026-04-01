@@ -207,7 +207,7 @@ namespace OpenRA.Mods.Common
 		}
 
 		// 和 TryBuild 逻辑相同，但通过主线程 Intent 派发放置命令
-		public static void TryBuildIntent(World world, string buildingName, Actor building, ProductionQueue queue)
+		public static bool TryBuildIntent(World world, string buildingName, Actor building, ProductionQueue queue)
 		{
 			var type = BuildingType.Building;
 			CPos? location = null;
@@ -218,7 +218,7 @@ namespace OpenRA.Mods.Common
 
 			var bi = actorInfo.TraitInfoOrDefault<BuildingInfo>();
 			if (bi == null)
-				return;
+				return false;
 			(CPos? Location, int Variant) FindPos(CPos center, CPos target, int minRange, int maxRange)
 			{
 				var actorVariantLocal = 0;
@@ -387,7 +387,10 @@ namespace OpenRA.Mods.Common
 					ExtraData = (int)queue.Actor.ActorID,
 					SuppressVisualFeedback = true
 				});
+				return true;
 			}
+
+			return false;
 		}
 
 		public static bool IsVisibleInViewport(WorldRenderer worldRenderer, WPos position)
