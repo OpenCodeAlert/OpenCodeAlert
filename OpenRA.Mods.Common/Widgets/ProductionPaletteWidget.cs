@@ -406,8 +406,6 @@ namespace OpenRA.Mods.Common.Widgets
 
 		bool HandleEvent(ProductionIcon icon, MouseButton btn, Modifiers modifiers)
 		{
-			if (Game.Settings.Game.IsAgentMode)
-				return true;
 			var startCount = modifiers.HasModifier(Modifiers.Shift) ? 5 : 1;
 
 			// PERF: avoid an unnecessary enumeration by casting back to its known type

@@ -4,12 +4,9 @@ Player:
 		DefaultCash: 8000
 
 World:
-	CopilotScoreService:
-		TimeLimit: 10500
-	CopilotControlPoint:
 	-CrateSpawner:
 	LuaScript:
-		Scripts: campaign.lua, utils.lua, copilot-fin.lua
+		Scripts: campaign.lua, utils.lua
 
 CAMERA:
 	RevealsShroud:

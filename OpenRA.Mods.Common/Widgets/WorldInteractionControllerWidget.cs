@@ -90,9 +90,6 @@ namespace OpenRA.Mods.Common.Widgets
 
 			if (World.OrderGenerator is not UnitOrderGenerator uog)
 			{
-				// ��AgentMode�������
-				if (Game.Settings.Game.IsAgentMode)
-					return true;
 				ApplyOrders(World, mi);
 				isDragging = false;
 				YieldMouseFocus(mi);
@@ -114,8 +111,6 @@ namespace OpenRA.Mods.Common.Widgets
 					!IsValidDragbox && World.Selection.Actors.Count != 0 &&
 					!multiClick && uog.InputOverridesSelection(World, mousePos, mi))
 				{
-					if (Game.Settings.Game.IsAgentMode)
-						return true;
 					// Order units instead of selecting
 					ApplyOrders(World, mi);
 					isDragging = false;
@@ -137,8 +132,7 @@ namespace OpenRA.Mods.Common.Widgets
 						{
 							// Select actors on the screen that have the same selection class as the actor under the mouse cursor
 							var newSelection = SelectionUtils.SelectActorsOnScreen(World, worldRenderer, new HashSet<string> { s.Class }, eligiblePlayers);
-							if (!Game.Settings.Game.IsAgentMode)
-								World.Selection.Combine(World, newSelection, true, false);
+							World.Selection.Combine(World, newSelection, true, false);
 						}
 					}
 				}
@@ -156,8 +150,7 @@ namespace OpenRA.Mods.Common.Widgets
 					if (isDragging && (uog.ClearSelectionOnLeftClick || IsValidDragbox))
 					{
 						var newSelection = SelectionUtils.SelectActorsInBoxWithDeadzone(World, dragStart, mousePos, mi.Modifiers);
-						if (!Game.Settings.Game.IsAgentMode)
-							World.Selection.Combine(World, newSelection, mi.Modifiers.HasModifier(Modifiers.Shift), dragStart == mousePos);
+						World.Selection.Combine(World, newSelection, mi.Modifiers.HasModifier(Modifiers.Shift), dragStart == mousePos);
 					}
 				}
 
@@ -169,15 +162,13 @@ namespace OpenRA.Mods.Common.Widgets
 
 			if (mi.Button == MouseButton.Right && mi.Event == MouseInputEvent.Up)
 			{
-				if (Game.Settings.Game.IsAgentMode)
-					return true;
 				// Don't do anything while selecting
 				if (!IsValidDragbox)
 				{
 					if (useClassicMouseStyle)
 						World.Selection.Clear();
-					if (!Game.Settings.Game.IsAgentMode)
-						ApplyOrders(World, mi);
+
+					ApplyOrders(World, mi);
 				}
 			}
 
