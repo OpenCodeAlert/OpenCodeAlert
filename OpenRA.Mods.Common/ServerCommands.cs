@@ -1555,55 +1555,53 @@ namespace OpenRA.Mods.Common.Commands
 			return result;
 		}
 
-		public static JObject QueryControlPointsCommand(JObject json, World world)
+		public static JObject QueryProducibleItemsCommand(JObject json, World world)
 		{
-			var controlPointManager = world.WorldActor.TraitOrDefault<CopilotControlPoint>();
-			if (controlPointManager == null)
-				throw new ArgumentException("ControlPoint manager not found");
-
-			var controlPoints = controlPointManager.GetAllControlPoints();
-			var controlPointsInfo = controlPoints.Select(cp => new JObject
-			{
-				["name"] = cp.Name,
-				["x"] = cp.X,
-				["y"] = cp.Y,
-				["hasBuffs"] = cp.HasBuffs,
-				["buffs"] = new JArray(cp.Buffs.Select(buff => new JObject
-				{
-					["unitType"] = buff.UnitType,
-					["buffType"] = buff.BuffType,
-					["buffName"] = buff.BuffName
-				}).ToArray())
-			}).ToArray();
-
-			var result = new JObject
-			{
-				["controlPoints"] = new JArray(controlPointsInfo)
-			};
-
-			return result;
-		}
-
-		public static JObject QueryMatchInfoCommand(JObject json, World world)
-		{
-			var scoreService = world.WorldActor.TraitOrDefault<CopilotScoreService>();
-			if (scoreService == null)
-				throw new ArgumentException("ScoreService or ControlPoint manager not found");
 			var player = ResolvePlayer(json, world);
-			var enemyPlayer = world.Players.FirstOrDefault(p => p != player && !p.NonCombatant);
-			var remainingTime = scoreService.RemainingTime;
-			if (remainingTime < 0) remainingTime = 0;
+			var result = new JObject();
 
-			var result = new JObject
+			var queues = world.ActorsWithTrait<ProductionQueue>()
+				.Where(a => a.Actor.Owner == player && !a.Actor.IsDead && a.Trait.Enabled)
+				.Select(a => a.Trait)
+				.ToList();
+
+			var grouped = new Dictionary<string, JArray>();
+			var seen = new Dictionary<string, HashSet<string>>();
+
+			foreach (var queue in queues)
 			{
-				["selfScore"] = scoreService.GetScore(player),
-				["enemyScore"] = scoreService.GetScore(enemyPlayer),
-				["remainingTime"] = $"{remainingTime / 25:D2}:{remainingTime % 25:D2}"
+				var queueType = queue.Info.Type;
+				if (!grouped.ContainsKey(queueType))
+				{
+					grouped[queueType] = new JArray();
+					seen[queueType] = new HashSet<string>();
+				}
 
-			};
+				foreach (var item in queue.BuildableItems())
+				{
+					var name = item.Name.ToLowerInvariant();
+					if (!seen[queueType].Add(name))
+						continue;
+
+					var valued = item.TraitInfoOrDefault<ValuedInfo>();
+					var buildable = item.TraitInfoOrDefault<BuildableInfo>();
+
+					var entry = new JObject
+					{
+						["name"] = name,
+						["display_name"] = CopilotsConfig.GetChineseByConfigName(name),
+						["cost"] = valued?.Cost ?? 0,
+						["queue"] = queueType,
+					};
+					grouped[queueType].Add(entry);
+				}
+			}
+
+			foreach (var kv in grouped)
+				result[kv.Key] = kv.Value;
+
 			return result;
 		}
-
 
 		public static JObject QueryPlayersCommand(JObject json, World world)
 		{
@@ -1652,8 +1650,7 @@ namespace OpenRA.Mods.Common.Commands
 				w.CopilotServer.QueryHandlers["query_path"] = PathQueryCommand;
 				w.CopilotServer.QueryHandlers["query_can_produce"] = QueryCanProduceCommand;
 				w.CopilotServer.QueryHandlers["query_production_queue"] = QueryProductionQueueCommand;
-				w.CopilotServer.QueryHandlers["query_control_points"] = QueryControlPointsCommand;
-				w.CopilotServer.QueryHandlers["match_info_query"] = QueryMatchInfoCommand;
+				w.CopilotServer.QueryHandlers["query_producible_items"] = QueryProducibleItemsCommand;
 				w.CopilotServer.QueryHandlers["map_query"] = MapQueryCommand;
 				w.CopilotServer.QueryHandlers["fog_query"] = FogQueryCommand;
 				w.CopilotServer.QueryHandlers["unit_attribute_query"] = UnitAttributeQueryCommand;
