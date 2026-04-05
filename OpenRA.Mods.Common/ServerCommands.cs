@@ -1273,83 +1273,128 @@ namespace OpenRA.Mods.Common.Commands
 			var width = map.MapSize.X - 2;
 			var height = map.MapSize.Y - 2;
 
-			// 初始化二维数组
-			var heightArray = new JArray();
-			var isVisibleArray = new JArray();
-			var isExploredArray = new JArray();
-			var terrainArray = new JArray();
-			var resourcesTypeArray = new JArray();
-			var resourcesArray = new JArray();
+			// Optional field filter — when set, only requested fields are returned.
+			HashSet<string> fields = null;
+			var fieldsToken = json["params"]?["fields"] as JArray;
+			if (fieldsToken != null)
+				fields = new HashSet<string>(fieldsToken.Select(t => t.ToString()));
 
+			var needHeight = fields == null || fields.Contains("Height");
+			var needIsVisible = fields == null || fields.Contains("IsVisible");
+			var needIsExplored = fields == null || fields.Contains("IsExplored");
+			var needTerrain = fields == null || fields.Contains("Terrain");
+			var needResourcesType = fields == null || fields.Contains("ResourcesType");
+			var needResources = fields == null || fields.Contains("Resources");
+			var needIsExploredPacked = fields != null && fields.Contains("IsExplored_packed");
+			var needIsVisiblePacked = fields != null && fields.Contains("IsVisible_packed");
+
+			// Always compute explored_pct (almost free during traversal).
+			var exploredCount = 0;
+			var totalCells = width * height;
+
+			// Bitpack arrays: each int holds 32 bools.
+			int[] exploredPacked = needIsExploredPacked ? new int[(totalCells + 31) / 32] : null;
+			int[] visiblePacked = needIsVisiblePacked ? new int[(totalCells + 31) / 32] : null;
+
+			// 2D arrays — only allocate when needed.
+			JArray heightArray = needHeight ? new JArray() : null;
+			JArray isVisibleArray = needIsVisible ? new JArray() : null;
+			JArray isExploredArray = needIsExplored ? new JArray() : null;
+			JArray terrainArray = needTerrain ? new JArray() : null;
+			JArray resourcesTypeArray = needResourcesType ? new JArray() : null;
+			JArray resourcesArray = needResources ? new JArray() : null;
+
+			var bitIdx = 0;
 			for (var x = 1; x <= width; x++)
 			{
-				var heightRow = new JArray();
-				var isVisibleRow = new JArray();
-				var isExploredRow = new JArray();
-				var terrainRow = new JArray();
-				var resourcesTypeRow = new JArray();
-				var resourcesRow = new JArray();
+				JArray heightRow = needHeight ? new JArray() : null;
+				JArray isVisibleRow = needIsVisible ? new JArray() : null;
+				JArray isExploredRow = needIsExplored ? new JArray() : null;
+				JArray terrainRow = needTerrain ? new JArray() : null;
+				JArray resourcesTypeRow = needResourcesType ? new JArray() : null;
+				JArray resourcesRow = needResources ? new JArray() : null;
 
 				for (var y = 1; y <= height; y++)
 				{
 					var pos = new CPos(x, y);
-					heightRow.Add(map.Height[pos]);
-					isVisibleRow.Add(player.Shroud.IsVisible(pos));
-					isExploredRow.Add(player.Shroud.IsExplored(pos));
-					terrainRow.Add(map.Tiles[pos].Type);
-					resourcesTypeRow.Add(map.Resources[pos].Type);
-					resourcesRow.Add(map.Resources[pos].Index);
+					var explored = player.Shroud.IsExplored(pos);
+					if (explored) exploredCount++;
+
+					if (needHeight) heightRow.Add(map.Height[pos]);
+					if (needIsVisible)
+					{
+						var vis = player.Shroud.IsVisible(pos);
+						isVisibleRow.Add(vis);
+					}
+					if (needIsExplored) isExploredRow.Add(explored);
+					if (needTerrain) terrainRow.Add(map.Tiles[pos].Type);
+					if (needResourcesType) resourcesTypeRow.Add(map.Resources[pos].Type);
+					if (needResources) resourcesRow.Add(map.Resources[pos].Index);
+
+					if (needIsExploredPacked && explored)
+						exploredPacked[bitIdx / 32] |= 1 << (bitIdx % 32);
+					if (needIsVisiblePacked && player.Shroud.IsVisible(pos))
+						visiblePacked[bitIdx / 32] |= 1 << (bitIdx % 32);
+					bitIdx++;
 				}
 
-				heightArray.Add(heightRow);
-				isVisibleArray.Add(isVisibleRow);
-				isExploredArray.Add(isExploredRow);
-				terrainArray.Add(terrainRow);
-				resourcesTypeArray.Add(resourcesTypeRow);
-				resourcesArray.Add(resourcesRow);
+				if (needHeight) heightArray.Add(heightRow);
+				if (needIsVisible) isVisibleArray.Add(isVisibleRow);
+				if (needIsExplored) isExploredArray.Add(isExploredRow);
+				if (needTerrain) terrainArray.Add(terrainRow);
+				if (needResourcesType) resourcesTypeArray.Add(resourcesTypeRow);
+				if (needResources) resourcesArray.Add(resourcesRow);
 			}
-
-			// Resource spawner actors (MINE/GMINE)
-			var resourceActors = new JArray(
-				world.ActorsHavingTrait<SeedsResource>()
-					.Where(a => a.IsInWorld && !a.IsDead)
-					.Select(a => new JObject
-					{
-						["type"] = a.Info.Name,
-						["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
-						["resourceType"] = a.Info.TraitInfo<SeedsResourceInfo>().ResourceType,
-						["x"] = a.Location.X,
-						["y"] = a.Location.Y
-					}).ToArray()
-			);
-
-			// Oil wells / cash trickler buildings
-			var oilWells = new JArray(
-				world.ActorsHavingTrait<CashTrickler>()
-					.Where(a => a.IsInWorld && !a.IsDead)
-					.Select(a => new JObject
-					{
-						["type"] = a.Info.Name,
-						["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
-						["owner"] = a.Owner?.InternalName ?? "Neutral",
-						["x"] = a.Location.X,
-						["y"] = a.Location.Y
-					}).ToArray()
-			);
 
 			var result = new JObject
 			{
 				["MapWidth"] = width,
 				["MapHeight"] = height,
-				["Height"] = heightArray,
-				["IsVisible"] = isVisibleArray,
-				["IsExplored"] = isExploredArray,
-				["Terrain"] = terrainArray,
-				["ResourcesType"] = resourcesTypeArray,
-				["Resources"] = resourcesArray,
-				["resourceActors"] = resourceActors,
-				["oilWells"] = oilWells
+				["explored_pct"] = totalCells > 0 ? (double)exploredCount / totalCells : 0.0,
 			};
+
+			if (needHeight) result["Height"] = heightArray;
+			if (needIsVisible) result["IsVisible"] = isVisibleArray;
+			if (needIsExplored) result["IsExplored"] = isExploredArray;
+			if (needTerrain) result["Terrain"] = terrainArray;
+			if (needResourcesType) result["ResourcesType"] = resourcesTypeArray;
+			if (needResources) result["Resources"] = resourcesArray;
+			if (needIsExploredPacked) result["IsExplored_packed"] = new JArray(exploredPacked);
+			if (needIsVisiblePacked) result["IsVisible_packed"] = new JArray(visiblePacked);
+
+			// Resource spawner actors (MINE/GMINE)
+			if (fields == null || fields.Contains("resourceActors"))
+			{
+				result["resourceActors"] = new JArray(
+					world.ActorsHavingTrait<SeedsResource>()
+						.Where(a => a.IsInWorld && !a.IsDead)
+						.Select(a => new JObject
+						{
+							["type"] = a.Info.Name,
+							["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
+							["resourceType"] = a.Info.TraitInfo<SeedsResourceInfo>().ResourceType,
+							["x"] = a.Location.X,
+							["y"] = a.Location.Y
+						}).ToArray()
+				);
+			}
+
+			// Oil wells / cash trickler buildings
+			if (fields == null || fields.Contains("oilWells"))
+			{
+				result["oilWells"] = new JArray(
+					world.ActorsHavingTrait<CashTrickler>()
+						.Where(a => a.IsInWorld && !a.IsDead)
+						.Select(a => new JObject
+						{
+							["type"] = a.Info.Name,
+							["displayName"] = CopilotsConfig.GetChineseByConfigName(a.Info.Name),
+							["owner"] = a.Owner?.InternalName ?? "Neutral",
+							["x"] = a.Location.X,
+							["y"] = a.Location.Y
+						}).ToArray()
+				);
+			}
 
 			return result;
 		}
