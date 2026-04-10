@@ -668,7 +668,7 @@ namespace OpenRA.Mods.Common.Commands
 				.ToArray();
 
 			if (capturers.ToList().Count == 0)
-				return "No Capturer";
+				throw new InvalidOperationException("No capturer available for occupy command");
 
 			var capturableTargetOptions = targets
 				.Where(target =>
@@ -683,7 +683,7 @@ namespace OpenRA.Mods.Common.Commands
 
 			var capturableTargetOptionsList = capturableTargetOptions.ToList();
 			if (capturableTargetOptionsList.Count == 0)
-				return "No Target Can Be Capture";
+				throw new InvalidOperationException("No capturable target available for occupy command");
 			foreach (var capturer in capturers)
 			{
 				var targetActor = capturableTargetOptionsList.ClosestToWithPathFrom(capturer.Actor);
@@ -696,7 +696,7 @@ namespace OpenRA.Mods.Common.Commands
 					SubjectActorId = (int)capturer.Actor.ActorID,
 					TargetA = TargetSpec.FromActorId((int)targetActor.ActorID),
 					TargetB = TargetSpec.None(),
-					Queued = true
+					Queued = false
 				});
 			}
 
