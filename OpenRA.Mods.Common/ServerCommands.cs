@@ -1122,6 +1122,22 @@ namespace OpenRA.Mods.Common.Commands
 					var health = actor.TraitOrDefault<Health>();
 					var activity = actor.CurrentActivity;
 					var lastOrder = actor.TraitOrDefault<TrackLastResolvedOrder>();
+					var isDisabled = actor.HasCondition("disabled");
+					var isPoweredDown = actor.HasCondition("powerdown");
+					var hasLowPower = actor.HasCondition("lowpower");
+					var hasPowerOutage = actor.HasCondition("power-outage");
+					var disabledReason = "";
+					if (isDisabled)
+					{
+						if (isPoweredDown)
+							disabledReason = "powerdown";
+						else if (hasLowPower)
+							disabledReason = "lowpower";
+						else if (hasPowerOutage)
+							disabledReason = "power-outage";
+						else
+							disabledReason = "disabled";
+					}
 					return new JObject
 					{
 						["id"] = actor.ActorID,
@@ -1135,6 +1151,11 @@ namespace OpenRA.Mods.Common.Commands
 						["activity"] = activity != null ? activity.DebugLabelComponents().JoinWith(".") : "",
 						// OpenRA 默认不提供“当前 order”的直接读取，这里返回最近一次 ResolveOrder 记录到 trait 的值
 						["order"] = lastOrder?.LastOrderLabel ?? "",
+						["isDisabled"] = isDisabled,
+						["isPoweredDown"] = isPoweredDown,
+						["hasLowPower"] = hasLowPower,
+						["hasPowerOutage"] = hasPowerOutage,
+						["disabledReason"] = disabledReason,
 						["position"] = new JObject
 						{
 							["x"] = actor.Location.X,

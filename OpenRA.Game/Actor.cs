@@ -601,6 +601,21 @@ namespace OpenRA
 			return conditionTokens.ContainsKey(token);
 		}
 
+		/// <summary>Returns the current stack count for a granted condition.</summary>
+		public int ConditionValue(string condition)
+		{
+			if (string.IsNullOrEmpty(condition))
+				return 0;
+
+			return conditionCache.TryGetValue(condition, out var value) ? value : 0;
+		}
+
+		/// <summary>Returns whether the actor currently has the specified condition.</summary>
+		public bool HasCondition(string condition)
+		{
+			return ConditionValue(condition) > 0;
+		}
+
 		#endregion
 
 		#region Scripting interface
